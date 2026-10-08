@@ -30,7 +30,9 @@ EXERCICES = [
     {"rubrique": "exercices", "tag": "Exercice 1.1", "level": "Niveau 1", "title": "Force, moment et couple",
      "mots": ["Force", "Bras de levier", "Moment", "Couple", "Unités"], "vign": "carte-force-moment.jpg",
      "alt": "Force F appliquée à une distance du point O", "page": "force-moment.html",
-     "source": "force-moment-source.html", "ancre": '<div class="wrap">', "avant": False, "css": ""},
+     "source": "force-moment-source.html",
+     # page construite sur le gabarit (src/construire_force_moment.py) : lien de retour sur l'écran d'accueil et en tête du sujet
+     "ancres": [('<div class="home-inner">', False), ('<main class="page">', False)], "css": ""},
 ]
 # Cartes « en cours d'édition » : (rubrique, étiquette, niveau, titre, mots-clés)
 ENCOURS = [
@@ -170,9 +172,9 @@ def page_exercice(e):
     i = s.index("</head>")  # la première : une autre figure dans un script (fenêtre d'impression)
     assert i < s.index("<body"), f"{e['source']} : </head> introuvable avant <body>"
     s = s[:i] + css + "\n" + s[i:]
-    anchor = e["ancre"]
-    assert s.count(anchor) == 1, f"{e['source']} : ancre introuvable ou multiple"
-    s = s.replace(anchor, retour + anchor if e.get("avant", True) else anchor + retour)
+    for anchor, avant in e["ancres"]:
+        assert s.count(anchor) == 1, f"{e['source']} : ancre introuvable ou multiple ({anchor})"
+        s = s.replace(anchor, retour + anchor if avant else anchor + retour)
     return s
 
 

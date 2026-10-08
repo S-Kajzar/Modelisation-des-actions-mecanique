@@ -11,7 +11,10 @@
        3. décrire chaque question dans __QCFG__ et chaque tracé dans __SKCFG__ ;
        4. décrire les parties et leurs durées dans __PARTS__ (la durée fixe
           la pondération) ;
-       5. ajouter une entrée DECOR et DR_NAMES par fond de tracé.
+       5. ajouter une entrée DECOR et DR_NAMES par fond de tracé ;
+       6. la MÉTHODE (onglet METH, classe training-only) est une aide réservée
+          au mode entraînement : le mode examen n'y donne aucun accès. Tout
+          élément portant la classe training-only disparaît en mode examen.
      NE PAS MODIFIER : le bloc <style>, le moteur Grading et le moteur
      applicatif — ils portent la charte graphique et toute la mécanique
      (modes, chronomètre, notation pondérée, impression, tracés).
@@ -421,6 +424,19 @@ body:not(.mode-training) .only-training,body:not(.mode-exam) .only-exam{display:
 
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 </style>
+<style>/* EXTENSIONS du gabarit (additives : le bloc de style ci-dessus n'est pas modifié) */
+/* Méthode : aide du mode entraînement, jamais accessible en mode examen (ni onglet, ni bouton, ni puce) */
+.mode-exam .training-only{display:none!important}
+.tab.meth{font-size:.78rem; letter-spacing:-.02em; padding-left:0}
+.doc-text ol,.doc-text ul{padding-left:1.2rem}
+.doc-text li{margin:.3rem 0}
+/* figure insérée dans une partie ; largeur maximale donnée en ligne (style="max-width:…") */
+.q-fig{margin:10px 0 6px}
+.q-fig img{width:100%; height:auto; border:1px solid var(--trait-fin); background:#fff}
+/* sous-partie d'une partie */
+.sub-head{margin:22px 0 4px; padding:6px 12px; background:#EEF0EC; border-left:5px solid var(--jaune); font:700 1.05rem var(--f-titre)}
+.sub-head+p{margin-top:6px}
+</style>
 </head>
 <body class="no-mode">
 
@@ -429,6 +445,9 @@ body:not(.mode-training) .only-training,body:not(.mode-exam) .only-exam{display:
   <button type="button" class="tab" data-doc="DP1" aria-selected="false" title="Présentation">DP1</button>
   <div class="grp" aria-hidden="true"></div>
   <button type="button" class="tab dt" data-doc="DT1" aria-selected="false" title="Document technique">DT1</button>
+  <div class="grp" aria-hidden="true"></div>
+  <!-- MÉTHODE : aide réservée au mode entraînement (classe training-only) ; absente en mode examen -->
+  <button type="button" class="tab meth training-only" data-doc="METH" aria-selected="false" title="Méthode (mode entraînement uniquement)">Méthode</button>
 </nav>
 
 <aside id="docpanel" aria-label="Documents du sujet" aria-hidden="true">
@@ -442,6 +461,7 @@ body:not(.mode-training) .only-training,body:not(.mode-exam) .only-exam{display:
   <div class="dp-tabs" role="tablist" aria-label="Choisir un document">
     <button type="button" data-doc="DP1" aria-selected="false">DP1</button>
     <button type="button" data-doc="DT1" aria-selected="false">DT1</button>
+    <button type="button" class="training-only" data-doc="METH" aria-selected="false">Méthode</button>
   </div>
   <div class="dp-body">
     <section class="doc" id="doc-DP1" data-title="DP1 : [intitulé]" data-kind="Dossier présentation">
@@ -449,6 +469,9 @@ body:not(.mode-training) .only-training,body:not(.mode-exam) .only-exam{display:
     </section>
     <section class="doc" id="doc-DT1" data-title="DT1 : [intitulé]" data-kind="Dossier technique">
       <img class="doc-img" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5MDAiIGhlaWdodD0iNTYwIj48cmVjdCB3aWR0aD0iOTAwIiBoZWlnaHQ9IjU2MCIgZmlsbD0iI2ZmZiIvPjxnIHN0cm9rZT0iI0QzRDhENSIgc3Ryb2tlLXdpZHRoPSIxIj48bGluZSB4MT0iMCIgeTE9IjAiIHgyPSIwIiB5Mj0iNTYwIi8+PGxpbmUgeDE9IjQwIiB5MT0iMCIgeDI9IjQwIiB5Mj0iNTYwIi8+PGxpbmUgeDE9IjgwIiB5MT0iMCIgeDI9IjgwIiB5Mj0iNTYwIi8+PGxpbmUgeDE9IjEyMCIgeTE9IjAiIHgyPSIxMjAiIHkyPSI1NjAiLz48bGluZSB4MT0iMTYwIiB5MT0iMCIgeDI9IjE2MCIgeTI9IjU2MCIvPjxsaW5lIHgxPSIyMDAiIHkxPSIwIiB4Mj0iMjAwIiB5Mj0iNTYwIi8+PGxpbmUgeDE9IjI0MCIgeTE9IjAiIHgyPSIyNDAiIHkyPSI1NjAiLz48bGluZSB4MT0iMjgwIiB5MT0iMCIgeDI9IjI4MCIgeTI9IjU2MCIvPjxsaW5lIHgxPSIzMjAiIHkxPSIwIiB4Mj0iMzIwIiB5Mj0iNTYwIi8+PGxpbmUgeDE9IjM2MCIgeTE9IjAiIHgyPSIzNjAiIHkyPSI1NjAiLz48bGluZSB4MT0iNDAwIiB5MT0iMCIgeDI9IjQwMCIgeTI9IjU2MCIvPjxsaW5lIHgxPSI0NDAiIHkxPSIwIiB4Mj0iNDQwIiB5Mj0iNTYwIi8+PGxpbmUgeDE9IjQ4MCIgeTE9IjAiIHgyPSI0ODAiIHkyPSI1NjAiLz48bGluZSB4MT0iNTIwIiB5MT0iMCIgeDI9IjUyMCIgeTI9IjU2MCIvPjxsaW5lIHgxPSI1NjAiIHkxPSIwIiB4Mj0iNTYwIiB5Mj0iNTYwIi8+PGxpbmUgeDE9IjYwMCIgeTE9IjAiIHgyPSI2MDAiIHkyPSI1NjAiLz48bGluZSB4MT0iNjQwIiB5MT0iMCIgeDI9IjY0MCIgeTI9IjU2MCIvPjxsaW5lIHgxPSI2ODAiIHkxPSIwIiB4Mj0iNjgwIiB5Mj0iNTYwIi8+PGxpbmUgeDE9IjcyMCIgeTE9IjAiIHgyPSI3MjAiIHkyPSI1NjAiLz48bGluZSB4MT0iNzYwIiB5MT0iMCIgeDI9Ijc2MCIgeTI9IjU2MCIvPjxsaW5lIHgxPSI4MDAiIHkxPSIwIiB4Mj0iODAwIiB5Mj0iNTYwIi8+PGxpbmUgeDE9Ijg0MCIgeTE9IjAiIHgyPSI4NDAiIHkyPSI1NjAiLz48bGluZSB4MT0iODgwIiB5MT0iMCIgeDI9Ijg4MCIgeTI9IjU2MCIvPjxsaW5lIHgxPSIwIiB5MT0iMCIgeDI9IjkwMCIgeTI9IjAiLz48bGluZSB4MT0iMCIgeTE9IjQwIiB4Mj0iOTAwIiB5Mj0iNDAiLz48bGluZSB4MT0iMCIgeTE9IjgwIiB4Mj0iOTAwIiB5Mj0iODAiLz48bGluZSB4MT0iMCIgeTE9IjEyMCIgeDI9IjkwMCIgeTI9IjEyMCIvPjxsaW5lIHgxPSIwIiB5MT0iMTYwIiB4Mj0iOTAwIiB5Mj0iMTYwIi8+PGxpbmUgeDE9IjAiIHkxPSIyMDAiIHgyPSI5MDAiIHkyPSIyMDAiLz48bGluZSB4MT0iMCIgeTE9IjI0MCIgeDI9IjkwMCIgeTI9IjI0MCIvPjxsaW5lIHgxPSIwIiB5MT0iMjgwIiB4Mj0iOTAwIiB5Mj0iMjgwIi8+PGxpbmUgeDE9IjAiIHkxPSIzMjAiIHgyPSI5MDAiIHkyPSIzMjAiLz48bGluZSB4MT0iMCIgeTE9IjM2MCIgeDI9IjkwMCIgeTI9IjM2MCIvPjxsaW5lIHgxPSIwIiB5MT0iNDAwIiB4Mj0iOTAwIiB5Mj0iNDAwIi8+PGxpbmUgeDE9IjAiIHkxPSI0NDAiIHgyPSI5MDAiIHkyPSI0NDAiLz48bGluZSB4MT0iMCIgeTE9IjQ4MCIgeDI9IjkwMCIgeTI9IjQ4MCIvPjxsaW5lIHgxPSIwIiB5MT0iNTIwIiB4Mj0iOTAwIiB5Mj0iNTIwIi8+PGxpbmUgeDE9IjAiIHkxPSI1NjAiIHgyPSI5MDAiIHkyPSI1NjAiLz48L2c+PHJlY3QgeD0iLjUiIHk9Ii41IiB3aWR0aD0iODk5IiBoZWlnaHQ9IjU1OSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjQTVBREFBIi8+PHRleHQgeD0iNDUwIiB5PSIzMDAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjI2IiBmaWxsPSIjQTVBREFBIj5Gb25kIGR1IGRvY3VtZW50IHLDqXBvbnNlIChpbWFnZSBkdSBEUik8L3RleHQ+PC9zdmc+" alt="[Description du document technique]" width="900" height="560">
+    </section>
+    <section class="doc training-only" id="doc-METH" data-title="Méthode : [intitulé]" data-kind="Rappel de méthode · mode entraînement">
+      <div class="doc-text"><h3>[Titre de la méthode]</h3><ol><li>[Étape 1 de la méthode, sans donner la réponse d'une question.]</li><li>[Étape 2.]</li></ol></div>
     </section>
   </div>
 </aside>
@@ -697,7 +720,7 @@ body:not(.mode-training) .only-training,body:not(.mode-exam) .only-exam{display:
   <div class="timer-block"><div class="lab">Temps</div><div class="timer" id="timer-val">0:00:00</div></div>
   <div class="count" id="score-count" aria-live="polite"></div>
   <div class="spacer"></div>
-  <button type="button" class="btn-docs" id="btn-docs">Documents</button>
+  <button type="button" class="btn-docs training-only" id="btn-docs">Documents</button>
 </footer>
 
 <!-- CONFIGURATION DU SUJET : la seule partie à réécrire pour un nouvel exercice -->
@@ -990,7 +1013,7 @@ if (typeof module !== "undefined") module.exports = Grading;
   var dirty = false;
   var MODE = null;                     // "training" | "exam"
   var graded = false;                  // copie corrigée (toujours vrai en entraînement)
-  var CONSEIL_MIN = 300;
+  var CONSEIL_MIN = PARTS.reduce(function (s, p) { return s + p.minutes; }, 0);
 
   function $(s, r) { return (r || document).querySelector(s); }
   function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
@@ -1673,6 +1696,7 @@ if (typeof module !== "undefined") module.exports = Grading;
   function openDoc(key, opener) {
     var sec = document.getElementById("doc-" + key);
     if (!sec) return;
+    if (MODE === "exam" && sec.classList.contains("training-only")) return;   // la méthode n'existe pas en mode examen
     if (currentDoc === key && document.body.classList.contains("panel-open")) { closeDoc(); return; }
     $$(".doc", panel).forEach(function (d) { d.classList.toggle("active", d === sec); });
     $("#dp-title").innerHTML = sec.getAttribute("data-title") + "<small>" + sec.getAttribute("data-kind") + "</small>";
@@ -1700,7 +1724,7 @@ if (typeof module !== "undefined") module.exports = Grading;
   $("#dp-in").addEventListener("click", function () { var i = ZOOMS.indexOf(zoom); setZoom(ZOOMS[Math.min(ZOOMS.length - 1, i + 1)]); });
   $("#dp-out").addEventListener("click", function () { var i = ZOOMS.indexOf(zoom); setZoom(ZOOMS[Math.max(0, i - 1)]); });
   $("#dp-fit").addEventListener("click", function () { setZoom(1); });
-  $("#btn-docs").addEventListener("click", function () { openDoc(currentDoc || "DP1", this); });
+  $("#btn-docs").addEventListener("click", function () { openDoc(currentDoc || $(".dp-tabs [data-doc]").getAttribute("data-doc"), this); });
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Escape") return;
     var full = $(".sketch.is-full"); if (full) { sketches[full.getAttribute("data-sketch")].toggleFull(); return; }
