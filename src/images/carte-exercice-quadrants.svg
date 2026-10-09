@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="270" viewBox="0 0 480 270">
+<rect width="480" height="270" fill="#fff"/>
+<defs><marker id="a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="12" markerHeight="12" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0 10 5 0 10z" fill="#1C2530"/></marker>
+<marker id="f0" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="18" markerHeight="18" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0 10 5 0 10z" fill="#1B7A43"/></marker>
+<marker id="f1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="18" markerHeight="18" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0 10 5 0 10z" fill="#1F5FA8"/></marker>
+<marker id="f2" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="18" markerHeight="18" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0 10 5 0 10z" fill="#B42318"/></marker>
+<marker id="f3" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="18" markerHeight="18" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0 10 5 0 10z" fill="#B26A00"/></marker>
+</defs>
+<line x1="240.0" y1="143.0" x2="462" y2="143.0" stroke="#1C2530" stroke-width="2.5" marker-end="url(#a)"/>
+<line x1="240.0" y1="143.0" x2="18" y2="143.0" stroke="#1C2530" stroke-width="2.5" marker-end="url(#a)"/>
+<line x1="240.0" y1="143.0" x2="240.0" y2="14" stroke="#1C2530" stroke-width="2.5" marker-end="url(#a)"/>
+<line x1="240.0" y1="143.0" x2="240.0" y2="256" stroke="#1C2530" stroke-width="2.5" marker-end="url(#a)"/>
+<text x="450" y="167.0" font-size="20" font-family="Arial, sans-serif" font-weight="700">x</text>
+<text x="14" y="167.0" font-size="20" font-family="Arial, sans-serif" font-weight="700">x'</text>
+<text x="250.0" y="28" font-size="20" font-family="Arial, sans-serif" font-weight="700">y</text>
+<text x="250.0" y="254" font-size="20" font-family="Arial, sans-serif" font-weight="700">y'</text>
+<line x1="240.0" y1="143.0" x2="319.6" y2="87.2" stroke="#1B7A43" stroke-width="5" marker-end="url(#f0)"/>
+<path d="M275.0 143.0 A35.0 35.0 0 0 0 268.7 122.9" fill="none" stroke="#1B7A43" stroke-width="2.5"/>
+<path d="M319.6 87.2 L319.6 143.0 M319.6 87.2 L240.0 87.2" stroke="#1B7A43" stroke-width="1.5" stroke-dasharray="5 4" fill="none" opacity=".7"/>
+<line x1="240.0" y1="143.0" x2="184.2" y2="63.4" stroke="#1F5FA8" stroke-width="5" marker-end="url(#f1)"/>
+<path d="M205.0 143.0 A35.0 35.0 0 0 1 219.9 114.3" fill="none" stroke="#1F5FA8" stroke-width="2.5"/>
+<path d="M184.2 63.4 L184.2 143.0 M184.2 63.4 L240.0 63.4" stroke="#1F5FA8" stroke-width="1.5" stroke-dasharray="5 4" fill="none" opacity=".7"/>
+<line x1="240.0" y1="143.0" x2="155.8" y2="191.6" stroke="#B42318" stroke-width="5" marker-end="url(#f2)"/>
+<path d="M205.0 143.0 A35.0 35.0 0 0 0 209.7 160.5" fill="none" stroke="#B42318" stroke-width="2.5"/>
+<path d="M155.8 191.6 L155.8 143.0 M155.8 191.6 L240.0 191.6" stroke="#B42318" stroke-width="1.5" stroke-dasharray="5 4" fill="none" opacity=".7"/>
+<line x1="240.0" y1="143.0" x2="302.5" y2="217.5" stroke="#B26A00" stroke-width="5" marker-end="url(#f3)"/>
+<path d="M240.0 178.0 A35.0 35.0 0 0 0 262.5 169.8" fill="none" stroke="#B26A00" stroke-width="2.5"/>
+<path d="M302.5 217.5 L302.5 143.0 M302.5 217.5 L240.0 217.5" stroke="#B26A00" stroke-width="1.5" stroke-dasharray="5 4" fill="none" opacity=".7"/>
+<text x="374" y="54" font-size="19" fill="#C5CBC8" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700">Q1</text>
+<text x="106" y="54" font-size="19" fill="#C5CBC8" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700">Q2</text>
+<text x="106" y="232" font-size="19" fill="#C5CBC8" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700">Q3</text>
+<text x="374" y="232" font-size="19" fill="#C5CBC8" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700">Q4</text>
+</svg>

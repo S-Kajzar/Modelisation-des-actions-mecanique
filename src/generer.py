@@ -52,6 +52,10 @@ EXERCICES = [
      "mots": ["Coordonnées", "Projection", "Repère incliné", "Équilibre"], "vign": "carte-exercice-projections.jpg",
      "alt": "Gousset de trois barres soudées et leurs tensions", "page": "exercice-projections.html",
      "source": "projections-source.html", "ancres": GABARIT_ANCRES},
+    {"rubrique": "exercices", "tag": "Exercice 1.3", "level": "Niveau 1", "title": "Projections : les quatre quadrants",
+     "mots": ["Projection", "Signes", "Quadrants", "Tirage aléatoire"], "vign": "carte-exercice-quadrants.svg",
+     "alt": "Repère x, y avec une force dans chacun des quatre quadrants", "page": "exercice-quadrants.html",
+     "source": "quadrants-source.html", "ancres": GABARIT_ANCRES, "bouton": "S'entraîner"},
     {"rubrique": "exercices", "tag": "Exercice 2.1", "level": "Niveau 2", "title": "Couples et moments",
      "mots": ["Couple", "Moment", "Basculement", "Produit vectoriel"], "vign": "carte-exercice-couples-moments.jpg",
      "alt": "Chargeur sur pneus et les poids du châssis, de la flèche et du godet", "page": "exercice-couples-moments.html",
@@ -84,7 +88,7 @@ def pastille(level):
 
 def vignette(name):
     data = (IMAGES / name).read_bytes()
-    mime = "jpeg" if name.endswith(".jpg") else "png"
+    mime = "jpeg" if name.endswith(".jpg") else ("svg+xml" if name.endswith(".svg") else "png")
     return f"data:image/{mime};base64," + base64.b64encode(data).decode()
 
 

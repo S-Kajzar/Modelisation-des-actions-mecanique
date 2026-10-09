@@ -8,19 +8,20 @@ const { chromium } = require("playwright");
 const { reponseJuste } = require("./reponses.js");
 
 const URL = (p) => "file://" + path.join(__dirname, "..", p);
-const EXERCICES = ["force-moment.html", "exercice-projections.html", "exercice-couples-moments.html", "exercice-torseurs.html"];
+const EXERCICES = ["force-moment.html", "exercice-projections.html", "exercice-quadrants.html", "exercice-couples-moments.html",
+  "exercice-torseurs.html"];
 const COURS = ["cours-projection.html", "cours-couple-moment.html", "cours-torseur.html"];
 let navigateur;
 
 test.before(async () => { navigateur = await chromium.launch(); });
 test.after(async () => { await navigateur.close(); });
 
-async function ouvrir(page) {
+async function ouvrir(page, requete) {
   const p = await navigateur.newPage({ viewport: { width: 1280, height: 900 } });
   const erreurs = [];
   p.on("pageerror", (e) => erreurs.push(e.message));
   p.on("console", (m) => { if (m.type() === "error") erreurs.push(m.text()); });
-  await p.goto(URL(page));
+  await p.goto(URL(page) + (requete || ""));
   return { p, erreurs };
 }
 
@@ -103,3 +104,28 @@ for (const page of COURS) {
     await p.close();
   });
 }
+
+test("exercice-quadrants.html : tirages reproductibles, une force par quadrant et par axe de référence", async () => {
+  const { p, erreurs } = await ouvrir("exercice-quadrants.html", "?graine=12345");
+  const t = await p.evaluate(() => window.__tirage__);
+  assert.strictEqual(t.graine, 12345);
+  const signes = { 1: [1, 1], 2: [-1, 1], 3: [-1, -1], 4: [1, -1] };
+  t.forces.forEach((f, i) => {
+    assert.strictEqual(f.q, Math.floor(i / 2) + 1, "deux forces par quadrant, dans l'ordre");
+    assert.deepStrictEqual([Math.sign(Math.cos(f.th * Math.PI / 180)), Math.sign(Math.sin(f.th * Math.PI / 180))], signes[f.q]);
+    assert.ok(f.a >= 10 && f.a <= 80 && f.a !== 45 && f.F >= 100 && f.F <= 990);
+  });
+  [0, 1, 2, 3].forEach((q) => assert.notStrictEqual(t.forces[2 * q].h, t.forces[2 * q + 1].h, "un angle horizontal, un vertical"));
+  await p.reload();
+  assert.deepStrictEqual(await p.evaluate(() => window.__tirage__), t, "même graine, même sujet");
+  await p.goto(URL("exercice-quadrants.html") + "?graine=777");
+  assert.notDeepStrictEqual((await p.evaluate(() => window.__tirage__)).forces, t.forces, "autre graine, autre sujet");
+  for (const g of [1, 2, 99999]) {
+    await p.goto(URL("exercice-quadrants.html") + "?graine=" + g);
+    await p.click("[data-mode=training]");
+    await toutRemplir(p, true);
+    assert.match(await p.innerText("tfoot .final-note"), /^20,0\/20/, "graine " + g);
+  }
+  assert.deepStrictEqual(erreurs, []);
+  await p.close();
+});

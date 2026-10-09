@@ -103,6 +103,10 @@ def data_uri(f, base=IMAGES):
 def taille(f, base=IMAGES):
     p = chemin(f, base)
     d = p.read_bytes()
+    if p.suffix == ".svg":  # dimensions lues sur la balise racine
+        import re
+        m = re.search(rb'<svg[^>]*\swidth="(\d+)"[^>]*\sheight="(\d+)"', d)
+        return int(m.group(1)), int(m.group(2))
     if p.suffix == ".png":
         return unpack(">II", d[16:24])
     i = 2
@@ -265,8 +269,11 @@ CONSIGNE_UNITES = ("<p><strong>Les unités sont notées.</strong> Pour toute que
 
 
 def construire_exercice(*, titre, description, sous_titre, parties, methode_titre, methode, hero, facts, sortie,
-                        script, consignes=(CONSIGNE_UNITES,), cartouche=None, base=IMAGES, nq_attendu=None):
-    """Écrit la page d'exercice : gabarit + accueil + parties + configuration du moteur."""
+                        script, consignes=(CONSIGNE_UNITES,), cartouche=None, base=IMAGES, nq_attendu=None, config_js=""):
+    """Écrit la page d'exercice : gabarit + accueil + parties + configuration du moteur.
+
+    config_js : script exécuté juste après la configuration et avant les moteurs ; il peut réécrire
+    window.__QCFG__ et remplir la page (exercice à valeurs tirées au hasard, par exemple)."""
     g = GABARIT.read_text(encoding="utf-8")
     total = sum(p["minutes"] for p in parties)
     cfg, parts_cfg, sections, nq_total = {}, [], [], 0
@@ -401,7 +408,7 @@ def construire_exercice(*, titre, description, sous_titre, parties, methode_titr
     c1 = g.index("</script>", c0) + len("</script>")
     conf = ("<script>window.__PARTS__ = " + json.dumps(parts_cfg, ensure_ascii=False) + ";\n"
             "window.__QCFG__ = " + json.dumps(cfg, ensure_ascii=False) + ";\n"
-            "window.__SKCFG__ = {};</script>")
+            "window.__SKCFG__ = {};" + (("\n" + config_js) if config_js else "") + "</script>")
     g = g[:c0] + conf + g[c1:]
     sortie = pathlib.Path(sortie)
     sortie.parent.mkdir(exist_ok=True)

@@ -12,6 +12,7 @@ autonome, sans dépendance externe, utilisable hors ligne.
 | `cours-torseur.html` | Cours 3 (Niveau 2) — Torseur d'action mécanique : torseur à explorer, simulateur de transport du moment, exemple pas à pas, quiz |
 | `force-moment.html` | Exercice 1.1 (Niveau 1) — Force, moment et couple : 9 parties, 39 questions, 1 h 20 |
 | `exercice-projections.html` | Exercice 1.2 (Niveau 1) — Projections d'une force : 4 parties, 27 questions, 52 min |
+| `exercice-quadrants.html` | Exercice 1.3 (Niveau 1) — Projections, les quatre quadrants : entraînement à valeurs tirées au hasard, 8 forces, 32 questions, 40 min ; `?graine=N` rejoue un tirage |
 | `exercice-couples-moments.html` | Exercice 2.1 (Niveau 2) — Couples et moments : 5 parties, 20 questions, 58 min |
 | `exercice-torseurs.html` | Exercice 2.2 (Niveau 2) — Torseurs, les bases : 5 parties, 22 questions dont 16 torseurs, 1 h 04 |
 
@@ -26,6 +27,7 @@ pdftoppm -r 300 -png sequence.pdf DOSSIER/h          # seulement si les figures 
 python3 outils/extraire_figures.py DOSSIER           # figures et vignettes (src/images/sequence/, src/images/carte-*.jpg)
 python3 src/construire_force_moment.py               # gabarit + contenu -> src/exercices/force-moment-source.html
 python3 src/construire_exercices_sequence.py         # -> src/exercices/{projections,couples-moments,torseurs}-source.html
+python3 src/construire_exercice_quadrants.py         # -> src/exercices/quadrants-source.html (tirage au chargement)
 python3 src/construire_cours.py                      # -> src/cours/{projection,couple-moment,torseur}-source.html
 python3 src/generer.py                               # écrit index.html et publie toutes les pages
 ```
@@ -52,6 +54,9 @@ python3 src/generer.py                               # écrit index.html et publ
   jeux de valeurs et comparée à l'expression attendue ; toute écriture équivalente est acceptée, une valeur numérique
   isolée ne l'est pas.
 - **Torseurs** : six cases X, Y, Z / L, M, N validées d'un bloc (mécanique « fast-q » du moteur), une coche par case.
+- **Exercice à valeurs tirées au hasard** : `construire_exercice(config_js=…)` insère un script exécuté avant les
+  moteurs, qui peut réécrire `window.__QCFG__` et remplir figures et corrections (exercice 1.3). Le tirage est
+  reproductible : son numéro s'affiche sur la copie et l'adresse `?graine=N` redonne le même sujet.
 - Durée conseillée du chronomètre déduite des parties ; bouton « Documents » ouvert sur le premier document disponible.
 
 ## Tester

@@ -324,7 +324,8 @@ def cours_projection():
          nav=[("c1-meca", "La mécanique"), ("c1-coord", "Coordonnées"), ("c1-norme", "Norme"), ("c1-trigo", "Trigonométrie"),
               ("c1-proj", "Projection"), ("c1-quiz", "Quiz")],
          sections=[s1, s2, s3, s4, s5, s6],
-         liens=[("exercice-projections.html", "Exercice 1.2 — Projections d'une force")])
+         liens=[("exercice-projections.html", "Exercice 1.2 — Projections d'une force"),
+                ("exercice-quadrants.html", "Exercice 1.3 — Les quatre quadrants")])
 
 
 # =====================================================================================================================
