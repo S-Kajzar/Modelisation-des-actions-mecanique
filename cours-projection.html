@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Page construite par src/construire_cours.py : ne pas modifier à la main. -->
+<title>Projection d'une force — cours interactif</title>
+<meta name="description" content="Cours interactif : coordonnées d&#x27;un vecteur, norme, relations trigonométriques et projection d&#x27;une force sur les axes d&#x27;un repère, avec simulateurs et quiz.">
+<style>:root{
+  --beton:#E3E5E0; --papier:#FFFFFF; --encre:#1C2530; --encre-2:#46525C;
+  --trait:#A5ADAA; --trait-fin:#D3D8D5;
+  --jaune:#F2B705; --jaune-pale:#FFF3C4;
+  --bleu:#1F5FA8; --bleu-pale:#E6EEF8;
+  --vert:#1B7A43; --vert-pale:#E2F1E7; --rouge:#B42318; --rouge-pale:#FBE6E4;
+  --orange:#B26A00; --orange-pale:#FCEFD8;
+  --f-titre:"Bahnschrift","DIN Alternate","DIN Condensed","Roboto Condensed","Arial Narrow",sans-serif;
+  --f-texte:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --rail:58px; --panel:min(900px, 47vw); --banner:58px;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:16px; scroll-padding-bottom:calc(var(--banner) + 16px)}
+body{margin:0; background:var(--beton); color:var(--encre); font:16px/1.55 var(--f-texte);
+  font-variant-numeric:tabular-nums; padding-bottom:calc(var(--banner) + 40px)}
+img{max-width:100%; height:auto}
+sub,sup{line-height:0}
+button,input{font:inherit; color:inherit}
+:focus-visible{outline:3px solid var(--bleu); outline-offset:2px}
+.small{font-size:.9rem; color:var(--encre-2)}
+.print-only{display:none}
+
+/* ---------- mise en page ---------- */
+.page{max-width:900px; margin:0 auto; padding:28px 22px 0; transition:margin .25s ease}
+body.panel-open .page{margin-right:calc(var(--panel) + var(--rail) + 24px); margin-left:24px}
+@media (max-width:1180px){ body.panel-open .page{margin:0 auto} }
+
+/* ---------- cartouche ---------- */
+.cartouche{background:var(--papier); border:2px solid var(--encre); display:grid;
+  grid-template-columns:1fr; margin-bottom:26px}
+.cartouche>div{border-right:1px solid var(--encre); border-bottom:1px solid var(--encre); padding:8px 12px}
+.cartouche>div:nth-child(3n){border-right:0}
+.cartouche .k{display:block; font:600 .72rem/1.2 var(--f-titre); letter-spacing:.02em; color:var(--encre-2)}
+.cartouche .v{font:600 1rem/1.3 var(--f-titre)}
+.cartouche .title{grid-column:1/-1; border-right:0; padding:18px 16px 16px}
+.cartouche h1{margin-top:0}
+.cartouche h1{font:700 clamp(1.6rem,3.6vw,2.35rem)/1.08 var(--f-titre); margin:2px 0 6px; letter-spacing:-.01em}
+.cartouche .title p{margin:0; color:var(--encre-2)}
+.cartouche .nom{grid-column:1/-1; border-bottom:0; display:flex; gap:10px; align-items:center}
+.cartouche .nom label{font:600 .9rem var(--f-titre)}
+.cartouche .nom input{flex:1; border:0; border-bottom:1px dashed var(--trait); padding:4px 2px; background:transparent}
+
+
+.consignes{background:var(--papier); border-left:6px solid var(--jaune); padding:12px 16px; margin:0 0 30px}
+.consignes p{margin:.2rem 0}
+
+/* ---------- parties ---------- */
+.part{background:var(--papier); margin:0 0 34px; padding:0 0 22px; border:1px solid var(--trait-fin)}
+.part-head{display:grid; grid-template-columns:64px 1fr; border-bottom:2px solid var(--encre)}
+.part-num{background:var(--encre); color:var(--jaune); font:700 2.3rem/1 var(--f-titre);
+  display:flex; align-items:center; justify-content:center}
+.part-head h2{font:700 1.45rem/1.15 var(--f-titre); margin:0; padding:12px 16px 2px}
+.part-head .duree{padding:0 16px 10px; font-size:.9rem; color:var(--encre-2)}
+.part-body{padding:4px 22px 0}
+.part-body>p,.part-body>ul{max-width:72ch}
+h4.sub{font:700 1.1rem var(--f-titre); margin:26px 0 6px; padding-top:10px; border-top:1px dashed var(--trait)}
+
+/* barre de question (reprend l'en-tête du questionnaire) */
+.qbar{display:grid; grid-template-columns:auto 1fr auto; align-items:stretch; margin:30px 0 10px;
+  border:1.5px solid var(--encre); font:500 .95rem/1.2 var(--f-titre)}
+.qbar>*{padding:7px 10px; display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+.qbar .qb-num{background:var(--jaune); font-weight:700; font-size:1.1rem; border-right:1.5px solid var(--encre); min-width:64px; justify-content:center}
+.qbar .qb-ans{border-left:1.5px solid var(--encre)}
+.qbar .qb-title{grid-column:1/-1; border-top:1px solid var(--encre); font-weight:700; font-style:italic}
+@media (max-width:640px){ .qbar{grid-template-columns:auto 1fr} .qbar .qb-ans{grid-column:1/-1; border-left:0; border-top:1px solid var(--encre)} }
+.doc-chip{border:1.5px solid var(--encre); background:var(--papier); padding:2px 8px; font:700 .88rem var(--f-titre);
+  cursor:pointer; border-radius:2px}
+.doc-chip:hover{background:var(--jaune-pale)}
+.doc-chip[aria-pressed="true"]{background:var(--jaune)}
+
+/* données */
+.data{border:1px solid var(--encre); padding:8px 14px; margin:12px 0; max-width:72ch; background:#FBFBF9}
+.data p{margin:.25rem 0}
+.data .data-title{font:700 .95rem var(--f-titre); text-decoration:underline; text-underline-offset:3px}
+.data ul{margin:.2rem 0; padding-left:1.1rem}
+.data ul.cols{columns:2; column-gap:28px}
+@media (max-width:560px){ .data ul.cols{columns:1} }
+
+figure{margin:14px 0}
+.fig img,.fig svg{display:block; width:100%; height:auto; border:1px solid var(--trait-fin); background:#fff}
+figcaption{font-size:.85rem; color:var(--encre-2); margin-top:4px}
+.fig1 .lead line{stroke:#6B7580; stroke-width:1}
+.fig1 .lab text{font:600 15px var(--f-titre); fill:var(--encre)}
+.fig1 .dir{stroke:var(--encre); stroke-width:3; fill:none}
+.fig1 .dirhead{fill:var(--encre)}
+.split{display:flex; gap:20px; align-items:flex-start; flex-wrap:wrap}
+.small-fig{width:220px; margin:0}
+
+.chain{display:flex; align-items:center; flex-wrap:wrap; gap:0; margin:18px 0 8px}
+.chain-box{border:2px solid var(--encre); padding:8px 10px; min-width:130px; text-align:center; background:#fff}
+.chain-box span{display:block; font-size:.9rem}
+.chain-box b{font:700 .95rem var(--f-titre)}
+.chain-arrow{width:34px; height:2px; background:var(--encre); position:relative; margin:0 2px}
+.chain-arrow::after{content:""; position:absolute; right:-1px; top:-5px; border:6px solid transparent; border-left:9px solid var(--encre); border-right:0}
+.chain figcaption{flex-basis:100%}
+
+table.t{border-collapse:collapse; margin:10px 0; font-size:.93rem; width:100%}
+table.t th,table.t td{border:1px solid var(--trait); padding:4px 8px; text-align:left; vertical-align:top}
+table.t th{background:#EEF0EC; font:600 .88rem var(--f-titre)}
+table.nomencl{width:auto; min-width:210px}
+table.nomencl td:first-child{font-weight:700; text-align:center}
+
+.vec{position:relative; display:inline-block; font-style:italic}
+.vec::before{content:""; position:absolute; left:0; right:-1px; top:-.12em; height:1.2px; background:currentColor}
+.vec::after{content:""; position:absolute; right:-3px; top:-.32em; border:.2em solid transparent; border-left:.36em solid currentColor; border-right:0}
+
+/* ---------- questions ---------- */
+.q{margin:14px 0 6px; padding:10px 0 12px 14px; border-left:3px solid var(--trait-fin)}
+.q.is-ok{border-left-color:var(--vert)} .q.is-ko{border-left-color:var(--rouge)} .q.is-half{border-left-color:var(--orange)}
+.q-stem{margin:0 0 3px; max-width:74ch}
+.q-num{display:inline-block; font:700 .92rem var(--f-titre); background:var(--encre); color:#fff; padding:1px 7px; margin-right:6px; border-radius:2px}
+.q-hint{margin:0 0 8px; font-size:.88rem; color:var(--encre-2); max-width:74ch}
+.q-row{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+.q-input{flex:1 1 240px; max-width:420px; border:1.5px solid var(--encre-2); background:#fff; padding:7px 10px; border-radius:2px}
+.q-input:disabled{background:#F2F3F1; color:var(--encre); -webkit-text-fill-color:var(--encre)}
+.is-ok .q-input{border-color:var(--vert); background:var(--vert-pale)}
+.is-half .q-input{border-color:var(--orange); background:var(--orange-pale)}
+.is-ko .q-input{border-color:var(--rouge); background:var(--rouge-pale)}
+.btn{border:1.5px solid var(--encre); background:var(--encre); color:#fff; padding:7px 14px; border-radius:2px; cursor:pointer; font-weight:600}
+.btn:hover{background:#2E3B47}
+.btn:disabled{background:#9AA2A8; border-color:#9AA2A8; cursor:not-allowed}
+.btn.ghost{background:#fff; color:var(--encre)}
+.btn.ghost:hover{background:var(--jaune-pale)}
+.q-status{font-weight:700; font-size:.95rem}
+.is-ok .q-status{color:var(--vert)} .is-ko .q-status{color:var(--rouge)} .is-half .q-status{color:var(--orange)}
+.q-msg{margin:4px 0 0; font-size:.88rem; color:var(--rouge); min-height:0}
+.q-msg:empty{display:none}
+.q-expl{margin-top:10px; background:#F6F7F4; border:1px solid var(--trait-fin); padding:8px 14px; max-width:78ch}
+.is-ok .q-expl{border-top:3px solid var(--vert)} .is-ko .q-expl{border-top:3px solid var(--rouge)} .is-half .q-expl{border-top:3px solid var(--orange)}
+.q-unit-msg{margin:.1rem 0 .4rem; font-weight:600; color:var(--orange)}
+.q-unit-msg[hidden]{display:none}
+.q-expl p{margin:.35rem 0}
+.q-expected span,.q-yours span.lab{font:700 .9rem var(--f-titre)}
+.q-expl ul,.q-expl ol{padding-left:1.2rem; margin:.3rem 0}
+.q-expl li{margin:.2rem 0}
+.cor-imgs{display:flex; gap:14px; flex-wrap:wrap; margin-top:8px}
+.cor-imgs figure{margin:0; flex:1 1 260px}
+.cor-imgs img{border:1px solid var(--trait-fin); background:#fff; display:block}
+.reveal{animation:reveal .35s ease-out}
+@keyframes reveal{from{opacity:0; transform:translateY(-4px)}to{opacity:1; transform:none}}
+
+/* ---------- FAST ---------- */
+.fast-wrap{overflow-x:auto; padding:6px 0 4px}
+.fast{display:grid; min-width:720px; grid-template-columns:138px 24px 112px 24px minmax(180px,1fr) 18px 178px; grid-auto-rows:minmax(64px,auto);
+  font-size:.84rem; line-height:1.25}
+.fast .box{border:1.5px solid var(--encre); background:#fff; padding:6px 8px; align-self:center}
+.fast .fp{grid-column:1; grid-row:1/9; font-weight:700}
+.fast .ft{grid-column:3}
+.fast .ft2{grid-column:5}
+.fast .sol{grid-column:7; align-self:center}
+.fast .sol input{width:100%; border:1.5px dashed var(--encre-2); padding:9px 8px; background:#fff; border-radius:0; font-size:.9rem}
+.fast .sol.is-ok input{border:2px solid var(--vert); background:var(--vert-pale)}
+.fast .sol.is-ko input{border:2px solid var(--rouge); background:var(--rouge-pale)}
+.fast .sol .mark{display:block; font-size:.78rem; font-weight:700; margin-top:2px; min-height:1em}
+.fast .sol.is-ok .mark{color:var(--vert)} .fast .sol.is-ko .mark{color:var(--rouge)}
+.fast .cn{position:relative}
+.fast .cn::before{content:""; position:absolute; left:0; right:0; top:50%; border-top:1.5px solid var(--encre)}
+.fast .bus{position:relative}
+.fast .bus::before{content:""; position:absolute; left:0; right:0; top:50%; border-top:1.5px solid var(--encre)}
+.fast .bus::after{content:""; position:absolute; left:0; top:0; bottom:0; border-left:1.5px solid var(--encre)}
+.fast .bus.first::after{top:50%} .fast .bus.last::after{bottom:50%}
+.fast .bus.mid::before{display:none}
+.fast .ft.grp{position:relative}
+.fast .ft.grp::before{content:""; position:absolute; right:100%; width:24px; top:50%; border-top:1.5px solid var(--encre)}
+.fast .dash::before{border-top-style:dashed}
+.fast .note{grid-column:5/8; align-self:center; color:var(--encre-2); font-style:italic; padding-left:8px}
+.fast-foot{display:flex; gap:10px; align-items:center; margin-top:10px; flex-wrap:wrap}
+
+/* ---------- tracés ---------- */
+.sketch{margin:14px 0 6px; padding:10px 0 12px 14px; border-left:3px dashed var(--bleu)}
+.sk-layout{display:flex; flex-direction:column-reverse; gap:8px}
+.sk-main{min-width:0}
+.sk-side{max-width:78ch}
+.sk-side p,.sk-side ul{margin:.2rem 0}
+.nomencl-grid{display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); border:1px solid var(--trait); font-size:.85rem; margin:2px 0 4px}
+.nomencl-grid span{padding:3px 8px; border-right:1px solid var(--trait-fin); border-bottom:1px solid var(--trait-fin)}
+.nomencl-grid b{font-family:var(--f-titre); margin-right:6px}
+@media (max-width:640px){ .nomencl-grid{grid-template-columns:repeat(2, minmax(0,1fr))} }
+.sk-toolbar{display:flex; flex-wrap:wrap; gap:4px; align-items:center; background:#EEF1F4; border:1px solid var(--trait); border-bottom:0; padding:5px}
+.sk-toolbar button{border:1px solid var(--trait); background:#fff; padding:4px 9px; font-size:.86rem; cursor:pointer; border-radius:2px; line-height:1.2}
+.sk-toolbar button[aria-pressed="true"]{background:var(--bleu); color:#fff; border-color:var(--bleu)}
+.sk-toolbar button:disabled{opacity:.45; cursor:not-allowed}
+.sk-toolbar .sep{width:1px; align-self:stretch; background:var(--trait); margin:0 4px}
+.sk-toolbar .tb-group{display:inline-flex; align-items:center; gap:4px; white-space:nowrap}
+.sk-toolbar .tb-lab{font:600 .78rem var(--f-titre); color:var(--encre-2); padding:0 2px}
+.sk-toolbar .zoom-val{font:600 .82rem var(--f-titre); min-width:3.6em; text-align:center}
+.sk-toolbar .btn-drprint{font-weight:600; border-color:var(--encre)}
+.sk-toolbar .btn-drprint:hover{background:var(--jaune-pale)}
+.sk-toolbar .sw{width:24px; height:24px; padding:0; border-radius:50%; border:2px solid #fff; outline:1px solid var(--trait)}
+.sk-toolbar .sw[aria-pressed="true"]{outline:2px solid var(--encre)}
+.sk-toolbar .spacer{flex:1}
+.sk-stage{position:relative; border:1px solid var(--trait); background:#fff; line-height:0; overflow:hidden}
+.sk-stage.zoomed{overflow:auto; max-height:min(72vh,640px)}
+/* au zoom, seule la largeur pilote la taille : la hauteur suit, sinon l'image est écrasée */
+.sk-stage.zoomed canvas{max-width:none!important; max-height:none!important; height:auto!important}
+.sk-stage canvas{display:block; width:100%; height:auto; touch-action:none; cursor:crosshair}
+.sketch.locked .sk-stage canvas{cursor:default; touch-action:auto}
+.sketch.tool-erase .sk-stage canvas{cursor:cell}
+.sk-toolbar button[data-tool="erase"][aria-pressed="true"]{background:var(--rouge); border-color:var(--rouge)}
+.sk-text{position:absolute; line-height:1.2; font:600 15px var(--f-texte); border:1.5px solid var(--bleu); padding:1px 4px; min-width:90px; background:#fff; z-index:2}
+.sk-foot{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:8px}
+.sk-meas{font-size:.85rem; color:var(--bleu); font-weight:600}
+.sk-corr-toggle{display:none; align-items:center; gap:6px; font-size:.92rem; cursor:pointer}
+.sketch.revealed .sk-corr-toggle{display:inline-flex}
+.sk-note{font-size:.86rem; color:var(--encre-2)}
+.sketch.is-full{position:fixed; inset:0; z-index:60; background:var(--beton); margin:0; padding:10px; border:0; overflow:auto; display:flex; flex-direction:column}
+.sketch.is-full .sk-side,.sketch.is-full .q-stem,.sketch.is-full .q-expl,.sketch.is-full .sk-note-wrap{display:none}
+.sketch.is-full .sk-layout{flex:1; min-height:0}
+.sketch.is-full .sk-main{display:flex; flex-direction:column; align-items:center; height:100%}
+.sketch.is-full .sk-toolbar{width:100%}
+.sketch.is-full .sk-stage{max-width:100%}
+.sketch.is-full .sk-stage.zoomed{max-height:calc(100vh - 150px); width:100%; align-self:stretch}
+.sketch.is-full .sk-stage canvas{width:auto; max-width:100%; max-height:calc(100vh - 120px)}
+body.sk-full-open{overflow:hidden}
+body.sk-full-open .banner,body.sk-full-open .rail{display:none}
+
+/* ---------- rail d'onglets ---------- */
+.rail{position:fixed; right:0; top:0; bottom:var(--banner); width:var(--rail); z-index:40; display:flex; flex-direction:column;
+  justify-content:center; gap:3px; padding:8px 0}
+.rail .grp{height:14px}
+.tab{display:block; width:100%; border:1.5px solid var(--encre); border-right:0; background:var(--papier); color:var(--encre);
+  font:700 .9rem/1 var(--f-titre); padding:10px 0 10px 4px; cursor:pointer; border-radius:4px 0 0 4px; text-align:center;
+  transform:translateX(6px); transition:transform .15s ease, background .15s}
+.tab.dt{background:var(--jaune)}
+.tab:hover{transform:translateX(0)}
+.tab[aria-selected="true"]{transform:translateX(0); background:var(--encre); color:var(--jaune)}
+@media (max-width:760px){ .rail{display:none} }
+
+/* ---------- panneau documents ---------- */
+#docpanel{position:fixed; top:0; bottom:var(--banner); right:var(--rail); width:var(--panel); z-index:45; background:var(--papier);
+  border-left:2px solid var(--encre); box-shadow:-10px 0 28px rgba(28,37,48,.18); display:flex; flex-direction:column;
+  transform:translateX(calc(100% + var(--rail) + 20px)); transition:transform .25s ease; visibility:hidden}
+body.panel-open #docpanel{transform:none; visibility:visible}
+@media (max-width:1180px){ :root{--panel:min(720px, calc(100vw - var(--rail) - 40px))} }
+@media (max-width:760px){ #docpanel{right:0; width:100vw} }
+.dp-head{display:flex; align-items:center; gap:8px; padding:8px 10px; border-bottom:1.5px solid var(--encre); background:#F4F5F2; flex-wrap:wrap}
+.dp-head h3{margin:0; font:700 1.05rem/1.2 var(--f-titre); flex:1; min-width:180px}
+.dp-head h3 small{display:block; font:500 .78rem var(--f-titre); color:var(--encre-2)}
+.dp-head button{border:1px solid var(--trait); background:#fff; padding:4px 9px; cursor:pointer; border-radius:2px}
+.dp-tabs{display:flex; gap:3px; padding:6px 10px; border-bottom:1px solid var(--trait-fin); overflow-x:auto}
+.dp-tabs button{border:1px solid var(--trait); background:#fff; font:700 .82rem var(--f-titre); padding:3px 8px; cursor:pointer; white-space:nowrap; border-radius:2px}
+.dp-tabs button[aria-selected="true"]{background:var(--encre); color:var(--jaune); border-color:var(--encre)}
+.dp-body{flex:1; overflow:auto; padding:12px; --z:1; background:#E9EBE7}
+.doc{display:none}
+.doc.active{display:block}
+.doc .doc-img{display:block; width:calc(var(--z) * 100%); max-width:none; background:#fff; border:1px solid var(--trait-fin); margin:0 auto 8px}
+.doc .doc-text{background:#fff; padding:6px 16px; width:calc(var(--z) * 100%); margin:0 auto 8px; font-size:calc(var(--z) * .95rem)}
+.doc .doc-text h3{font:700 1.1rem var(--f-titre)}
+.doc .doc-cap{width:calc(var(--z) * 100%); margin:-2px auto 10px; font-size:.85rem; color:var(--encre-2); background:#fff; padding:4px 10px}
+dl.steps dt{font:700 .98rem var(--f-titre); margin-top:10px}
+dl.steps dd{margin:2px 0 0 0}
+
+/* ---------- bandeau de note ---------- */
+.banner{position:fixed; left:0; right:0; bottom:0; height:var(--banner); z-index:50; background:var(--encre); color:#fff;
+  display:flex; align-items:center; gap:18px; padding:0 calc(var(--rail) + 14px) 0 18px; border-top:3px solid var(--jaune)}
+.banner .score{font:700 1.7rem/1 var(--f-titre); color:var(--jaune); min-width:5.5ch; white-space:nowrap}
+.banner .score small{font-size:.95rem; color:#fff}
+.banner .lab{font:600 .8rem/1.15 var(--f-titre); color:#C9D1D8}
+.banner .count{font-size:.9rem; color:#E7EBEE}
+.banner .spacer{flex:1}
+.banner .btn-docs{display:none; background:var(--jaune); color:var(--encre); border:0; padding:8px 12px; font:700 .9rem var(--f-titre); border-radius:2px; cursor:pointer}
+@media (max-width:760px){ .banner{padding:0 12px; gap:10px} .banner .btn-docs{display:block} .banner .count{font-size:.78rem} }
+
+/* ---------- auto-évaluation des tracés ---------- */
+.selfeval{margin:12px 0 4px; border:1.5px solid var(--bleu); background:var(--bleu-pale); padding:10px 14px; max-width:78ch}
+.selfeval[hidden]{display:none}
+.se-title{margin:0 0 2px; font:700 1rem var(--f-titre)}
+.se-lead{margin:0 0 8px; font-size:.9rem; color:var(--encre-2)}
+.se-item{display:flex; gap:8px; align-items:flex-start; padding:4px 0; border-top:1px solid rgba(31,95,168,.18); cursor:pointer; font-size:.94rem}
+.se-item input{margin-top:.25rem; width:17px; height:17px; flex:0 0 auto; accent-color:var(--bleu)}
+.se-item input:disabled{cursor:default}
+.se-foot{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:10px}
+.se-score{font-weight:700; color:var(--bleu)}
+.sketch.is-ok{border-left-color:var(--vert)} .sketch.is-half{border-left-color:var(--orange)} .sketch.is-ko{border-left-color:var(--rouge)}
+
+/* ---------- récapitulatif ---------- */
+.recap{background:var(--papier); border:2px solid var(--encre); margin:0 0 36px; padding:0 0 18px}
+.recap-head{border-bottom:2px solid var(--encre); padding:14px 20px 12px; background:#F4F5F2}
+.recap-head h2{margin:0 0 4px; font:700 1.5rem var(--f-titre)}
+.recap-head p{margin:0; max-width:74ch}
+.recap-wrap{overflow-x:auto; padding:14px 20px 0}
+.recap-table{min-width:620px}
+.recap-table th[scope="row"]{font-weight:600; text-align:left}
+.recap-table td,.recap-table th{vertical-align:middle}
+.recap-table .rc-note{font:700 1.05rem var(--f-titre); text-align:right; white-space:nowrap}
+.recap-table thead th{white-space:nowrap}
+.recap-table td:nth-child(2),.recap-table td:nth-child(3),.recap-table td:nth-child(6){white-space:nowrap}
+.recap-table th[scope="row"]{width:38%}
+.recap-table tfoot th{background:var(--encre); color:#fff; font:700 1.1rem var(--f-titre); border-color:var(--encre)}
+.recap-table tfoot th.final-note{color:var(--jaune); text-align:right; white-space:nowrap}
+.recap .final-detail{padding:8px 20px 0; margin:0; max-width:80ch}
+.recap-foot{display:flex; gap:12px; align-items:center; flex-wrap:wrap; padding:14px 20px 0}
+.recap-foot .btn{padding:10px 18px; font-size:1.02rem}
+
+@media (prefers-reduced-motion:reduce){ *{transition:none!important; animation:none!important} }
+
+/* ---------- impression ---------- */
+@media print{
+  @page{size:A4; margin:12mm}
+  :root{--banner:0px}
+  body{background:#fff; padding:0; font-size:10.5pt}
+  .rail,#docpanel,.banner,.btn,.sk-toolbar,.sk-stage,.sk-foot,.fast-foot button,.se-foot,.no-print,.q-msg,.sk-corr-toggle{display:none!important}
+  .print-only{display:block!important}
+  span.print-only{display:inline!important}
+  .page{max-width:none; margin:0!important; padding:0}
+  .part{border:0; margin:0 0 8mm; break-before:auto}
+  .part-head{break-after:avoid}
+  .qbar{break-after:avoid}
+  .q{break-inside:avoid}
+  .q-row .q-status{display:none!important}
+  .q-expl,.q-expl[hidden],.sketch .q-expl[hidden]{display:block!important; background:#fff}
+  .q-unit-msg[hidden]{display:none!important}
+  .q-input{border:1px solid #555!important}
+  .fast-wrap{overflow:visible}
+  .fast{min-width:0; grid-template-columns:120px 16px 100px 16px 1fr 12px 160px; font-size:8pt}
+  .sk-print{display:block!important; width:auto; max-width:100%; max-height:115mm; border:1px solid #999; margin:2px 0 6px; break-inside:avoid}
+  .sk-print:not([src]),.sk-print[src=""]{display:none!important}
+  .sk-print-wrap{display:grid!important; grid-template-columns:1fr; gap:4px}
+  .sk-print-wrap p{margin:2px 0; font:600 9pt var(--f-titre); break-after:avoid}
+  .cor-imgs img{max-height:120mm; width:auto}
+  .print-summary{border:2px solid #000; padding:6px 10px; margin:0 0 6mm}
+  .print-summary strong{font-size:14pt}
+  .selfeval{background:#fff!important; border:1px solid #666; break-inside:avoid}
+  .se-lead{display:none}
+  .recap{break-before:page; border:1.5px solid #000}
+  .recap-head{background:#fff}
+  .recap-wrap{overflow:visible; padding:8px 10px 0}
+  .recap-table{min-width:0; font-size:9.5pt}
+  .recap-table tfoot th{background:#000!important; color:#fff!important; -webkit-print-color-adjust:exact; print-color-adjust:exact}
+  .recap-foot{display:none}
+  a{color:inherit}
+}
+
+
+/* ==================== PAGE D'ACCUEIL ==================== */
+body.no-mode .page,body.no-mode .rail,body.no-mode .banner,body.no-mode #docpanel{display:none!important}
+body.no-mode{padding-bottom:0}
+body:not(.no-mode) #home{display:none}
+#home{min-height:100vh; padding:32px 20px 48px}
+.home-inner{max-width:1040px; margin:0 auto}
+.home-head{background:var(--papier); border:2px solid var(--encre); border-left:10px solid var(--jaune); padding:20px 24px}
+#home h1{margin:0 0 8px; font:700 clamp(1.7rem,4vw,2.6rem)/1.06 var(--f-titre); letter-spacing:-.01em}
+.home-sub{margin:0; max-width:78ch; color:var(--encre-2)}
+.home-hero{margin:18px 0 0; background:var(--papier); border:1px solid var(--trait); padding:10px}
+.home-hero img{display:block; width:100%; height:auto}
+.home-hero figcaption{margin-top:6px; padding:0 4px}
+.home-facts{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:14px 0 26px}
+.home-facts div{background:var(--encre); color:#fff; padding:10px 14px}
+.home-facts b{display:block; font:700 1.25rem var(--f-titre); color:var(--jaune)}
+.home-facts span{font-size:.85rem; color:#D7DDE2}
+@media (max-width:820px){ .home-facts{grid-template-columns:repeat(2,1fr)} }
+.home-choose{font:700 1.4rem var(--f-titre); margin:0 0 12px}
+.modes{display:grid; grid-template-columns:1fr 1fr; gap:18px}
+@media (max-width:820px){ .modes{grid-template-columns:1fr} }
+.mode-card{background:var(--papier); border:2px solid var(--encre); padding:18px 20px 20px; display:flex; flex-direction:column}
+.mode-card.exam{border-color:var(--bleu)}
+.mc-head{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:2px}
+.mc-tag{font:700 .74rem var(--f-titre); background:var(--jaune); padding:2px 8px; letter-spacing:.04em}
+.mode-card.exam .mc-tag{background:var(--bleu); color:#fff}
+.mode-card h3{margin:0; font:700 1.35rem var(--f-titre)}
+.mc-lead{margin:2px 0 8px; font-weight:600; color:var(--encre-2)}
+.mode-card ul{margin:0 0 16px; padding-left:1.1rem}
+.mode-card li{margin:.3rem 0}
+.mode-card .btn{margin-top:auto; align-self:flex-start; padding:11px 18px; font-size:1.02rem}
+.mode-card.exam .btn{background:var(--bleu); border-color:var(--bleu)}
+.mode-card.exam .btn:hover{background:#17508F}
+.home-note{margin:18px 0 0}
+
+/* ==================== MODES ==================== */
+body:not(.mode-training) .only-training,body:not(.mode-exam) .only-exam{display:none}
+.print-nograde{display:none}
+.mode-exam .btn-validate,.mode-exam .btn-fast,.mode-exam .btn-sketch,
+.mode-exam:not(.graded) .exam-only-hide{display:none!important}
+.mode-exam:not(.graded) .score-block,.mode-training .exam-block,.mode-exam.graded .exam-block{display:none}
+.mode-exam:not(.graded) #recap-graded,.mode-exam:not(.graded) #recap-foot,
+.mode-exam.graded #exam-submit-wrap,.mode-training #exam-submit-wrap{display:none}
+.banner .exam-state{font:700 1.05rem var(--f-titre); color:var(--jaune)}
+#exam-submit-wrap{padding:16px 20px 4px}
+.es-lead{margin:0 0 10px; max-width:74ch}
+.btn-exam{background:var(--bleu); border-color:var(--bleu); padding:12px 20px; font-size:1.05rem}
+.btn-exam:hover{background:#17508F}
+.es-warn{margin:8px 0 0; color:var(--rouge); font-weight:600}
+.es-warn:empty{display:none}
+
+/* ==================== CHRONOMÈTRE ==================== */
+.timer-block{padding-left:4px}
+.banner .timer{font:700 1.3rem/1 var(--f-titre); color:#fff; font-variant-numeric:tabular-nums}
+.banner .timer.over{color:var(--jaune)}
+@media (max-width:760px){ .banner .count{display:none} }
+
+@media print{
+  #home{display:none!important}
+  body:not(.corrections-open) .print-note-line{display:none!important}
+  body:not(.corrections-open) .print-nograde{display:block!important; font-weight:600}
+  .banner{display:none!important}
+  body:not(.corrections-open) .q-expl,body:not(.corrections-open) .selfeval,
+  body:not(.corrections-open) .sk-print-corr{display:none!important}
+  body:not(.corrections-open) #recap-graded{display:none!important}
+  #exam-submit-wrap{display:none!important}
+}
+
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+</style>
+<style>/* EXTENSIONS du gabarit (additives : le bloc de style ci-dessus n'est pas modifié) */
+/* Méthode : aide du mode entraînement, jamais accessible en mode examen (ni onglet, ni bouton, ni puce) */
+.mode-exam .training-only{display:none!important}
+.tab.meth{font-size:.78rem; letter-spacing:-.02em; padding-left:0}
+.doc-text ol,.doc-text ul{padding-left:1.2rem}
+.doc-text li{margin:.3rem 0}
+/* figure insérée dans une partie ; largeur maximale donnée en ligne (style="max-width:…") */
+.q-fig{margin:10px 0 6px}
+.q-fig img{width:100%; height:auto; border:1px solid var(--trait-fin); background:#fff}
+/* sous-partie d'une partie */
+.sub-head{margin:22px 0 4px; padding:6px 12px; background:#EEF0EC; border-left:5px solid var(--jaune); font:700 1.05rem var(--f-titre)}
+.sub-head+p{margin-top:6px}
+/* torseur {X L ; Y M ; Z N}_point : affichage (tm) et saisie en six cases (torseur-q, mécanique fast-q du moteur) */
+.tm{display:inline-flex; align-items:center; gap:4px; font-family:var(--f-titre); vertical-align:middle; margin:4px 0}
+.tm-nom{font-weight:700; margin-right:4px; white-space:nowrap}
+.tm-b{font:300 4.2rem/1 var(--f-texte); transform:scaleX(.55); color:var(--encre)}
+.tm-g{display:grid; grid-template-columns:auto auto; gap:4px 18px; align-items:center}
+.tm-c{min-width:3.6em; text-align:right; font-weight:600; font-variant-numeric:tabular-nums}
+.tm-p{font-weight:700; align-self:flex-end; margin-bottom:8px}
+.tq-wrap{overflow-x:auto; padding:2px 0}
+.torseur-q{margin:14px 0 6px; padding:10px 0 12px 14px; border-left:3px solid var(--trait-fin)}
+.torseur-q .tm-c{min-width:0}
+.torseur-q .sol{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+.torseur-q .tq-lab{font:700 .85rem var(--f-titre); color:var(--encre-2); width:1.1em}
+.torseur-q .sol input{width:8.5em; max-width:34vw; border:1.5px solid var(--encre-2); padding:6px 8px; background:#fff; border-radius:2px; font:inherit; text-align:right}
+.torseur-q .sol input:disabled{background:#F2F3F1; -webkit-text-fill-color:var(--encre)}
+.torseur-q .sol.is-ok input{border:2px solid var(--vert); background:var(--vert-pale)}
+.torseur-q .sol.is-ko input{border:2px solid var(--rouge); background:var(--rouge-pale)}
+.torseur-q .sol{flex-wrap:nowrap}
+.torseur-q .sol .mark{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0)}
+.torseur-q .sol::after{content:""; display:inline-block; width:1em; font-weight:700}
+.torseur-q .sol.is-ok::after{content:"✓"; color:var(--vert)} .torseur-q .sol.is-ko::after{content:"✗"; color:var(--rouge)}
+@media print{ .torseur-q .sol input{width:6em} }
+</style>
+<style>
+/* ===================== COURS INTERACTIFS (repris de la construction des cours du dépôt RDM) =====================
+   S'ajoute au bloc de style du gabarit, qui fournit la charte (couleurs, polices, parties, boutons). */
+body.cours-page{padding-bottom:48px}
+body.cours-page .page{max-width:1040px}
+.cours .part{margin-bottom:26px}
+.lecture{position:fixed; top:0; left:0; height:4px; width:0; background:var(--jaune); z-index:60; transition:width .1s linear}
+.cours-tete{background:var(--papier); border:2px solid var(--encre); border-left:10px solid var(--jaune); padding:18px 24px; margin:0 0 14px}
+.cours-tete h1{margin:8px 0 6px; font:700 clamp(1.7rem,4vw,2.5rem)/1.06 var(--f-titre); letter-spacing:-.01em}
+.cours-tete p{margin:0; max-width:78ch; color:var(--encre-2)}
+.pastille{display:inline-block; font:700 .72rem var(--f-titre); letter-spacing:.03em; background:var(--vert); color:#fff; padding:2px 8px; margin-left:6px; vertical-align:middle}
+.pastille.n2{background:var(--bleu)}
+.cours-cadre{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin:0 0 16px}
+@media (max-width:700px){ .cours-cadre{grid-template-columns:1fr} }
+.cours-cadre>div{background:var(--papier); border:1px solid var(--trait); padding:10px 16px}
+.cours-cadre h2{font:700 1rem var(--f-titre); margin:0 0 4px; text-transform:uppercase; letter-spacing:.05em; color:var(--encre-2)}
+.cours-cadre ul{margin:0; padding-left:1.1rem}
+.cours-nav{position:sticky; top:4px; z-index:30; display:flex; flex-wrap:wrap; gap:6px; margin:0 0 18px; padding:8px; background:rgba(227,229,224,.94); border:1px solid var(--trait-fin)}
+.cours-nav a{font:600 .9rem var(--f-titre); color:var(--encre); background:var(--papier); border:1.5px solid var(--encre); padding:4px 11px; text-decoration:none}
+.cours-nav a:hover{background:var(--jaune-pale)}
+.cours-nav a.on{background:var(--encre); color:var(--jaune)}
+.cours-sec .part-head h2{padding:14px 16px}
+.cours-split{display:flex; gap:20px; align-items:flex-start; flex-wrap:wrap}
+.cours-split>div{flex:1 1 300px; min-width:0}
+.cours-split>figure{flex:0 1 auto}
+.cours-defi{font-weight:700; color:var(--bleu); margin:12px 0 6px}
+.cours-defi::before{content:"▶ "; font-size:.8em}
+.formule{display:flex; flex-wrap:wrap; gap:10px 28px; align-items:center; border:2px solid var(--rouge); background:#fff; padding:10px 18px; margin:12px 0; max-width:680px}
+.formule .f-main{font:700 1.4rem var(--f-titre); line-height:1.9}
+.formule .f-units{font-size:.9rem; color:var(--encre-2)}
+.exemple{background:#F6F7F4; border:1px solid var(--trait-fin); border-left:5px solid var(--bleu); padding:6px 16px; margin:12px 0}
+.exemple h3,.cours-sec h3{font:700 1.08rem var(--f-titre); margin:14px 0 6px}
+.remarque{background:var(--jaune-pale); border-left:5px solid var(--jaune); padding:8px 14px; margin:12px 0; max-width:78ch}
+.remarque p{margin:.2rem 0}
+/* « À toi » : la réponse se dévoile après avoir cherché */
+details.a-toi{border:2px dashed var(--bleu); background:#fff; margin:12px 0; max-width:680px}
+details.a-toi>summary{cursor:pointer; padding:8px 14px; font-weight:700; color:var(--bleu); list-style:none}
+details.a-toi>summary::-webkit-details-marker{display:none}
+details.a-toi>summary::before{content:"✎ "}
+details.a-toi[open]>summary{border-bottom:1px dashed var(--bleu)}
+details.a-toi>div{padding:4px 14px 10px}
+details.a-toi .formule{border-color:var(--vert); margin:8px 0}
+/* simulateurs */
+.simu{border:2px solid var(--bleu); background:var(--bleu-pale); padding:12px 16px; margin:16px 0}
+.simu>h3{margin:0 0 8px; font:700 1.15rem var(--f-titre); color:var(--bleu)}
+.simu-corps{display:grid; grid-template-columns:minmax(0,1.45fr) minmax(0,1fr); gap:16px; align-items:start}
+@media (max-width:820px){ .simu-corps{grid-template-columns:1fr} }
+.simu svg{display:block; width:100%; height:auto; background:#fff; border:1px solid var(--trait); touch-action:none; user-select:none}
+.simu-grid{display:grid; gap:10px}
+.simu-grid label{display:flex; flex-direction:column; gap:3px; font-weight:600; font-size:.92rem}
+.simu-grid output{font:700 1rem var(--f-titre); color:var(--bleu)}
+.simu-grid input[type=range]{width:100%; accent-color:var(--bleu)}
+.simu-choix{display:flex; flex-wrap:wrap; gap:6px}
+.simu-choix button{border:1.5px solid var(--encre); background:#fff; padding:5px 10px; font:600 .9rem var(--f-titre); cursor:pointer}
+.simu-choix button[aria-pressed="true"]{background:var(--encre); color:var(--jaune)}
+.simu-out{display:grid; gap:6px; margin:4px 0}
+.simu-out>div:not(.simu-calc){background:var(--encre); color:#fff; padding:6px 10px}
+.simu-out>div:not(.simu-calc)>span:first-child{display:block; font-size:.78rem; color:#D7DDE2}
+.simu-out>div:not(.simu-calc)>b{font:700 1.05rem var(--f-titre); color:var(--jaune)}
+.simu-out .vec{color:inherit}
+.simu-calc{background:#fff; border:1px solid var(--trait); padding:8px 12px; font-variant-numeric:tabular-nums; margin:6px 0}
+.simu-calc p{margin:.15rem 0}
+.simu-verdict{font-weight:700; margin:8px 0 2px; min-height:1.4em}
+.simu-verdict.ok{color:var(--vert)} .simu-verdict.ko{color:var(--rouge)}
+.simu-aide{font-size:.85rem; color:var(--encre-2); margin:6px 0 0}
+.defi{background:#fff; border:1px dashed var(--bleu); padding:6px 10px; margin-top:8px}
+.defi b{color:var(--bleu)}
+.defi .defi-ok{color:var(--vert); font-weight:700}
+.jauge{position:relative; height:16px; background:#fff; border:1px solid var(--trait); margin:6px 0}
+.jauge-bar{height:100%; width:0; background:var(--bleu); transition:width .15s}
+.jauge-bar.ok{background:var(--vert)}
+.jauge-cible{position:absolute; top:-5px; bottom:-5px; border-left:3px solid var(--rouge)}
+/* éléments SVG */
+.g-grille line{stroke:#E1E5E2; stroke-width:1}
+.g-axe{stroke:var(--encre); stroke-width:2; fill:none}
+.g-lab{font:600 15px var(--f-texte); fill:var(--encre)}
+.g-lab-s{font:600 12px var(--f-texte); fill:var(--encre-2)}
+.g-pt{cursor:grab; outline:none}
+.g-pt:active{cursor:grabbing}
+.g-pt circle.h{fill:transparent}
+.g-pt circle.v{stroke:var(--encre); stroke-width:2.5}
+.g-pt:focus circle.v,.g-pt:hover circle.v{stroke:var(--jaune); stroke-width:4}
+/* carte des disciplines */
+.carte-svg .noeud ellipse{stroke:none; transition:opacity .2s}
+.carte-svg .noeud text{font:700 15px var(--f-titre); fill:var(--encre); text-anchor:middle}
+.carte-svg .lien{stroke:#B9C0BC; stroke-width:2; transition:stroke .2s, stroke-width .2s}
+.carte-svg .lien.on{stroke:var(--encre); stroke-width:4.5}
+.carte-svg.choix .noeud:not(.on) ellipse{opacity:.25}
+.carte-svg .disc{font:italic 600 14px var(--f-texte); fill:var(--encre-2); text-anchor:middle}
+.carte-svg .disc.on{fill:var(--bleu); font-weight:800}
+.carte-txt{background:var(--jaune-pale); border-left:5px solid var(--jaune); padding:10px 14px; min-height:70px}
+.disc-corps{display:grid; gap:10px}
+.disc-corps svg{max-width:760px}
+.carte-txt p{margin:0}
+/* cartes à retourner */
+.cartes{display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; margin:8px 0 14px}
+.carte{display:flex; flex-direction:column; gap:6px; align-items:flex-start; text-align:left; min-height:104px; padding:12px 14px; border:2px solid var(--encre); background:var(--jaune-pale); font:inherit; color:inherit; cursor:pointer}
+.carte b{font:700 1.12rem var(--f-titre)}
+.carte .dos{display:none}
+.carte[aria-expanded="true"]{background:#fff}
+.carte[aria-expanded="true"] .dos{display:block}
+.carte[aria-expanded="false"]::after{content:"Clique pour retourner"; font-size:.8rem; color:var(--encre-2)}
+/* textes à trous */
+.trous{background:#fff; border:1px solid var(--trait); padding:10px 16px; margin:10px 0; max-width:820px}
+.trous p,.trous li{line-height:2.1}
+.trous select{font:inherit; padding:2px 4px; border:1.5px solid var(--encre-2); background:#fff; max-width:100%}
+.trous select.ok{background:var(--vert-pale); border-color:var(--vert)}
+.trous select.ko{background:var(--rouge-pale); border-color:var(--rouge)}
+.trous-foot{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:6px}
+.frac{display:inline-flex; flex-direction:column; align-items:center; vertical-align:middle; margin:0 4px}
+.frac>span:first-child{border-bottom:2px solid var(--encre); padding:0 4px 3px}
+.frac>span:last-child{padding:3px 4px 0}
+/* vérification rapide */
+.check{display:flex; flex-wrap:wrap; gap:8px; align-items:center; background:#fff; border:1px solid var(--trait); padding:8px 12px; margin:10px 0; max-width:780px}
+.check>span:first-child{flex:1 1 100%; font-weight:600}
+.check input{width:9em; border:1.5px solid var(--encre-2); padding:5px 8px; font:inherit}
+.check .check-fb{font-weight:700}
+.check.is-ok{border-color:var(--vert); background:var(--vert-pale)} .check.is-ok .check-fb{color:var(--vert)}
+.check.is-ko .check-fb{color:var(--rouge)}
+/* étapes d'un exemple résolu */
+.stepper ol{margin:6px 0; padding-left:1.4rem}
+.stepper li{margin:.35rem 0}
+.stepper li[hidden]{display:none}
+.stepper-foot{display:flex; gap:8px; flex-wrap:wrap; margin-top:6px}
+/* produit vectoriel */
+.pv{border-collapse:collapse; margin:8px 0; font-variant-numeric:tabular-nums}
+.pv td,.pv th{border:1px solid var(--trait); padding:4px 6px; text-align:center}
+.pv th{background:#EEF0EC; font:600 .88rem var(--f-titre)}
+.pv input{width:5.6em; border:1.5px solid var(--encre-2); padding:3px 5px; text-align:right; font:inherit}
+.pv td.plus{background:#D9F0E1} .pv td.moins{background:#F9D9D5}
+.pv td.plus input{border-color:var(--vert)} .pv td.moins input{border-color:var(--rouge)}
+.pv .res{font:700 1rem var(--f-titre); min-width:6em}
+.pv .res.on{background:var(--jaune-pale)}
+.pv-op{font:700 1.4rem var(--f-titre); border:0!important; background:transparent!important}
+/* torseur */
+.tm{display:inline-flex; align-items:center; gap:4px; font-family:var(--f-titre); vertical-align:middle; margin:4px 0}
+.tm-nom{font-weight:700; margin-right:4px; white-space:nowrap}
+.tm-b{font:300 4.2rem/1 var(--f-texte); transform:scaleX(.55); color:var(--encre)}
+.tm-g{display:grid; grid-template-columns:auto auto; gap:4px 18px; align-items:center}
+.tm-c{min-width:3.6em; text-align:right; font-weight:600; font-variant-numeric:tabular-nums}
+.tm-p{font-weight:700; align-self:flex-end; margin-bottom:8px}
+.tm-c.clic{cursor:pointer; border-bottom:2px dotted var(--bleu); text-align:center}
+.tm-c.clic[aria-pressed="true"]{background:var(--jaune); border-bottom-color:var(--encre)}
+.torseurs-vivants{display:flex; flex-wrap:wrap; gap:6px 22px; align-items:center}
+/* quiz */
+.quiz{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:12px}
+.quiz-q{border:1.5px solid var(--encre); background:#fff; padding:8px 14px 10px; margin:0}
+.quiz-q legend{font-weight:700; padding:0 4px}
+.quiz-q label{display:block; padding:3px 0; cursor:pointer}
+.quiz-q.is-ok{border-color:var(--vert); background:var(--vert-pale)}
+.quiz-q.is-ko{border-color:var(--rouge); background:var(--rouge-pale)}
+.quiz-q label.good{font-weight:700; color:var(--vert)}
+.quiz-fb{margin:4px 0 0; font-weight:700}
+.quiz-q.is-ok .quiz-fb{color:var(--vert)} .quiz-q.is-ko .quiz-fb{color:var(--rouge)}
+.quiz-why{margin:2px 0 0; font-size:.9rem}
+.quiz-score{display:flex; align-items:center; flex-wrap:wrap; gap:14px; margin:14px 0 0; font:700 1.3rem var(--f-titre)}
+.quiz-score .btn{font:600 .95rem var(--f-texte)}
+.qz-stars{color:var(--jaune); font-size:1.6rem; letter-spacing:2px; -webkit-text-stroke:1px var(--encre)}
+.cours-foot{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:6px 0 0}
+.cours-foot a.btn{display:inline-flex; align-items:center; gap:8px; text-decoration:none}
+@media print{
+  .lecture,.cours-nav,.cours-foot,.no-print,.simu-choix,.trous-foot,.stepper-foot,.defi,.simu-grid,.quiz-score button{display:none!important}
+  body.cours-page{padding:0; background:#fff}
+  .stepper li[hidden],.quiz-why[hidden]{display:block!important}
+  .simu,.exemple,.formule,.remarque,.cartes,.quiz-q{break-inside:avoid}
+  .carte .dos{display:block!important}
+  .carte::after{display:none!important}
+}
+</style>
+<style>/* lien de retour vers l'accueil du dépôt */
+.retour-accueil{display:inline-flex; align-items:center; gap:8px; text-decoration:none; margin:0 0 14px}
+.retour-accueil svg{width:18px; height:18px; flex:0 0 auto}
+</style>
+</head>
+<body class="cours-page">
+<div class="lecture" aria-hidden="true"></div>
+<main class="page cours"><p class="home-back no-print"><a class="btn ghost retour-accueil" href="index.html"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 9.8V20h4.5v-5.5h4V20h4.5V9.8"/></svg> Accueil : Modélisation des actions mécaniques</a></p>
+<header class="cours-tete"><span class="mc-tag">Cours 1</span><span class="pastille">Niveau 1</span><h1>Projection d'une force</h1><p>Décrire une force par ses coordonnées : vecteur, norme, trigonométrie et projection sur les axes. Environ 30 minutes : manipule les figures, relève les défis, puis teste-toi avec le quiz.</p></header>
+<div class="cours-cadre"><div><h2>Objectif</h2><ul><li>Écrire les coordonnées d'un vecteur force.</li></ul></div><div><h2>Prérequis</h2><ul><li>Mathématiques : notion de vecteur.</li></ul></div></div>
+<nav class="cours-nav no-print" aria-label="Étapes du cours"><a href="#c1-meca">1. La mécanique</a><a href="#c1-coord">2. Coordonnées</a><a href="#c1-norme">3. Norme</a><a href="#c1-trigo">4. Trigonométrie</a><a href="#c1-proj">5. Projection</a><a href="#c1-quiz">6. Quiz</a></nav>
+<section class="part cours-sec" id="c1-meca" aria-labelledby="c1-meca-t"><header class="part-head"><div class="part-num" aria-hidden="true">1</div><div><h2 id="c1-meca-t">Pourquoi modéliser les actions mécaniques ?</h2></div></header><div class="part-body"><p>Le comportement mécanique d'une structure est conditionné par une <b>géométrie</b>, un ou des <b>matériaux</b>, des <b>mouvements</b>, des <b>efforts</b> appliqués et des déformations qui en découlent. Prédire et maîtriser le comportement mécanique d'un système, c'est maîtriser la relation entre tous ces éléments.</p><div class="simu" data-widget="disciplines"><h3>Les grandes branches de la mécanique</h3><div class="disc-corps"><div><svg class="carte-svg" viewBox="0 0 680 256" role="img" aria-label="Carte reliant accélération, effort, matériaux, vitesse et géométrie par la dynamique, la statique, la cinématique et la résistance des matériaux"><line class="lien" data-d="dynamique" x1="120" y1="52" x2="360" y2="60"/><line class="lien" data-d="dynamique" x1="120" y1="52" x2="96" y2="182"/><line class="lien" data-d="cinematique dynamique" x1="96" y1="182" x2="360" y2="206"/><line class="lien" data-d="statique dynamique rdm" x1="360" y1="60" x2="360" y2="206"/><line class="lien" data-d="rdm" x1="360" y1="60" x2="590" y2="114"/><line class="lien" data-d="rdm" x1="360" y1="206" x2="590" y2="114"/><g class="noeud" data-d="dynamique"><ellipse cx="120" cy="52" rx="76" ry="30" fill="#E2A3A2"/><text x="120" y="57">Accélération</text></g><g class="noeud" data-d="statique dynamique rdm"><ellipse cx="360" cy="60" rx="76" ry="30" fill="#F9C49A"/><text x="360" y="65">Effort</text></g><g class="noeud" data-d="rdm"><ellipse cx="590" cy="114" rx="76" ry="30" fill="#CFC8A6"/><text x="590" y="119">Matériaux</text></g><g class="noeud" data-d="cinematique dynamique"><ellipse cx="96" cy="182" rx="76" ry="30" fill="#9BD2E0"/><text x="96" y="187">Vitesse</text></g><g class="noeud" data-d="statique cinematique dynamique rdm"><ellipse cx="360" cy="206" rx="76" ry="30" fill="#C8DCA4"/><text x="360" y="211">Géométrie</text></g><text class="disc" data-d="statique" x="405" y="136">Statique</text><text class="disc" data-d="cinematique" x="224" y="236">Cinématique</text><text class="disc" data-d="dynamique" x="70" y="120">Dynamique</text><text class="disc" data-d="rdm" x="555" y="186">Résistance des matériaux</text></svg></div><div><p class="cours-defi">À toi : clique sur chaque discipline.</p><div class="simu-choix carte-choix"><button type="button" class="carte-btn" data-d="statique" aria-pressed="false">Statique</button><button type="button" class="carte-btn" data-d="cinematique" aria-pressed="false">Cinématique</button><button type="button" class="carte-btn" data-d="dynamique" aria-pressed="false">Dynamique</button><button type="button" class="carte-btn" data-d="rdm" aria-pressed="false">Résistance des matériaux</button></div><div class="carte-txt"><p data-d="" class="small">Chaque discipline relie certaines grandeurs : choisis-en une pour les voir s'allumer.</p><p data-d="statique" hidden>Relation entre les <b>efforts</b> et la <b>géométrie</b> d'un système immobile : on écrit son équilibre. C'est le cœur de cette séquence : avant d'écrire un équilibre, il faut savoir <b>modéliser les actions mécaniques</b>.</p><p data-d="cinematique" hidden>Étude des mouvements — trajectoires, <b>vitesses</b> — à partir de la <b>géométrie</b> du mécanisme, sans s'occuper des efforts qui les provoquent.</p><p data-d="dynamique" hidden>Relie les <b>efforts</b> aux <b>accélérations</b> qu'ils provoquent, donc aux variations de <b>vitesse</b> : c'est le principe fondamental de la dynamique.</p><p data-d="rdm" hidden>Relie les <b>efforts</b> appliqués, la <b>géométrie</b> des pièces et leur <b>matériau</b> pour prévoir les déformations et vérifier qu'une pièce résiste.</p></div></div></div></div><p>Toutes ces disciplines manipulent des <b>forces</b>, que l'on représente par des <b>vecteurs</b>. Ce premier cours rappelle les outils mathématiques pour décrire une force par ses <b>coordonnées</b>.</p></div></section><section class="part cours-sec" id="c1-coord" aria-labelledby="c1-coord-t"><header class="part-head"><div class="part-num" aria-hidden="true">2</div><div><h2 id="c1-coord-t">Coordonnées d'un vecteur dans un repère</h2></div></header><div class="part-body"><div class="cours-split"><div><p>Le plan étant muni d'un repère (O, <span class="vec">i</span>, <span class="vec">j</span>), soit <span class="vec">u</span> un vecteur donné et M le point du plan tel que <span class="vec">OM</span> = <span class="vec">u</span>.</p><p>Si on note (x ; y) les coordonnées de M, alors :</p><div class="formule"><span class="f-main"><span class="vec">OM</span> = <span class="vec">u</span> = x <span class="vec">i</span> + y <span class="vec">j</span></span></div><p><b>Propriété</b> : soient les points O (x<sub>O</sub> ; y<sub>O</sub>) et M (x<sub>M</sub> ; y<sub>M</sub>). Le vecteur <span class="vec">OM</span> a pour coordonnées :</p><div class="formule"><span class="f-main"><span class="vec">OM</span> (x<sub>M</sub> − x<sub>O</sub> ; y<sub>M</sub> − y<sub>O</sub>)</span><span class="f-units">« arrivée moins départ », coordonnée par coordonnée</span></div></div></div><div class="simu" data-widget="repere"><h3>Simulateur : déplace les points A et B</h3><div class="simu-corps"><div><svg viewBox="0 0 460 320" role="img" aria-label="Repère (O, i, j) quadrillé ; points A et B déplaçables ; vecteur AB et ses deux composantes"></svg></div><div class="simu-grid"><p class="small">Fais glisser A et B (ou sélectionne-les et utilise les flèches du clavier). Les points s'accrochent au quadrillage.</p><div class="simu-out"><div><span>Point A</span><b data-o="A"></b></div><div><span>Point B</span><b data-o="B"></b></div><div><span>Coordonnées de AB</span><b data-o="AB"></b></div><div><span>Décomposition</span><b data-o="dec"></b></div><div><span>Norme ‖AB‖</span><b data-o="n"></b></div></div><div class="defi"><b>Défi :</b> place A et B pour que ‖AB‖ = 5 exactement, avec deux coordonnées non nulles. <span class="defi-ok" aria-live="polite"></span></div></div></div></div><div class="check" data-ans="-4" data-tol="0.001" data-why="y&lt;sub&gt;B&lt;/sub&gt; − y&lt;sub&gt;A&lt;/sub&gt; = 3 − 7 = −4 : de A vers B, on descend de 4."><span>A (2 ; 7) et B (5 ; 3). Que vaut la coordonnée y du vecteur AB ?</span><input type="text" inputmode="decimal" aria-label="Ta réponse" autocomplete="off">  <button type="button" class="btn ghost">Vérifier</button><span class="check-fb" aria-live="polite"></span></div></div></section><section class="part cours-sec" id="c1-norme" aria-labelledby="c1-norme-t"><header class="part-head"><div class="part-num" aria-hidden="true">3</div><div><h2 id="c1-norme-t">Norme d'un vecteur</h2></div></header><div class="part-body"><p>La norme du vecteur <span class="vec">u</span>, c'est-à-dire sa longueur, se calcule par la relation de <b>Pythagore</b> : les deux coordonnées sont les côtés de l'angle droit, le vecteur est l'hypoténuse.</p><details class="a-toi"><summary>À toi : complète la formule ‖<span class="vec">u</span>‖ = … sur ta feuille. Clique ensuite pour vérifier.</summary><div><div class="formule"><span class="f-main">‖<span class="vec">u</span>‖ = √(x² + y²)</span><span class="f-units">pour une force : F = √(F<sub>x</sub>² + F<sub>y</sub>²)</span></div></div></details><div class="check" data-ans="10" data-tol="0.001" data-why="√(6² + 8²) = √(36 + 64) = √100 = 10."><span>Calcule la norme du vecteur u (6 ; 8).</span><input type="text" inputmode="decimal" aria-label="Ta réponse" autocomplete="off">  <button type="button" class="btn ghost">Vérifier</button><span class="check-fb" aria-live="polite"></span></div><div class="check" data-ans="5" data-tol="0.001" data-why="√(3² + (−4)²) = √(9 + 16) = 5 : le signe disparaît, (−4)² = 16."><span>Calcule la norme du vecteur AB (3 ; −4).</span><input type="text" inputmode="decimal" aria-label="Ta réponse" autocomplete="off">  <button type="button" class="btn ghost">Vérifier</button><span class="check-fb" aria-live="polite"></span></div></div></section><section class="part cours-sec" id="c1-trigo" aria-labelledby="c1-trigo-t"><header class="part-head"><div class="part-num" aria-hidden="true">4</div><div><h2 id="c1-trigo-t">Relations trigonométriques</h2></div></header><div class="part-body"><p>Par définition, le <b>sinus</b>, le <b>cosinus</b> et la <b>tangente</b> de l'angle aigu de sommet A du triangle rectangle ABC (rectangle en C) sont des rapports de longueurs.</p><p class="cours-defi">À toi : complète les trois rapports, puis vérifie.</p><div class="trous"><p>cos(A) = <span class="frac"><span><select data-ok="côté adjacent" aria-label="Choisis"><option value="">…</option><option value="côté adjacent">côté adjacent</option><option value="côté opposé">côté opposé</option><option value="hypoténuse">hypoténuse</option></select></span><span><select data-ok="hypoténuse" aria-label="Choisis"><option value="">…</option><option value="côté adjacent">côté adjacent</option><option value="côté opposé">côté opposé</option><option value="hypoténuse">hypoténuse</option></select></span></span></p><p>sin(A) = <span class="frac"><span><select data-ok="côté opposé" aria-label="Choisis"><option value="">…</option><option value="côté adjacent">côté adjacent</option><option value="côté opposé">côté opposé</option><option value="hypoténuse">hypoténuse</option></select></span><span><select data-ok="hypoténuse" aria-label="Choisis"><option value="">…</option><option value="côté adjacent">côté adjacent</option><option value="côté opposé">côté opposé</option><option value="hypoténuse">hypoténuse</option></select></span></span></p><p>tan(A) = <span class="frac"><span><select data-ok="côté opposé" aria-label="Choisis"><option value="">…</option><option value="côté adjacent">côté adjacent</option><option value="côté opposé">côté opposé</option><option value="hypoténuse">hypoténuse</option></select></span><span><select data-ok="côté adjacent" aria-label="Choisis"><option value="">…</option><option value="côté adjacent">côté adjacent</option><option value="côté opposé">côté opposé</option><option value="hypoténuse">hypoténuse</option></select></span></span></p><div class="trous-foot"><button type="button" class="btn trous-ok">Vérifier</button><button type="button" class="btn ghost trous-sol">Afficher la solution</button><b class="trous-s" aria-live="polite"></b></div></div><div class="remarque"><p><b>Moyen mnémotechnique : CAH SOH TOA</b> — <b>C</b>osinus = <b>A</b>djacent / <b>H</b>ypoténuse ; <b>S</b>inus = <b>O</b>pposé / <b>H</b>ypoténuse ; <b>T</b>angente = <b>O</b>pposé / <b>A</b>djacent.</p></div><div class="simu" data-widget="trigo"><h3>Simulateur : fais varier l'angle et la taille du triangle</h3><div class="simu-corps"><div><svg viewBox="0 0 460 300" role="img" aria-label="Triangle rectangle ABC, rectangle en C, d'angle A réglable : côté adjacent, côté opposé et hypoténuse"></svg><p class="simu-aide">Change la taille de l'hypoténuse : les rapports ne bougent pas. Ils ne dépendent que de l'angle.</p></div><div class="simu-grid"><label><span>Angle A : <output data-o="a"></output></span><input type="range" data-in="a" min="5" max="85" step="1" value="35"></label><label><span>Hypoténuse (cm) : <output data-o="h"></output></span><input type="range" data-in="h" min="2" max="10" step="0.5" value="8"></label><div class="simu-out"><div><span>cos A = adjacent / hypoténuse</span><b data-o="cos"></b></div><div><span>sin A = opposé / hypoténuse</span><b data-o="sin"></b></div><div><span>tan A = opposé / adjacent</span><b data-o="tan"></b></div></div><div class="defi"><b>Défis :</b> trouve l'angle pour lequel le côté opposé est égal au côté adjacent. <span class="defi-ok" data-defi="45"></span><br>Trouve l'angle pour lequel sin A = 0,5. <span class="defi-ok" data-defi="30"></span></div></div></div></div><div class="check" data-ans="5" data-tol="0.01" data-why="Côté opposé = hypoténuse × sin A = 10 × sin 30° = 10 × 0,5 = 5 cm."><span>Hypoténuse de 10 cm, angle A = 30°. Combien mesure le côté opposé à A (en cm) ?</span><input type="text" inputmode="decimal" aria-label="Ta réponse" autocomplete="off"> cm <button type="button" class="btn ghost">Vérifier</button><span class="check-fb" aria-live="polite"></span></div></div></section><section class="part cours-sec" id="c1-proj" aria-labelledby="c1-proj-t"><header class="part-head"><div class="part-num" aria-hidden="true">5</div><div><h2 id="c1-proj-t">Projection d'un vecteur force</h2></div></header><div class="part-body"><div class="cours-split"><div><p>Soit une force <span class="vec">F</span> inclinée d'un angle α par rapport à l'axe horizontal dans un repère (O, <span class="vec">i</span>, <span class="vec">j</span>).</p><p>La coordonnée <b style="color:#B42318">F<sub>x</sub></b> correspond à la projection du vecteur force <span class="vec">F</span> sur l'axe des abscisses ; la coordonnée <b style="color:#1F5FA8">F<sub>y</sub></b>, à sa projection sur l'axe des ordonnées.</p></div></div><details class="a-toi"><summary>À toi : écris F<sub>x</sub> et F<sub>y</sub> en fonction de ‖<span class="vec">F</span>‖ et de α. Clique ensuite pour vérifier.</summary><div><div class="formule"><span class="f-main">F<sub>x</sub> = ‖<span class="vec">F</span>‖ × cos α &nbsp; soit &nbsp; F<sub>x</sub> = F cos α</span></div><div class="formule"><span class="f-main">F<sub>y</sub> = ‖<span class="vec">F</span>‖ × sin α &nbsp; soit &nbsp; F<sub>y</sub> = F sin α</span><span class="f-units">F<sub>x</sub> est le côté adjacent à α, F<sub>y</sub> le côté opposé</span></div></div></details><h3>Cas d'un vecteur ayant une coordonnée négative</h3><p>Soit une force <span class="vec">F</span> inclinée d'un angle β par rapport à l'axe vertical, vers la gauche, dans le repère (O, <span class="vec">i</span>, <span class="vec">j</span>).</p><details class="a-toi"><summary>À toi : écris F<sub>x</sub> et F<sub>y</sub> en fonction de F et de β. Clique ensuite pour vérifier.</summary><div><div class="formule"><span class="f-main">F<sub>x</sub> = −‖<span class="vec">F</span>‖ × sin β &nbsp; soit &nbsp; F<sub>x</sub> = −F sin β</span><span class="f-units">côté opposé à β, la projection pointe vers x' : signe −</span></div><div class="formule"><span class="f-main">F<sub>y</sub> = ‖<span class="vec">F</span>‖ × cos β &nbsp; soit &nbsp; F<sub>y</sub> = F cos β</span><span class="f-units">côté adjacent à β</span></div></div></details><div class="simu" data-widget="projection"><h3>Simulateur : projette une force</h3><div class="simu-corps"><div><svg viewBox="0 0 460 380" role="img" aria-label="Repère (O, x, y) ; force F réglable et ses projections Fx sur x et Fy sur y"></svg><p class="simu-aide">Fais glisser l'extrémité jaune de la force, ou utilise les curseurs.</p></div><div class="simu-grid"><div class="simu-choix" role="group" aria-label="Angle de référence"><button type="button" data-mode="alpha" aria-pressed="true">α depuis l'axe x</button><button type="button" data-mode="beta" aria-pressed="false">β depuis l'axe y</button></div><label><span>Intensité F : <output data-o="F"></output></span><input type="range" data-in="F" min="0" max="1000" step="10" value="500"></label><label><span><span data-o="nom"></span> : <output data-o="ang"></output></span><input type="range" data-in="ang" min="-180" max="180" step="1" value="30"></label><div class="simu-out"><div class="simu-calc"><p data-o="fx"></p><p data-o="fy"></p></div><p class="small" data-o="signe"></p><p class="small" data-o="verif"></p></div><div class="defi"><b>Défis :</b> trouve un angle α pour lequel F<sub>x</sub> = F<sub>y</sub>. <span class="defi-ok" data-defi="egal"></span><br>Trouve un réglage pour lequel F<sub>x</sub> &lt; 0 et F<sub>y</sub> &gt; 0. <span class="defi-ok" data-defi="signe"></span></div></div></div></div><div class="remarque"><p><b>Le signe se lit sur la figure</b> : une coordonnée est positive si la projection pointe dans le sens de l'axe, négative sinon. Vérifie toujours que F<sub>x</sub>² + F<sub>y</sub>² = F².</p></div><div class="exemple stepper"><h3>Exemple résolu : une corde tirée vers le bas</h3><ol><li>Une corde exerce une force F = 400 N, inclinée de 25° <b>sous</b> l'axe x, vers la droite.</li><li>L'angle est mesuré depuis l'axe x : F<sub>x</sub> est le côté adjacent, F<sub>y</sub> le côté opposé.</li><li>F<sub>x</sub> = F cos 25° = 400 × 0,906 ≈ <b>362,52 N</b>, positive : la projection pointe vers la droite.</li><li>F<sub>y</sub> = −F sin 25° = −400 × 0,423 ≈ <b>−169,05 N</b>, négative : la force tire vers le bas.</li><li>Vérification : √(362,52² + 169,05²) ≈ 400 N. ✔</li></ol><div class="stepper-foot"><button type="button" class="btn st-next">Étape suivante</button><button type="button" class="btn ghost st-all">Tout afficher</button><button type="button" class="btn ghost st-reset">Recommencer</button></div></div><div class="check" data-ans="191.51" data-tol="0.01" data-why="F&lt;sub&gt;x&lt;/sub&gt; = 250 × cos 40° ≈ 191,51 N."><span>F = 250 N, inclinée de α = 40° sur l'axe x. Calcule F<sub>x</sub> au centième (en N).</span><input type="text" inputmode="decimal" aria-label="Ta réponse" autocomplete="off"> N <button type="button" class="btn ghost">Vérifier</button><span class="check-fb" aria-live="polite"></span></div></div></section><section class="part cours-sec" id="c1-quiz" aria-labelledby="c1-quiz-t"><header class="part-head"><div class="part-num" aria-hidden="true">6</div><div><h2 id="c1-quiz-t">Quiz : vérifie tes connaissances</h2></div></header><div class="part-body"><div class="quiz-bloc"><p>Choisis une réponse : la correction s'affiche aussitôt.</p><div class="quiz"><fieldset class="quiz-q" data-ok="0"><legend><span class="q-num">1</span> A (1 ; 2) et B (4 ; 6). Le vecteur AB a pour coordonnées…</legend><label><input type="radio" name="q1-0" value="0"> (3 ; 4)</label><label><input type="radio" name="q1-0" value="1"> (5 ; 8)</label><label><input type="radio" name="q1-0" value="2"> (−3 ; −4)</label><p class="quiz-fb" aria-live="polite"></p><p class="quiz-why" hidden>AB = (x<sub>B</sub> − x<sub>A</sub> ; y<sub>B</sub> − y<sub>A</sub>) = (4 − 1 ; 6 − 2) = (3 ; 4).</p></fieldset><fieldset class="quiz-q" data-ok="1"><legend><span class="q-num">2</span> La norme du vecteur u (3 ; 4) vaut…</legend><label><input type="radio" name="q1-1" value="0"> 7</label><label><input type="radio" name="q1-1" value="1"> 5</label><label><input type="radio" name="q1-1" value="2"> 25</label><p class="quiz-fb" aria-live="polite"></p><p class="quiz-why" hidden>‖u‖ = √(3² + 4²) = √25 = 5.</p></fieldset><fieldset class="quiz-q" data-ok="0"><legend><span class="q-num">3</span> Dans un triangle rectangle, cos A est égal à…</legend><label><input type="radio" name="q1-2" value="0"> côté adjacent / hypoténuse</label><label><input type="radio" name="q1-2" value="1"> côté opposé / hypoténuse</label><label><input type="radio" name="q1-2" value="2"> côté opposé / côté adjacent</label><p class="quiz-fb" aria-live="polite"></p><p class="quiz-why" hidden>CAH : Cosinus = Adjacent / Hypoténuse.</p></fieldset><fieldset class="quiz-q" data-ok="1"><legend><span class="q-num">4</span> F = 200 N est inclinée de 60° sur l'axe x. F<sub>x</sub> vaut…</legend><label><input type="radio" name="q1-3" value="0"> 173,21 N</label><label><input type="radio" name="q1-3" value="1"> 100 N</label><label><input type="radio" name="q1-3" value="2"> 200 N</label><p class="quiz-fb" aria-live="polite"></p><p class="quiz-why" hidden>F<sub>x</sub> = F cos 60° = 200 × 0,5 = 100 N.</p></fieldset><fieldset class="quiz-q" data-ok="2"><legend><span class="q-num">5</span> Même force : F<sub>y</sub> vaut…</legend><label><input type="radio" name="q1-4" value="0"> 100 N</label><label><input type="radio" name="q1-4" value="1"> 115,47 N</label><label><input type="radio" name="q1-4" value="2"> 173,21 N</label><p class="quiz-fb" aria-live="polite"></p><p class="quiz-why" hidden>F<sub>y</sub> = F sin 60° = 200 × 0,866 ≈ 173,21 N.</p></fieldset><fieldset class="quiz-q" data-ok="1"><legend><span class="q-num">6</span> F = 100 N est inclinée de β = 30° sur l'axe vertical, vers la gauche (comme dans le cours). F<sub>x</sub> vaut…</legend><label><input type="radio" name="q1-5" value="0"> 50 N</label><label><input type="radio" name="q1-5" value="1"> −50 N</label><label><input type="radio" name="q1-5" value="2"> −86,6 N</label><p class="quiz-fb" aria-live="polite"></p><p class="quiz-why" hidden>F<sub>x</sub> = −F sin β = −100 × 0,5 = −50 N : la projection pointe vers x'.</p></fieldset><fieldset class="quiz-q" data-ok="2"><legend><span class="q-num">7</span> Une force pointe vers la gauche et vers le bas. Les signes de (F<sub>x</sub> ; F<sub>y</sub>) sont…</legend><label><input type="radio" name="q1-6" value="0"> (+ ; −)</label><label><input type="radio" name="q1-6" value="1"> (− ; +)</label><label><input type="radio" name="q1-6" value="2"> (− ; −)</label><p class="quiz-fb" aria-live="polite"></p><p class="quiz-why" hidden>Vers la gauche : F<sub>x</sub> &lt; 0 ; vers le bas : F<sub>y</sub> &lt; 0.</p></fieldset><fieldset class="quiz-q" data-ok="1"><legend><span class="q-num">8</span> F<sub>x</sub> = 300 N et F<sub>y</sub> = 400 N. L'intensité F vaut…</legend><label><input type="radio" name="q1-7" value="0"> 700 N</label><label><input type="radio" name="q1-7" value="1"> 500 N</label><label><input type="radio" name="q1-7" value="2"> 350 N</label><p class="quiz-fb" aria-live="polite"></p><p class="quiz-why" hidden>F = √(300² + 400²) = √250 000 = 500 N : on n'additionne jamais directement les coordonnées.</p></fieldset></div><div class="quiz-score" aria-live="polite"><span class="qz-score"></span><span class="qz-stars" aria-hidden="true"></span><span class="qz-msg small"></span><button type="button" class="btn ghost qz-reset">Recommencer</button></div></div></div></section>
+<div class="cours-foot no-print"><span class="small">S'entraîner :</span> <a class="btn" href="exercice-projections.html">Exercice 1.2 — Projections d'une force</a>
+<button type="button" class="btn ghost cours-print">Imprimer le cours</button>
+<a class="btn ghost" href="index.html"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round" width="18" height="18"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 9.8V20h4.5v-5.5h4V20h4.5V9.8"/></svg> Retour à l'accueil</a></div>
+</main>
+<script>
+/* ===================== COURS INTERACTIFS : comportements communs et simulateurs =====================
+   Chaque bloc s'initialise seulement s'il est présent dans la page (data-widget="…"). Aucune dépendance externe. */
+(function () {
+  "use strict";
+  var NS = "http://www.w3.org/2000/svg";
+  var RAD = Math.PI / 180;
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+  // nombre au format français, sans « −0 »
+  function fr(x, d) {
+    if (d == null) d = 2;
+    if (Math.abs(x) < 0.5 * Math.pow(10, -d)) x = 0;
+    return x.toLocaleString("fr-FR", { minimumFractionDigits: d, maximumFractionDigits: d }).replace("-", "−");
+  }
+  // nombre « naturel » : au plus d décimales, zéros inutiles retirés
+  function frn(x, d) {
+    if (d == null) d = 3;
+    if (Math.abs(x) < 0.5 * Math.pow(10, -d)) x = 0;
+    return x.toLocaleString("fr-FR", { maximumFractionDigits: d }).replace("-", "−");
+  }
+  function par(x, d) { var s = frn(x, d); return x < 0 && Math.abs(x) >= 0.5 * Math.pow(10, -(d == null ? 3 : d)) ? "(" + s + ")" : s; }
+  function lireNombre(s) {
+    s = String(s).replace(/[−–]/g, "-").replace(/\s/g, "").replace(",", ".");
+    var m = s.match(/-?\d+(?:\.\d+)?/);
+    return m ? parseFloat(m[0]) : null;
+  }
+  function el(tag, attrs, parent, txt) {
+    var e = document.createElementNS(NS, tag);
+    Object.keys(attrs || {}).forEach(function (k) { e.setAttribute(k, attrs[k]); });
+    if (txt != null) e.textContent = txt;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function attr(e, a) { Object.keys(a).forEach(function (k) { e.setAttribute(k, a[k]); }); return e; }
+  function fleche(svg, id, couleur) {
+    var defs = $("defs", svg) || el("defs", {}, svg);
+    var m = el("marker", { id: id, viewBox: "0 0 10 10", refX: "8.5", refY: "5", markerWidth: "7", markerHeight: "7",
+      orient: "auto-start-reverse", markerUnits: "userSpaceOnUse" }, defs);
+    attr(m, { markerWidth: "14", markerHeight: "14" });
+    el("path", { d: "M0 0 10 5 0 10z", fill: couleur }, m);
+    return "url(#" + id + ")";
+  }
+  function pointSvg(svg, evt) {
+    var p = svg.createSVGPoint();
+    p.x = evt.clientX; p.y = evt.clientY;
+    return p.matrixTransform(svg.getScreenCTM().inverse());
+  }
+  // point déplaçable à la souris, au doigt ou au clavier (flèches)
+  function deplacable(svg, g, onMove, onKey) {
+    var actif = false;
+    g.addEventListener("pointerdown", function (e) { actif = true; g.setPointerCapture(e.pointerId); e.preventDefault(); });
+    g.addEventListener("pointermove", function (e) { if (actif) onMove(pointSvg(svg, e)); });
+    g.addEventListener("pointerup", function () { actif = false; });
+    g.addEventListener("pointercancel", function () { actif = false; });
+    g.addEventListener("keydown", function (e) {
+      var d = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1] }[e.key];
+      if (d && onKey) { e.preventDefault(); onKey(d[0], d[1]); }
+    });
+  }
+  function poignee(svg, label, couleur, r) {
+    var g = el("g", { "class": "g-pt", tabindex: "0", role: "slider", "aria-label": label }, svg);
+    el("circle", { "class": "h", r: 18 }, g);
+    el("circle", { "class": "v", r: r || 7, fill: couleur || "#fff" }, g);
+    return g;
+  }
+  function placer(g, x, y) { g.setAttribute("transform", "translate(" + x + " " + y + ")"); }
+  function arc(cx, cy, r, a0, a1) {           // angles en degrés, sens trigonométrique, repère SVG (y vers le bas)
+    var x0 = cx + r * Math.cos(a0 * RAD), y0 = cy - r * Math.sin(a0 * RAD);
+    var x1 = cx + r * Math.cos(a1 * RAD), y1 = cy - r * Math.sin(a1 * RAD);
+    var large = Math.abs(a1 - a0) > 180 ? 1 : 0, sweep = a1 > a0 ? 0 : 1;
+    return "M" + x0.toFixed(1) + " " + y0.toFixed(1) + " A" + r + " " + r + " 0 " + large + " " + sweep + " " + x1.toFixed(1) + " " + y1.toFixed(1);
+  }
+
+  // ===================== barre de lecture et navigation =====================
+  var barre = $(".lecture");
+  if (barre) {
+    var maj = function () {
+      var h = document.documentElement.scrollHeight - innerHeight;
+      barre.style.width = (h > 0 ? clamp(scrollY / h, 0, 1) * 100 : 0) + "%";
+    };
+    addEventListener("scroll", maj, { passive: true }); maj();
+  }
+  var liens = $$(".cours-nav a");
+  if (liens.length && "IntersectionObserver" in window) {
+    var obs = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        liens.forEach(function (a) { a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id); });
+      });
+    }, { rootMargin: "-30% 0px -60% 0px" });
+    liens.forEach(function (a) { var s = $(a.getAttribute("href")); if (s) obs.observe(s); });
+  }
+
+  // ===================== quiz =====================
+  $$(".quiz-bloc").forEach(function (root) {
+    var qs = $$(".quiz-q", root);
+    function score() {
+      var n = qs.filter(function (f) { return f.classList.contains("is-ok"); }).length;
+      var fait = qs.filter(function (f) { return f.classList.contains("done"); }).length;
+      $(".qz-score", root).textContent = n + " / " + qs.length;
+      var et = n === qs.length ? 3 : n >= qs.length - 2 ? 2 : n >= qs.length / 2 ? 1 : 0;
+      $(".qz-stars", root).textContent = fait === qs.length ? "★★★".slice(0, et) + "☆☆☆".slice(0, 3 - et) : "";
+      $(".qz-msg", root).textContent = fait < qs.length ? (qs.length - fait) + " question(s) restante(s)" :
+        (et === 3 ? "Parfait : tu maîtrises ce cours." : et === 2 ? "Très bien : relis la correction des erreurs."
+          : "Relis les parties du cours concernées, puis recommence.");
+    }
+    qs.forEach(function (fs) {
+      fs.addEventListener("change", function (e) {
+        if (fs.classList.contains("done")) return;
+        var ok = e.target.value === fs.getAttribute("data-ok");
+        fs.classList.add("done", ok ? "is-ok" : "is-ko");
+        $(".quiz-fb", fs).textContent = ok ? "✔ Bonne réponse !" : "✘ Pas tout à fait.";
+        $(".quiz-why", fs).hidden = false;
+        $$("input", fs).forEach(function (i) {
+          i.disabled = true;
+          if (i.value === fs.getAttribute("data-ok")) i.parentNode.classList.add("good");
+        });
+        score();
+      });
+    });
+    $(".qz-reset", root).addEventListener("click", function () {
+      qs.forEach(function (fs) {
+        fs.classList.remove("done", "is-ok", "is-ko");
+        $(".quiz-fb", fs).textContent = "";
+        $(".quiz-why", fs).hidden = true;
+        $$("input", fs).forEach(function (i) { i.disabled = false; i.checked = false; i.parentNode.classList.remove("good"); });
+      });
+      score();
+    });
+    score();
+  });
+
+  // ===================== textes à trous =====================
+  $$(".trous").forEach(function (root) {
+    var sels = $$("select", root), out = $(".trous-s", root);
+    function verifier() {
+      var n = 0;
+      sels.forEach(function (s) {
+        var ok = s.value === s.getAttribute("data-ok");
+        s.classList.toggle("ok", ok); s.classList.toggle("ko", !ok && s.value !== "");
+        if (ok) n++;
+      });
+      out.textContent = n === sels.length ? "✔ Tout est juste !" : n + " / " + sels.length + " juste(s) : corrige les cases en rouge.";
+    }
+    $(".trous-ok", root).addEventListener("click", verifier);
+    $(".trous-sol", root).addEventListener("click", function () {
+      sels.forEach(function (s) { s.value = s.getAttribute("data-ok"); });
+      verifier();
+    });
+    sels.forEach(function (s) { s.addEventListener("change", function () { s.classList.remove("ok", "ko"); out.textContent = ""; }); });
+  });
+
+  // ===================== cartes à retourner =====================
+  $$(".carte").forEach(function (b) {
+    b.addEventListener("click", function () { b.setAttribute("aria-expanded", b.getAttribute("aria-expanded") === "true" ? "false" : "true"); });
+  });
+
+  // ===================== vérifications rapides =====================
+  $$(".check").forEach(function (root) {
+    var inp = $("input", root), fb = $(".check-fb", root), essais = 0;
+    var ans = parseFloat(root.getAttribute("data-ans")), tol = parseFloat(root.getAttribute("data-tol") || "0.01");
+    function test() {
+      var v = lireNombre(inp.value);
+      if (v === null) { fb.textContent = "Saisis un nombre."; return; }
+      essais++;
+      var ok = Math.abs(v - ans) <= tol + 1e-9;
+      root.classList.toggle("is-ok", ok); root.classList.toggle("is-ko", !ok);
+      fb.innerHTML = ok ? "✔ " + root.getAttribute("data-why") :
+        (essais >= 2 ? "✘ La réponse : " + root.getAttribute("data-why") : "✘ Pas encore : vérifie ton calcul et réessaie.");
+    }
+    $("button", root).addEventListener("click", test);
+    inp.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); test(); } });
+  });
+
+  // ===================== exemples pas à pas =====================
+  $$(".stepper").forEach(function (root) {
+    var items = $$("ol>li", root), n = 1;
+    function show() {
+      items.forEach(function (li, i) { li.hidden = i >= n; });
+      $(".st-next", root).disabled = n >= items.length;
+    }
+    $(".st-next", root).addEventListener("click", function () { n = Math.min(items.length, n + 1); show(); });
+    $(".st-all", root).addEventListener("click", function () { n = items.length; show(); });
+    $(".st-reset", root).addEventListener("click", function () { n = 1; show(); });
+    show();
+  });
+
+  // ===================== impression : réponses « À toi » visibles =====================
+  var ouverts = [];
+  addEventListener("beforeprint", function () {
+    ouverts = $$("details.a-toi").map(function (d) { var o = d.open; d.open = true; return o; });
+  });
+  addEventListener("afterprint", function () { $$("details.a-toi").forEach(function (d, i) { d.open = !!ouverts[i]; }); });
+  $$(".cours-print").forEach(function (b) { b.addEventListener("click", function () { window.print(); }); });
+
+  // ===================== carte des disciplines de la mécanique =====================
+  $$('[data-widget="disciplines"]').forEach(function (root) {
+    var svg = $("svg", root);
+    $$(".carte-btn", root).forEach(function (b) {
+      b.addEventListener("click", function () {
+        var d = b.getAttribute("data-d");
+        svg.classList.add("choix");
+        $$(".carte-btn", root).forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+        $$(".lien", svg).forEach(function (l) { l.classList.toggle("on", (" " + l.getAttribute("data-d") + " ").indexOf(" " + d + " ") >= 0); });
+        $$(".noeud", svg).forEach(function (n) { n.classList.toggle("on", (" " + n.getAttribute("data-d") + " ").indexOf(" " + d + " ") >= 0); });
+        $$(".disc", svg).forEach(function (t) { t.classList.toggle("on", t.getAttribute("data-d") === d); });
+        $$(".carte-txt p", root).forEach(function (p) { p.hidden = p.getAttribute("data-d") !== d; });
+      });
+    });
+  });
+
+  // ===================== vecteur AB dans un repère =====================
+  $$('[data-widget="repere"]').forEach(function (root) {
+    var svg = $("svg", root), U = 30, OX = 50, OY = 290, XM = 12, YM = 8;
+    var P = { A: { x: 1, y: 1 }, B: { x: 6, y: 5 } }, defiFait = false;
+    function X(x) { return OX + U * x; }
+    function Y(y) { return OY - U * y; }
+    var mk = fleche(svg, "fl-rep", "#1C2530"), mkV = fleche(svg, "fl-rep-v", "#1F5FA8"),
+        mkR = fleche(svg, "fl-rep-r", "#B42318"), mkB = fleche(svg, "fl-rep-b", "#1B7A43");
+    var gr = el("g", { "class": "g-grille" }, svg), i;
+    for (i = 0; i <= XM; i++) el("line", { x1: X(i), y1: Y(0), x2: X(i), y2: Y(YM) }, gr);
+    for (i = 0; i <= YM; i++) el("line", { x1: X(0), y1: Y(i), x2: X(XM), y2: Y(i) }, gr);
+    el("line", { x1: X(0) - 14, y1: OY, x2: X(XM) + 14, y2: OY, "class": "g-axe", "marker-end": mk }, svg);
+    el("line", { x1: OX, y1: Y(0) + 14, x2: OX, y2: Y(YM) - 14, "class": "g-axe", "marker-end": mk }, svg);
+    el("text", { x: X(XM) + 6, y: OY + 20, "class": "g-lab" }, svg, "x");
+    el("text", { x: OX + 8, y: Y(YM) - 4, "class": "g-lab" }, svg, "y");
+    el("text", { x: OX - 16, y: OY + 18, "class": "g-lab" }, svg, "O");
+    el("line", { x1: OX, y1: OY, x2: X(1), y2: OY, stroke: "#B42318", "stroke-width": 3, "marker-end": mkR }, svg);
+    el("line", { x1: OX, y1: OY, x2: OX, y2: Y(1), stroke: "#1B7A43", "stroke-width": 3, "marker-end": mkB }, svg);
+    el("text", { x: X(0.45), y: OY + 18, "class": "g-lab-s", fill: "#B42318" }, svg, "i");
+    el("text", { x: OX - 14, y: Y(0.55), "class": "g-lab-s" }, svg, "j");
+    for (i = 1; i <= XM; i++) el("text", { x: X(i), y: OY + 16, "class": "g-lab-s", "text-anchor": "middle" }, svg, i % 2 ? "" : String(i));
+    for (i = 2; i <= YM; i += 2) el("text", { x: OX - 8, y: Y(i) + 4, "class": "g-lab-s", "text-anchor": "end" }, svg, String(i));
+    var cH = el("line", { stroke: "#B42318", "stroke-width": 2.5, "stroke-dasharray": "6 4" }, svg);
+    var cV = el("line", { stroke: "#1B7A43", "stroke-width": 2.5, "stroke-dasharray": "6 4" }, svg);
+    var tH = el("text", { "class": "g-lab-s", fill: "#B42318", "text-anchor": "middle" }, svg);
+    var tV = el("text", { "class": "g-lab-s", fill: "#1B7A43" }, svg);
+    var vec = el("line", { stroke: "#1F5FA8", "stroke-width": 4, "marker-end": mkV }, svg);
+    var hA = poignee(svg, "Point A", "#fff"), hB = poignee(svg, "Point B", "#F2B705");
+    var lA = el("text", { "class": "g-lab" }, svg, "A"), lB = el("text", { "class": "g-lab" }, svg, "B");
+    function rendu() {
+      var a = P.A, b = P.B, dx = b.x - a.x, dy = b.y - a.y, n = Math.sqrt(dx * dx + dy * dy);
+      placer(hA, X(a.x), Y(a.y)); placer(hB, X(b.x), Y(b.y));
+      attr(lA, { x: X(a.x) - 18, y: Y(a.y) + 18 }); attr(lB, { x: X(b.x) + 10, y: Y(b.y) - 10 });
+      attr(cH, { x1: X(a.x), y1: Y(a.y), x2: X(b.x), y2: Y(a.y) });
+      attr(cV, { x1: X(b.x), y1: Y(a.y), x2: X(b.x), y2: Y(b.y) });
+      attr(tH, { x: (X(a.x) + X(b.x)) / 2, y: Y(a.y) + (dy >= 0 ? 18 : -8) }); tH.textContent = dx ? frn(dx) + " i" : "";
+      attr(tV, { x: X(b.x) + 8, y: (Y(a.y) + Y(b.y)) / 2 + 4 }); tV.textContent = dy ? frn(dy) + " j" : "";
+      if (n > 0.01) {
+        var k = (n * U - 9) / (n * U);
+        attr(vec, { x1: X(a.x), y1: Y(a.y), x2: X(a.x) + (X(b.x) - X(a.x)) * k, y2: Y(a.y) + (Y(b.y) - Y(a.y)) * k, visibility: "visible" });
+      } else vec.setAttribute("visibility", "hidden");
+      $('[data-o="A"]', root).textContent = "(" + a.x + " ; " + a.y + ")";
+      $('[data-o="B"]', root).textContent = "(" + b.x + " ; " + b.y + ")";
+      $('[data-o="AB"]', root).innerHTML = "(" + b.x + " − " + par(a.x) + " ; " + b.y + " − " + par(a.y) + ") = (" + frn(dx) + " ; " + frn(dy) + ")";
+      $('[data-o="dec"]', root).innerHTML = "<span class=\"vec\">AB</span> = " + frn(dx) + " <span class=\"vec\">i</span> " +
+        (dy < 0 ? "− " + frn(-dy) : "+ " + frn(dy)) + " <span class=\"vec\">j</span>";
+      $('[data-o="n"]', root).innerHTML = "√(" + par(dx) + "² + " + par(dy) + "²) = √" + frn(dx * dx + dy * dy) + " ≈ " + fr(n, 2);
+      if (!defiFait && dx && dy && Math.abs(n - 5) < 1e-9) {
+        defiFait = true;
+        $(".defi-ok", root).textContent = "✔ Bravo : " + Math.abs(dx) + "² + " + Math.abs(dy) + "² = 25 = 5². C'est le triangle « 3-4-5 » des charpentiers.";
+      }
+    }
+    function bouger(k) {
+      return function (pt) {
+        P[k] = { x: clamp(Math.round((pt.x - OX) / U), 0, XM), y: clamp(Math.round((OY - pt.y) / U), 0, YM) };
+        rendu();
+      };
+    }
+    function cle(k) { return function (dx, dy) { P[k] = { x: clamp(P[k].x + dx, 0, XM), y: clamp(P[k].y + dy, 0, YM) }; rendu(); }; }
+    deplacable(svg, hA, bouger("A"), cle("A"));
+    deplacable(svg, hB, bouger("B"), cle("B"));
+    rendu();
+  });
+
+  // ===================== triangle rectangle et rapports trigonométriques =====================
+  $$('[data-widget="trigo"]').forEach(function (root) {
+    var svg = $("svg", root), K = 25, AX = 60, BY = 268;
+    var sA = $('[data-in="a"]', root), sH = $('[data-in="h"]', root), defis = {};
+    var cAdj = "#C2185B", cOpp = "#0E8BA8", cHyp = "#7E57C2";
+    var adj = el("line", { stroke: cAdj, "stroke-width": 5 }, svg), opp = el("line", { stroke: cOpp, "stroke-width": 5 }, svg);
+    var hyp = el("line", { stroke: cHyp, "stroke-width": 5 }, svg);
+    var ang = el("path", { fill: "none", stroke: "#1C2530", "stroke-width": 2 }, svg), dr = el("path", { fill: "none", stroke: "#1C2530", "stroke-width": 1.5 }, svg);
+    var tA = el("text", { "class": "g-lab" }, svg, "A"), tB = el("text", { "class": "g-lab" }, svg, "B"), tC = el("text", { "class": "g-lab" }, svg, "C");
+    var tAdj = el("text", { "class": "g-lab-s", fill: cAdj, "text-anchor": "middle" }, svg), tOpp = el("text", { "class": "g-lab-s", fill: cOpp }, svg);
+    var tHyp = el("text", { "class": "g-lab-s", fill: cHyp, "text-anchor": "end" }, svg), tAng = el("text", { "class": "g-lab-s" }, svg);
+    function rendu() {
+      var a = +sA.value, h = +sH.value, ca = Math.cos(a * RAD), sa = Math.sin(a * RAD);
+      var la = h * ca, lo = h * sa, Cx = AX + la * K, By = BY - lo * K;
+      attr(adj, { x1: AX, y1: BY, x2: Cx, y2: BY }); attr(opp, { x1: Cx, y1: BY, x2: Cx, y2: By }); attr(hyp, { x1: AX, y1: BY, x2: Cx, y2: By });
+      attr(ang, { d: arc(AX, BY, 34, 0, a) });
+      attr(dr, { d: "M" + (Cx - 12) + " " + BY + " v-12 h12" });
+      attr(tA, { x: AX - 20, y: BY + 6 }); attr(tC, { x: Cx + 8, y: BY + 18 }); attr(tB, { x: Cx + 8, y: By - 4 });
+      attr(tAdj, { x: (AX + Cx) / 2, y: BY + 20 }); tAdj.textContent = "adjacent : " + fr(la, 1);
+      attr(tOpp, { x: Cx + 10, y: (BY + By) / 2 + 4 }); tOpp.textContent = "opposé : " + fr(lo, 1);
+      attr(tHyp, { x: (AX + Cx) / 2 - 8, y: (BY + By) / 2 - 8 }); tHyp.textContent = "hypoténuse : " + fr(h, 1);
+      attr(tAng, { x: AX + 40, y: BY - 10 }); tAng.textContent = a + "°";
+      $('[data-o="a"]', root).textContent = a + "°"; $('[data-o="h"]', root).textContent = fr(h, 1);
+      $('[data-o="cos"]', root).textContent = fr(la, 2) + " / " + fr(h, 1) + " = " + fr(ca, 3);
+      $('[data-o="sin"]', root).textContent = fr(lo, 2) + " / " + fr(h, 1) + " = " + fr(sa, 3);
+      $('[data-o="tan"]', root).textContent = fr(lo, 2) + " / " + fr(la, 2) + " = " + fr(sa / ca, 3);
+      if (a === 45 && !defis.d45) { defis.d45 = 1; $('[data-defi="45"]', root).textContent = "✔ À 45°, côté opposé = côté adjacent : tan 45° = 1."; }
+      if (a === 30 && !defis.d30) { defis.d30 = 1; $('[data-defi="30"]', root).textContent = "✔ sin 30° = 0,5 : le côté opposé vaut la moitié de l'hypoténuse."; }
+    }
+    sA.addEventListener("input", rendu); sH.addEventListener("input", rendu);
+    rendu();
+  });
+
+  // ===================== projection d'une force =====================
+  $$('[data-widget="projection"]').forEach(function (root) {
+    var svg = $("svg", root), OX = 230, OY = 200, S = 0.16;
+    var sF = $('[data-in="F"]', root), sAng = $('[data-in="ang"]', root), mode = "alpha", defis = {};
+    var mk = fleche(svg, "fl-pr", "#1C2530"), mkF = fleche(svg, "fl-pr-f", "#1B7A43"),
+        mkX = fleche(svg, "fl-pr-x", "#B42318"), mkY = fleche(svg, "fl-pr-y", "#1F5FA8");
+    el("line", { x1: 20, y1: OY, x2: 444, y2: OY, "class": "g-axe", "marker-end": mk }, svg);
+    el("line", { x1: OX, y1: 368, x2: OX, y2: 18, "class": "g-axe", "marker-end": mk }, svg);
+    el("text", { x: 446, y: OY + 22, "class": "g-lab" }, svg, "x"); el("text", { x: 8, y: OY - 8, "class": "g-lab" }, svg, "x'");
+    el("text", { x: OX + 10, y: 26, "class": "g-lab" }, svg, "y"); el("text", { x: OX + 10, y: 372, "class": "g-lab" }, svg, "y'");
+    el("text", { x: OX - 18, y: OY + 20, "class": "g-lab" }, svg, "O");
+    var pX = el("line", { stroke: "#7A848C", "stroke-width": 1.5, "stroke-dasharray": "5 4" }, svg);
+    var pY = el("line", { stroke: "#7A848C", "stroke-width": 1.5, "stroke-dasharray": "5 4" }, svg);
+    var vX = el("line", { stroke: "#B42318", "stroke-width": 5, "marker-end": mkX }, svg);
+    var vY = el("line", { stroke: "#1F5FA8", "stroke-width": 5, "marker-end": mkY }, svg);
+    var vF = el("line", { stroke: "#1B7A43", "stroke-width": 4, "marker-end": mkF }, svg);
+    var aP = el("path", { fill: "none", stroke: "#1C2530", "stroke-width": 1.8 }, svg), aT = el("text", { "class": "g-lab" }, svg);
+    var tF = el("text", { "class": "g-lab", fill: "#1B7A43" }, svg, "F"), tX = el("text", { "class": "g-lab", fill: "#B42318" }, svg, "Fx");
+    var tY = el("text", { "class": "g-lab", fill: "#1F5FA8" }, svg, "Fy");
+    var hT = poignee(svg, "Extrémité de la force F", "#F2B705");
+    function theta() { return mode === "alpha" ? +sAng.value : 90 + +sAng.value; }
+    function rendu() {
+      var F = +sF.value, t = theta(), fx = F * Math.cos(t * RAD), fy = F * Math.sin(t * RAD);
+      var tx = OX + S * fx, ty = OY - S * fy, L = Math.sqrt(fx * fx + fy * fy) * S;
+      attr(pX, { x1: tx, y1: ty, x2: tx, y2: OY }); attr(pY, { x1: tx, y1: ty, x2: OX, y2: ty });
+      function vecteur(e, x2, y2) {
+        var l = Math.hypot(x2 - OX, y2 - OY);
+        if (l < 10) { e.setAttribute("visibility", "hidden"); return; }
+        var k = (l - 7) / l;
+        attr(e, { x1: OX, y1: OY, x2: OX + (x2 - OX) * k, y2: OY + (y2 - OY) * k, visibility: "visible" });
+      }
+      vecteur(vX, tx, OY); vecteur(vY, OX, ty); vecteur(vF, tx, ty);
+      attr(tF, { x: tx + (fx >= 0 ? 8 : -20), y: ty + (fy >= 0 ? -6 : 18) });
+      attr(tX, { x: tx + (fx >= 0 ? -24 : 0), y: OY + (fy >= 0 ? 22 : -10) });
+      attr(tY, { x: OX + (fx >= 0 ? -30 : 8), y: ty + 5 });
+      var a0 = mode === "alpha" ? 0 : 90;
+      attr(aP, { d: L > 30 && Math.abs(t - a0) > 1 ? arc(OX, OY, Math.min(52, L - 10), a0, t) : "" });
+      var am = (a0 + t) / 2;
+      attr(aT, { x: OX + 64 * Math.cos(am * RAD) - 6, y: OY - 64 * Math.sin(am * RAD) + 5 });
+      aT.textContent = mode === "alpha" ? "α" : "β";
+      placer(hT, tx, ty);
+      var a = +sAng.value, nom = mode === "alpha" ? "α" : "β";
+      $('[data-o="F"]', root).textContent = fr(F, 0) + " N";
+      $('[data-o="ang"]', root).textContent = nom + " = " + a + "°";
+      $('[data-o="nom"]', root).textContent = mode === "alpha" ? "Angle α (depuis l'axe x)" : "Angle β (depuis l'axe y, vers x')";
+      var lx, ly;
+      if (mode === "alpha") {
+        lx = "F<sub>x</sub> = F × cos α = " + fr(F, 0) + " × cos(" + a + "°) = <b>" + fr(fx, 2) + " N</b>";
+        ly = "F<sub>y</sub> = F × sin α = " + fr(F, 0) + " × sin(" + a + "°) = <b>" + fr(fy, 2) + " N</b>";
+      } else {
+        lx = "F<sub>x</sub> = −F × sin β = −" + fr(F, 0) + " × sin(" + a + "°) = <b>" + fr(fx, 2) + " N</b>";
+        ly = "F<sub>y</sub> = F × cos β = " + fr(F, 0) + " × cos(" + a + "°) = <b>" + fr(fy, 2) + " N</b>";
+      }
+      $('[data-o="fx"]', root).innerHTML = lx; $('[data-o="fy"]', root).innerHTML = ly;
+      $('[data-o="signe"]', root).textContent = F ? "F" + "x " + (fx > 0.005 ? "> 0 : la projection pointe vers les x positifs" : fx < -0.005 ?
+        "< 0 : la projection pointe vers les x négatifs (x')" : "= 0 : F est perpendiculaire à l'axe x") + " ; Fy " + (fy > 0.005 ? "> 0." : fy < -0.005 ? "< 0." : "= 0.") : "";
+      $('[data-o="verif"]', root).textContent = "√(Fx² + Fy²) = " + fr(Math.sqrt(fx * fx + fy * fy), 2) + " N = F";
+      if (F >= 50 && Math.abs(fx - fy) < 0.01 && !defis.egal) { defis.egal = 1; $('[data-defi="egal"]', root).textContent = "✔ Trouvé : à 45° (ou −135°), cos α = sin α."; }
+      if (F >= 50 && fx < -1 && fy > 1 && !defis.signe) { defis.signe = 1; $('[data-defi="signe"]', root).textContent = "✔ Trouvé : F pointe vers le haut et vers la gauche."; }
+    }
+    function choisir(m) {
+      mode = m;
+      $$(".simu-choix button", root).forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-mode") === m ? "true" : "false"); });
+      if (m === "alpha") { sAng.min = -180; sAng.max = 180; sAng.value = 30; } else { sAng.min = 0; sAng.max = 180; sAng.value = 30; }
+      rendu();
+    }
+    $$(".simu-choix button", root).forEach(function (b) { b.addEventListener("click", function () { choisir(b.getAttribute("data-mode")); }); });
+    sF.addEventListener("input", rendu); sAng.addEventListener("input", rendu);
+    deplacable(svg, hT, function (pt) {
+      var dx = (pt.x - OX) / S, dy = (OY - pt.y) / S;
+      sF.value = clamp(Math.round(Math.hypot(dx, dy) / 10) * 10, 0, 1000);
+      var t = Math.round(Math.atan2(dy, dx) / RAD), b = t - 90;                // β : angle depuis l'axe y, vers x'
+      if (b <= -180) b += 360;
+      sAng.value = mode === "alpha" ? t : clamp(b, 0, 180);
+      rendu();
+    }, function (dx) { sAng.value = clamp(+sAng.value + dx, +sAng.min, +sAng.max); rendu(); });
+    rendu();
+  });
+
+  // ===================== clé de serrage : couple =====================
+  $$('[data-widget="cle"]').forEach(function (root) {
+    var svg = $("svg", root), OX = 70, OY = 120, K = 0.95, KF = 0.6;
+    var sF = $('[data-in="F"]', root), sL = $('[data-in="L"]', root), sA = $('[data-in="a"]', root), meilleur = null;
+    var mkF = fleche(svg, "fl-cle-f", "#1C2530"), mkM = fleche(svg, "fl-cle-m", "#B42318");
+    var manche = el("line", { stroke: "#1C2530", "stroke-width": 30, "stroke-linecap": "round" }, svg);
+    var mancheIn = el("line", { stroke: "#D7DDE2", "stroke-width": 25, "stroke-linecap": "round" }, svg);
+    el("circle", { cx: OX, cy: OY, r: 34, fill: "#D7DDE2", stroke: "#1C2530", "stroke-width": 2.5 }, svg);
+    var hex = [], i;
+    for (i = 0; i < 6; i++) hex.push((OX + 20 * Math.cos((i * 60 + 30) * RAD)).toFixed(1) + "," + (OY + 20 * Math.sin((i * 60 + 30) * RAD)).toFixed(1));
+    el("polygon", { points: hex.join(" "), fill: "#fff", stroke: "#1C2530", "stroke-width": 2 }, svg);
+    el("circle", { cx: OX, cy: OY, r: 3, fill: "#1C2530" }, svg);
+    el("text", { x: OX - 52, y: OY + 6, "class": "g-lab" }, svg, "O");
+    var ligne = el("line", { stroke: "#7A848C", "stroke-width": 1.5, "stroke-dasharray": "7 5" }, svg);
+    var bras = el("line", { stroke: "#F2B705", "stroke-width": 5 }, svg), equ = el("path", { fill: "none", stroke: "#1C2530", "stroke-width": 1.5 }, svg);
+    var tD = el("text", { "class": "g-lab", fill: "#9A6A00" }, svg, "d"), tH = el("text", { "class": "g-lab-s" }, svg, "H");
+    var force = el("line", { stroke: "#1C2530", "stroke-width": 4, "marker-end": mkF }, svg), tF = el("text", { "class": "g-lab" }, svg, "F");
+    var pA = el("circle", { r: 4, fill: "#1C2530" }, svg), tA = el("text", { "class": "g-lab" }, svg, "A");
+    var arcA = el("path", { fill: "none", stroke: "#1C2530", "stroke-width": 1.5 }, svg), tAl = el("text", { "class": "g-lab-s" }, svg, "α");
+    var rot = el("path", { fill: "none", stroke: "#B42318", "marker-end": mkM }, svg);
+    var jauge = $(".jauge-bar", root), cible = $(".jauge-cible", root), MAX = 80, CIBLE = 30;
+    cible.style.left = (CIBLE / MAX * 100) + "%";
+    function rendu() {
+      var F = +sF.value, L = +sL.value, a = +sA.value;
+      var Ax = OX + L * K, Ay = OY, t = 180 + a, ux = Math.cos(t * RAD), uy = -Math.sin(t * RAD);
+      attr(manche, { x1: OX, y1: OY, x2: Ax + 8, y2: OY }); attr(mancheIn, { x1: OX, y1: OY, x2: Ax + 8, y2: OY });
+      attr(pA, { cx: Ax, cy: Ay }); attr(tA, { x: Ax + 10, y: Ay - 18 });
+      attr(ligne, { x1: Ax - 700 * ux, y1: Ay - 700 * uy, x2: Ax + 700 * ux, y2: Ay + 700 * uy });
+      var lf = Math.max(F * KF, 1);
+      attr(force, { x1: Ax, y1: Ay, x2: Ax + lf * ux, y2: Ay + lf * uy, visibility: F > 0 ? "visible" : "hidden" });
+      attr(tF, { x: Ax + lf * ux + (ux < 0 ? -18 : 8), y: Ay + lf * uy + 16 });
+      var tt = (OX - Ax) * ux + (OY - Ay) * uy, Hx = Ax + tt * ux, Hy = Ay + tt * uy, d = L * Math.sin(a * RAD);
+      attr(bras, { x1: OX, y1: OY, x2: Hx, y2: Hy, visibility: d > 2 ? "visible" : "hidden" });
+      var nx = (OX - Hx), ny = (OY - Hy), nl = Math.hypot(nx, ny) || 1;
+      nx /= nl; ny /= nl;
+      attr(equ, { d: d > 12 ? "M" + (Hx + 10 * nx) + " " + (Hy + 10 * ny) + " l" + (10 * ux) + " " + (10 * uy) + " l" + (-10 * nx) + " " + (-10 * ny) : "" });
+      attr(tD, { x: (OX + Hx) / 2 + 10, y: (OY + Hy) / 2 + 4, visibility: d > 12 ? "visible" : "hidden" });
+      attr(tH, { x: Hx + 6, y: Hy + 14, visibility: d > 2 ? "visible" : "hidden" });
+      attr(arcA, { d: a > 2 && a < 178 ? arc(Ax, Ay, 30, 180, 180 + a) : "" });
+      attr(tAl, { x: Ax + 40 * Math.cos((180 + a / 2) * RAD) - 4, y: Ay - 40 * Math.sin((180 + a / 2) * RAD) + 4 });
+      var M = -F * (L / 1000) * Math.sin(a * RAD), aM = Math.abs(M);
+      attr(rot, { d: aM > 0.05 ? arc(OX, OY, 52, 100, -40) : "", "stroke-width": (2 + Math.min(7, aM / 10)).toFixed(1) });
+      $('[data-o="F"]', root).textContent = F + " N"; $('[data-o="L"]', root).textContent = L + " mm"; $('[data-o="a"]', root).textContent = a + "°";
+      $('[data-o="d"]', root).innerHTML = "d = OA × sin α = " + L + " × sin(" + a + "°) = <b>" + fr(d, 2) + " mm</b>";
+      $('[data-o="M"]', root).innerHTML = "‖M<sub>O</sub>‖ = F × d = " + F + " × " + fr(d / 1000, 4) + " = <b>" + fr(aM, 2) + " N·m</b>";
+      $('[data-o="sens"]', root).textContent = aM < 0.005 ? "Couple nul : la droite d'action de F passe par O (α = 0° ou 180°) ou F = 0."
+        : "Sens horaire (vu de dessus) : le couple est négatif, M = " + fr(M, 2) + " N·m.";
+      jauge.style.width = Math.min(100, aM / MAX * 100) + "%";
+      var atteint = Math.abs(aM - CIBLE) <= 0.5;
+      jauge.classList.toggle("ok", atteint);
+      var msg = $('[data-o="defi"]', root);
+      if (atteint) {
+        if (meilleur === null || F < meilleur) meilleur = F;
+        msg.textContent = F <= 75 ? "✔ Imbattable : 30 N·m avec 75 N seulement (OA = 400 mm, α = 90°). Bras de levier maximal, force minimale."
+          : "✔ 30 N·m atteints avec F = " + F + " N. Peux-tu y arriver avec une force plus faible ?";
+        msg.className = "defi-ok";
+      } else if (meilleur !== null) { msg.textContent = "Ton meilleur essai : " + meilleur + " N."; msg.className = ""; }
+    }
+    [sF, sL, sA].forEach(function (s) { s.addEventListener("input", rendu); });
+    rendu();
+  });
+
+  // ===================== produit vectoriel pas à pas =====================
+  $$('[data-widget="pvect"]').forEach(function (root) {
+    var ins = {}, comp = "x";
+    $$("input[data-v]", root).forEach(function (i) { ins[i.getAttribute("data-v")] = i; });
+    var REG = { x: ["y", "z", "z", "y"], y: ["z", "x", "x", "z"], z: ["x", "y", "y", "x"] };   // u·v' − u''·v'''
+    function val(k) { var v = lireNombre(ins[k].value); return v === null ? 0 : v; }
+    function calc(c) {
+      var r = REG[c];
+      return val("a" + r[0]) * val("b" + r[1]) - val("a" + r[2]) * val("b" + r[3]);
+    }
+    function rendu() {
+      ["x", "y", "z"].forEach(function (c) { $('[data-r="' + c + '"]', root).textContent = frn(calc(c)); });
+      $$("td", root).forEach(function (td) { td.classList.remove("plus", "moins"); });
+      $$(".res", root).forEach(function (td) { td.classList.toggle("on", td.getAttribute("data-r") === comp); });
+      var r = REG[comp];
+      ins["a" + r[0]].parentNode.classList.add("plus"); ins["b" + r[1]].parentNode.classList.add("plus");
+      ins["a" + r[2]].parentNode.classList.add("moins"); ins["b" + r[3]].parentNode.classList.add("moins");
+      $$("[data-c]", root).forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-c") === comp ? "true" : "false"); });
+      $('[data-o="detail"]', root).innerHTML = "Composante sur " + comp + " : " +
+        "<span style=\"background:#D9F0E1\">" + r[0] + "<sub>OA</sub> × " + r[1] + "<sub>F</sub></span> − " +
+        "<span style=\"background:#F9D9D5\">" + r[2] + "<sub>OA</sub> × " + r[3] + "<sub>F</sub></span> = " +
+        par(val("a" + r[0])) + " × " + par(val("b" + r[1])) + " − " + par(val("a" + r[2])) + " × " + par(val("b" + r[3])) +
+        " = <b>" + frn(calc(comp)) + "</b>";
+      var plan = Math.abs(val("az")) < 1e-12 && Math.abs(val("bz")) < 1e-12;
+      $('[data-o="plan"]', root).textContent = plan ? "OA et F sont dans le plan (x, y) : seule la composante sur z peut être non nulle, le moment est perpendiculaire au plan." : "";
+    }
+    $$("[data-c]", root).forEach(function (b) { b.addEventListener("click", function () { comp = b.getAttribute("data-c"); rendu(); }); });
+    $$("[data-preset]", root).forEach(function (b) {
+      b.addEventListener("click", function () {
+        var v = b.getAttribute("data-preset").split(" ");
+        ["ax", "ay", "az", "bx", "by", "bz"].forEach(function (k, i) { ins[k].value = v[i].replace(".", ","); });
+        rendu();
+      });
+    });
+    Object.keys(ins).forEach(function (k) { ins[k].addEventListener("input", rendu); });
+    rendu();
+  });
+
+  // ===================== torseur : changer de point de réduction =====================
+  $$('[data-widget="transport"]').forEach(function (root) {
+    var svg = $("svg", root), U = 40, OX = 40, OY = 300, XM = 11, YM = 7, KF = 200;   // 1 m = 40 px ; 1 m de flèche = 200 N
+    var A = { x: 3, y: 2 }, T = { x: 6, y: 4 }, B = { x: 1, y: 5 }, nuls = {};
+    function X(x) { return OX + U * x; }
+    function Y(y) { return OY - U * y; }
+    var mk = fleche(svg, "fl-tr", "#1C2530"), mkF = fleche(svg, "fl-tr-f", "#1B7A43");
+    var mkP = fleche(svg, "fl-tr-p", "#1F5FA8"), mkN = fleche(svg, "fl-tr-n", "#B42318");
+    var gr = el("g", { "class": "g-grille" }, svg), i;
+    for (i = 0; i <= XM; i++) el("line", { x1: X(i), y1: Y(0), x2: X(i), y2: Y(YM) }, gr);
+    for (i = 0; i <= YM; i++) el("line", { x1: X(0), y1: Y(i), x2: X(XM), y2: Y(i) }, gr);
+    el("line", { x1: X(0) - 10, y1: OY, x2: X(XM) + 14, y2: OY, "class": "g-axe", "marker-end": mk }, svg);
+    el("line", { x1: OX, y1: Y(0) + 10, x2: OX, y2: Y(YM) - 14, "class": "g-axe", "marker-end": mk }, svg);
+    el("text", { x: X(XM) + 4, y: OY + 22, "class": "g-lab" }, svg, "x"); el("text", { x: OX - 22, y: Y(YM) - 2, "class": "g-lab" }, svg, "y");
+    el("text", { x: OX - 18, y: OY + 18, "class": "g-lab" }, svg, "O");
+    for (i = 1; i <= XM; i++) el("text", { x: X(i), y: OY + 16, "class": "g-lab-s", "text-anchor": "middle" }, svg, String(i));
+    for (i = 1; i <= YM; i++) el("text", { x: OX - 8, y: Y(i) + 4, "class": "g-lab-s", "text-anchor": "end" }, svg, String(i));
+    var ligne = el("line", { stroke: "#1B7A43", "stroke-width": 1.5, "stroke-dasharray": "7 5" }, svg);
+    var perp = el("line", { stroke: "#F2B705", "stroke-width": 4 }, svg), ba = el("line", { stroke: "#7A848C", "stroke-width": 1.5, "stroke-dasharray": "3 4" }, svg);
+    var vF = el("line", { stroke: "#1B7A43", "stroke-width": 4, "marker-end": mkF }, svg);
+    var rot = el("path", { fill: "none", "stroke-width": 3 }, svg);
+    var hA = poignee(svg, "Point d'application A", "#fff"), hT = poignee(svg, "Extrémité de la force F", "#1B7A43", 6),
+        hB = poignee(svg, "Point de réduction B", "#F2B705");
+    var lA = el("text", { "class": "g-lab" }, svg, "A"), lB = el("text", { "class": "g-lab" }, svg, "B"), lF = el("text", { "class": "g-lab", fill: "#1B7A43" }, svg, "F");
+    function tors(cells, pt) {
+      return "<span class=\"tm\"><span class=\"tm-b\" aria-hidden=\"true\">{</span><span class=\"tm-g\">" +
+        cells.map(function (c) { return "<span class=\"tm-c\">" + c + "</span>"; }).join("") +
+        "</span><span class=\"tm-b\" aria-hidden=\"true\">}</span><sub class=\"tm-p\">" + pt + "</sub></span>";
+    }
+    function rendu() {
+      var Fx = (T.x - A.x) * KF, Fy = (T.y - A.y) * KF, Fn = Math.hypot(Fx, Fy);
+      var N = (A.x - B.x) * Fy - (A.y - B.y) * Fx;
+      placer(hA, X(A.x), Y(A.y)); placer(hT, X(T.x), Y(T.y)); placer(hB, X(B.x), Y(B.y));
+      attr(lA, { x: X(A.x) - 20, y: Y(A.y) + 20 }); attr(lB, { x: X(B.x) + 10, y: Y(B.y) - 10 }); attr(lF, { x: X(T.x) + 8, y: Y(T.y) - 8 });
+      if (Fn > 0) {
+        var ux = Fx / Fn, uy = Fy / Fn, l = Math.hypot(X(T.x) - X(A.x), Y(T.y) - Y(A.y)), k = (l - 7) / l;
+        attr(vF, { x1: X(A.x), y1: Y(A.y), x2: X(A.x) + (X(T.x) - X(A.x)) * k, y2: Y(A.y) + (Y(T.y) - Y(A.y)) * k, visibility: "visible" });
+        attr(ligne, { x1: X(A.x - 20 * ux), y1: Y(A.y - 20 * uy), x2: X(A.x + 20 * ux), y2: Y(A.y + 20 * uy), visibility: "visible" });
+        var t = (B.x - A.x) * ux + (B.y - A.y) * uy, Hx = A.x + t * ux, Hy = A.y + t * uy;
+        attr(perp, { x1: X(B.x), y1: Y(B.y), x2: X(Hx), y2: Y(Hy), visibility: Math.abs(N) > 1e-6 ? "visible" : "hidden" });
+      } else { vF.setAttribute("visibility", "hidden"); ligne.setAttribute("visibility", "hidden"); perp.setAttribute("visibility", "hidden"); }
+      attr(ba, { x1: X(B.x), y1: Y(B.y), x2: X(A.x), y2: Y(A.y) });
+      attr(rot, { d: Math.abs(N) > 1e-6 ? (N > 0 ? arc(X(B.x), Y(B.y), 24, -60, 200) : arc(X(B.x), Y(B.y), 24, 200, -60)) : "",
+        stroke: N > 0 ? "#1F5FA8" : "#B42318", "marker-end": N > 0 ? mkP : mkN });
+      $('[data-o="A"]', root).textContent = "A (" + frn(A.x) + " ; " + frn(A.y) + ") m";
+      $('[data-o="B"]', root).textContent = "B (" + frn(B.x) + " ; " + frn(B.y) + ") m";
+      $('[data-o="F"]', root).textContent = "F = (" + frn(Fx) + " ; " + frn(Fy) + " ; 0) N";
+      $('[data-o="tA"]', root).innerHTML = "{<i>T</i>}<sub>A</sub> = " + tors([frn(Fx), "0", frn(Fy), "0", "0", "0"], "A");
+      $('[data-o="tB"]', root).innerHTML = "{<i>T</i>}<sub>B</sub> = " + tors([frn(Fx), "0", frn(Fy), "0", "0", "<b>" + frn(N) + "</b>"], "B");
+      $('[data-o="N"]', root).innerHTML = "N = (x<sub>A</sub> − x<sub>B</sub>) F<sub>y</sub> − (y<sub>A</sub> − y<sub>B</sub>) F<sub>x</sub> = " +
+        par(A.x - B.x) + " × " + par(Fy) + " − " + par(A.y - B.y) + " × " + par(Fx) + " = <b>" + frn(N) + " N·m</b>";
+      var v = $('[data-o="verdict"]', root);
+      if (A.x === B.x && A.y === B.y) { v.textContent = "B = A : au point d'application, le moment est nul."; v.className = "simu-verdict ok"; }
+      else if (Math.abs(N) < 1e-6 && Fn > 0) {
+        v.textContent = "B est sur la droite d'action de F : le moment en B est nul."; v.className = "simu-verdict ok";
+        nuls[B.x + ";" + B.y] = 1;
+      } else {
+        v.textContent = N > 0 ? "Moment positif : autour de B, F tourne dans le sens trigonométrique." : "Moment négatif : autour de B, F tourne dans le sens horaire.";
+        v.className = "simu-verdict";
+      }
+      var n = Object.keys(nuls).length, dd = $('[data-o="defi"]', root);
+      dd.textContent = n >= 3 ? "✔ " + n + " points trouvés : ils sont tous alignés sur la droite d'action de F." : n + " / 3 point(s) trouvé(s).";
+      dd.className = n >= 3 ? "defi-ok" : "";
+    }
+    function grille(pt, pas) {
+      return { x: clamp(Math.round((pt.x - OX) / U / pas) * pas, 0, XM), y: clamp(Math.round((OY - pt.y) / U / pas) * pas, 0, YM) };
+    }
+    deplacable(svg, hA, function (pt) { var p = grille(pt, 0.5), dx = T.x - A.x, dy = T.y - A.y; A = p; T = { x: p.x + dx, y: p.y + dy }; rendu(); },
+      function (dx, dy) { A = { x: clamp(A.x + dx, 0, XM), y: clamp(A.y + dy, 0, YM) }; T = { x: T.x + dx, y: T.y + dy }; rendu(); });
+    deplacable(svg, hT, function (pt) { T = grille(pt, 0.5); rendu(); },
+      function (dx, dy) { T = { x: clamp(T.x + dx * 0.5, 0, XM), y: clamp(T.y + dy * 0.5, 0, YM) }; rendu(); });
+    deplacable(svg, hB, function (pt) { B = grille(pt, 0.5); rendu(); },
+      function (dx, dy) { B = { x: clamp(B.x + dx * 0.5, 0, XM), y: clamp(B.y + dy * 0.5, 0, YM) }; rendu(); });
+    rendu();
+  });
+
+  // ===================== torseur : à quoi correspond chaque lettre ? =====================
+  $$('[data-widget="lettres"]').forEach(function (root) {
+    var info = $(".tm-info", root);
+    $$(".tm-c.clic", root).forEach(function (c) {
+      function voir() {
+        $$(".tm-c.clic", root).forEach(function (x) { x.setAttribute("aria-pressed", x === c ? "true" : "false"); });
+        info.innerHTML = c.getAttribute("data-info");
+      }
+      c.addEventListener("click", voir);
+      c.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); voir(); } });
+    });
+  });
+})();
+</script>
+</body>
+</html>

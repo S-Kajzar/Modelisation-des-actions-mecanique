@@ -9,45 +9,19 @@ Le bloc <style> et les deux scripts du gabarit (moteur de correction et moteur a
 seuls le titre, la page d'accueil, les documents, le contenu des parties et la configuration (__PARTS__, __QCFG__,
 __SKCFG__) sont réécrits ici. Les figures sont dans src/images/force-moment/.
 """
-import base64
-import html
-import json
 import pathlib
-from decimal import Decimal, ROUND_HALF_UP
+import sys
 
-ROOT = pathlib.Path(__file__).resolve().parent.parent
-GABARIT = ROOT / "src" / "gabarit-exercice-interactif.html"
-IMG = ROOT / "src" / "images" / "force-moment"
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from commun import (Q, UNITE, U_DEG, U_M, U_N, U_NM, IMAGES, ROOT, construire_exercice,  # noqa: E402
+                    fig as _fig, kw, num)
+
+IMG = IMAGES / "force-moment"
 SORTIE = ROOT / "src" / "exercices" / "force-moment-source.html"
 
 TITRE = "Force, moment et couple"
 SOUS_TITRE = ("Neuf parties courtes pour maîtriser le moment d'une force : bras de levier, équilibre, basculement, "
               "double levier et composantes d'une force. Les réponses se saisissent au clavier, unités comprises.")
-
-# ---------------------------------------------------------------- unités acceptées (le moteur normalise la saisie)
-U_NM = {"label": "N·m", "accept": ["nm", "newtonmetre", "newtonmetres"]}
-U_N = {"label": "N", "accept": ["n", "newton", "newtons"]}
-U_M = {"label": "m", "accept": ["m", "metre", "metres"]}
-U_DEG = {"label": "°", "accept": ["°", "deg", "degre", "degres"]}
-
-UNITE = "Saisis la valeur <strong>avec son unité</strong> : l'unité vaut la moitié des points de la question."
-
-
-def num(value, tol, unit=None, abs_=False):
-    g = {"type": "num", "value": value, "absTol": tol}
-    if unit:
-        g["unit"] = unit
-    if abs_:
-        g["abs"] = True
-    return g
-
-
-def kw(any_, forbid=None):
-    g = {"type": "kw", "any": any_}
-    if forbid:
-        g["forbid"] = forbid
-    return g
-
 
 # Basculement : « bascule » / « ne bascule pas » (les négations sont écartées de la réponse « bascule »)
 BASCULE_MOTS = ["bascule", "basculera", "basculer", "basculement", "renverse", "chavire", "culbute", "tombe"]
@@ -61,12 +35,9 @@ G_FORMULE = kw([[["f"], ["d"], ["sin", "sinus"]], [["fdsin", "fdsina", "fdsinalp
 G_EQUILIBRE = kw([[["equilibre", "statique"]]], forbid=["mouvement", "inconnue", "inconnu", "inconnus", "pas", "non"])
 
 # ---------------------------------------------------------------- contenu : une partie par exercice d'origine
-# Chaque question : (consigne, grader, réponse attendue, énoncé, démarche[, figure]) ; la figure est un fichier d'images
-Q = dict
-
-
+# Chaque question : énoncé s, consigne h, correcteur g, réponse attendue att, démarche e[, figure fig]
 def fig(nom, alt, w):
-    return Q(f=nom, alt=alt, w=w)
+    return _fig(IMG / nom, alt, w)
 
 
 PARTIES = [
@@ -269,242 +240,21 @@ METHODE = """<h3>Moment d'une force, équilibre et vecteurs</h3>
 </ol>"""
 
 
-# ---------------------------------------------------------------- outils
-def esc(s):
-    return html.escape(s, quote=True)
-
-
-def data_uri(nom):
-    mime = "image/jpeg" if nom.endswith(".jpg") else "image/png"
-    return f"data:{mime};base64," + base64.b64encode((IMG / nom).read_bytes()).decode()
-
-
-def taille(nom):
-    from struct import unpack
-    d = (IMG / nom).read_bytes()
-    if nom.endswith(".png"):
-        return unpack(">II", d[16:24])
-    i = 2
-    while i < len(d):  # JPEG : cherche le marqueur SOF
-        m, l = d[i + 1], int.from_bytes(d[i + 2:i + 4], "big")
-        if 0xC0 <= m <= 0xC3:
-            return unpack(">HH", d[i + 5:i + 9])[::-1]
-        i += 2 + l
-    raise ValueError(nom)
-
-
-def figure(f):
-    w, h = taille(f["f"])
-    return (f'<figure class="q-fig" style="max-width:{f["w"]}px"><img src="{data_uri(f["f"])}" alt="{esc(f["alt"])}" '
-            f'width="{w}" height="{h}"></figure>')
-
-
-def fr1(x):
-    return str(Decimal(str(x)).quantize(Decimal("0.1"), rounding=ROUND_HALF_UP)).replace(".", ",")
-
-
-def duree(m):
-    return f"{m} min" if m < 60 else f"{m // 60} h {m % 60:02d}"
-
-
-def question(pid, n, q, cfg):
-    qid, label = f"q{pid}_{n}", f"Q{pid}.{n}"
-    cfg[qid] = {"label": label, "part": str(pid), "pts": 1, "grader": q["g"]}
-    return f"""
-        <div class="q" id="{qid}" data-q="{qid}">
-          <p class="q-stem"><span class="q-num">{label}</span> <strong>{q["s"]}</strong></p>
-          <p class="q-hint" id="h-{qid}">{q["h"]}</p>
-          <div class="q-row">
-            <input type="text" class="q-input" id="in-{qid}" aria-label="Réponse {label}" aria-describedby="h-{qid}" autocomplete="off" autocapitalize="off" spellcheck="false">
-            <button type="button" class="btn btn-validate">Valider</button>
-            <span class="q-status" aria-live="polite"></span>
-            <span class="print-only pstat">Non validée : comptée fausse</span>
-          </div>
-          <p class="q-msg" role="alert"></p>
-          <div class="q-expl" hidden>
-            <p class="q-unit-msg" hidden></p>
-            <p class="q-expected"><span>Réponse attendue :</span> {q["att"]}</p>
-            <div class="q-why"><p>{q["e"]}</p></div>
-          </div>
-        </div>"""
-
-
-def partie(pid, p, total, cfg):
-    blocs = p.get("blocs") or [Q(questions=p["questions"], fig=p.get("fig"))]
-    nq = sum(len(b["questions"]) for b in blocs)
-    pct = fr1(Decimal(p["minutes"]) * 100 / total)
-    body, n = [], 0
-    methode = ('<p class="only-training small">Besoin d\'un rappel ? <button type="button" class="doc-chip training-only" '
-               'data-doc="METH" aria-pressed="false">Méthode</button></p>')
-    body.append(f'<p>{p["intro"]}</p>')
-    body.append(methode)
-    for b in blocs:
-        if b.get("sub"):
-            body.append(f'<h3 class="sub-head">{b["sub"]}</h3><p>{b["intro"]}</p>')
-        if b.get("fig"):
-            body.append(figure(b["fig"]))
-        for q in b["questions"]:
-            n += 1
-            if q.get("fig"):
-                body.append(figure(q["fig"]))
-            body.append(question(pid, n, q, cfg))
-    return nq, f"""
-  <section class="part" id="partie-{pid}" aria-labelledby="t-partie-{pid}">
-    <header class="part-head"><div class="part-num" aria-hidden="true">{pid}</div>
-      <div><h2 id="t-partie-{pid}"><span class="sr-only">Partie {pid} : </span>{p["titre"]}</h2>
-        <div class="duree">Durée conseillée : {duree(p["minutes"])} · Barème : {nq} point{"s" if nq > 1 else ""}, soit {pct} % de la note</div></div></header>
-    <div class="part-body">
-      {"".join(body)}
-    </div>
-  </section>
-"""
+CONSIGNES = ("<p><strong>Les unités sont notées.</strong> Pour toute question numérique portant une unité, la valeur vaut "
+             "la moitié des points et l'unité l'autre moitié : une valeur juste écrite sans unité, ou avec une unité fausse, "
+             "ne rapporte qu'un demi-point. Les coefficients sans unité n'en demandent pas.</p>",)
 
 
 def construire():
-    g = GABARIT.read_text(encoding="utf-8")
-    total = sum(p["minutes"] for p in PARTIES)
-    cfg, parts_cfg, sections, nq_total = {}, [], [], 0
-    for i, p in enumerate(PARTIES, 1):
-        nq, sec = partie(i, p, total, cfg)
-        nq_total += nq
-        sections.append(sec)
-        parts_cfg.append({"num": str(i), "title": p["titre"], "minutes": p["minutes"], "duration": duree(p["minutes"]), "points": nq})
-    assert nq_total == len(cfg) == 39, (nq_total, len(cfg))
-    dur_totale = duree(total)
-
-    # --- en-tête : on retire le mode d'emploi du gabarit, on garde ses règles en commentaire court
-    i0, i1 = g.index("<!-- ====="), g.index("=== -->") + len("=== -->")
-    g = g[:i0] + "<!-- Page construite par src/construire_force_moment.py à partir du gabarit : ne pas modifier à la main. -->" + g[i1:]
-    t0, t1 = g.index("<title>"), g.index("<style>:root{")
-    g = g[:t0] + (f"<title>{TITRE} — exercice interactif</title>\n"
-                  '<meta name="description" content="Moment d\'une force, bras de levier, équilibre, basculement, double levier '
-                  'et composantes d\'une force : neuf parties à faire en mode entraînement ou en mode examen.">\n') + g[t1:]
-    # --- rail, panneau des documents, accueil
-    a0, a1 = g.index("<!-- RAIL DES DOCUMENTS"), g.index('<main class="page">')
-    hero = data_uri("f12.jpg")
-    hw, hh = taille("f12.jpg")
-    accueil = f"""<!-- RAIL DES DOCUMENTS : la méthode est une aide du mode entraînement (classe training-only) -->
-<nav class="rail" aria-label="Méthode">
-  <button type="button" class="tab dt meth training-only" data-doc="METH" aria-selected="false" title="Méthode (mode entraînement uniquement)">Méthode</button>
-</nav>
-
-<aside id="docpanel" aria-label="Documents du sujet" aria-hidden="true">
-  <div class="dp-head">
-    <h3 id="dp-title">Documents</h3>
-    <button type="button" id="dp-out" aria-label="Réduire">−</button><span id="dp-zoom" class="small">100 %</span>
-    <button type="button" id="dp-in" aria-label="Agrandir">+</button>
-    <button type="button" id="dp-fit">Ajuster</button>
-    <button type="button" id="dp-close">Fermer</button>
-  </div>
-  <div class="dp-tabs" role="tablist" aria-label="Choisir un document">
-    <button type="button" class="training-only" data-doc="METH" aria-selected="false">Méthode</button>
-  </div>
-  <div class="dp-body">
-    <section class="doc training-only" id="doc-METH" data-title="Méthode : moment d'une force" data-kind="Rappel de méthode · mode entraînement">
-      <div class="doc-text">{METHODE}</div>
-    </section>
-  </div>
-</aside>
-
-<!-- PAGE D'ACCUEIL -->
-<section id="home" aria-labelledby="home-title">
-  <div class="home-inner">
-    <header class="home-head">
-      <h1 id="home-title">{TITRE}</h1>
-      <p class="home-sub">{SOUS_TITRE}</p>
-    </header>
-    <figure class="home-hero">
-      <img src="{hero}" alt="Coupe-boulon à double levier, avec ses cotes et ses forces" width="{hw}" height="{hh}">
-      <figcaption>Le coupe-boulon : un double levier, étudié dans la partie 8.</figcaption>
-    </figure>
-    <div class="home-facts">
-      <div><b>{len(PARTIES)} parties</b><span>{nq_total} questions courtes</span></div>
-      <div><b>{dur_totale.replace(" h ", " h ")}</b><span>durée conseillée, qui fixe la pondération</span></div>
-      <div><b>1 document</b><span>méthode, en mode entraînement</span></div>
-      <div><b>0 tracé</b><span>toutes les réponses se saisissent au clavier</span></div>
-    </div>
-    <h2 class="home-choose">Choisis ton mode de travail</h2>
-    <div class="modes">
-      <article class="mode-card">
-        <div class="mc-head"><span class="mc-tag">Mode 1</span><h3>Mode entraînement</h3></div>
-        <p class="mc-lead">Pour apprendre en avançant, question par question.</p>
-        <ul><li>Chaque question se valide isolément ; la démarche corrigée s'affiche aussitôt.</li>
-          <li>La note pondérée s'actualise en continu dans le bandeau.</li>
-          <li>Une fiche de méthode est consultable à tout moment, sans contrainte de temps.</li></ul>
-        <button type="button" class="btn btn-mode" data-mode="training">Commencer l'entraînement</button>
-      </article>
-      <article class="mode-card exam">
-        <div class="mc-head"><span class="mc-tag">Mode 2</span><h3>Mode examen</h3></div>
-        <p class="mc-lead">Pour se placer en conditions de contrôle.</p>
-        <ul><li>Aucune correction, aucune note et <b>aucun accès à la méthode</b> pendant la composition ; les réponses restent modifiables.</li>
-          <li>Le chronomètre tourne, à comparer à la durée conseillée.</li>
-          <li>En fin de sujet, le bouton « J'ai fini, je fais corriger ma copie » dévoile d'un coup les corrections, les notes par partie et la note globale.</li></ul>
-        <button type="button" class="btn btn-mode" data-mode="exam">Composer en mode examen</button>
-      </article>
-    </div>
-    <p class="home-note small">Le mode se choisit une seule fois : pour en changer, recharge la page. Rien n'est enregistré sur l'ordinateur.</p>
-  </div>
-</section>
-
-"""
-    g = g[:a0] + accueil + g[a1:]
-    # --- page principale
-    m0, m1 = g.index('<main class="page">'), g.index("</main>") + len("</main>")
-    main = f"""<main class="page">
-  <section class="print-only print-summary">
-    <p>Élève : <span class="print-nom"></span> | Copie imprimée le <span class="print-date"></span></p>
-    <p>Mode : <span class="print-mode"></span> | Temps de rédaction : <strong class="print-time"></strong> (durée conseillée : {dur_totale})</p>
-    <p class="print-note-line">Note finale pondérée : <strong class="final-note"></strong></p>
-    <p class="print-nograde">Copie non corrigée : les corrections et la note n'apparaissent qu'après la remise de la copie en mode examen.</p>
-  </section>
-
-  <header class="cartouche">
-    <div class="title">
-      <h1>{TITRE}</h1>
-      <p>{nq_total} questions notées, réparties en {len(PARTIES)} parties pondérées par leur durée conseillée.</p></div>
-    <div class="nom"><label for="nom-eleve">Nom et prénom</label><input id="nom-eleve" type="text" autocomplete="name"></div>
-  </header>
-
-  <div class="consignes">
-    <p class="only-training"><strong>Mode entraînement.</strong> Réponds dans chaque champ puis clique sur « Valider » : une réponse validée est définitive et sa correction s'affiche aussitôt. La fiche « Méthode » (onglet sur le bord droit) rappelle les outils utiles.</p>
-    <p class="only-exam"><strong>Mode examen.</strong> Compose tout le sujet sans correction, sans note et sans accès à la méthode : tes réponses restent modifiables jusqu'au bout. Le bouton « J'ai fini, je fais corriger ma copie », en fin de sujet, dévoile d'un coup les corrections, les notes par partie et la note globale.</p>
-    <p><strong>Les unités sont notées.</strong> Pour toute question numérique portant une unité, la valeur vaut la moitié des points et l'unité l'autre moitié : une valeur juste écrite sans unité, ou avec une unité fausse, ne rapporte qu'un demi-point. Les coefficients sans unité n'en demandent pas.</p>
-    <p><strong>Barème pondéré par la durée conseillée</strong> : chaque partie est notée sur 20, puis pèse au prorata de son temps. Le récapitulatif de fin de sujet donne le détail partie par partie.</p>
-  </div>
-{"".join(sections)}
-  <section class="recap" id="recap" aria-labelledby="t-recap">
-    <header class="recap-head"><h2 id="t-recap">Récapitulatif et note finale</h2>
-      <p class="small">Les questions non validées comptent comme fausses. Chaque partie est ramenée sur 20, puis pondérée par sa durée conseillée.</p></header>
-    <div id="exam-submit-wrap">
-      <p class="es-lead">Ta copie n'est pas encore corrigée : aucune réponse n'est verrouillée, tu peux encore revenir sur les questions.</p>
-      <button type="button" class="btn btn-exam" id="exam-submit">J'ai fini, je fais corriger ma copie</button>
-      <p class="es-warn" id="exam-warn" role="alert"></p>
-    </div>
-    <div id="recap-graded">
-      <div class="recap-wrap">
-        <table class="t recap-table">
-          <thead><tr><th>Partie</th><th>Durée</th><th>Poids</th><th>Points</th><th>Note /20</th><th>Contribution</th></tr></thead>
-          <tbody id="recap-body"></tbody>
-          <tfoot><tr><th colspan="4">Note globale pondérée</th><th class="final-note"></th><th></th></tr></tfoot>
-        </table>
-      </div>
-      <p class="final-detail small"></p>
-    </div>
-    <div class="recap-foot" id="recap-foot"><button type="button" class="btn btn-print">Imprimer ma copie</button>
-      <span class="small no-print">L'impression reprend tes réponses, les corrections et ce récapitulatif.</span></div>
-  </section>
-</main>"""
-    g = g[:m0] + main + g[m1:]
-    # --- configuration
-    c0 = g.index("<script>window.__PARTS__")
-    c1 = g.index("</script>", c0) + len("</script>")
-    conf = ("<script>window.__PARTS__ = " + json.dumps(parts_cfg, ensure_ascii=False) + ";\n"
-            "window.__QCFG__ = " + json.dumps(cfg, ensure_ascii=False) + ";\n"
-            "window.__SKCFG__ = {};</script>")
-    g = g[:c0] + conf + g[c1:]
-    SORTIE.parent.mkdir(exist_ok=True)
-    SORTIE.write_text(g, encoding="utf-8")
-    print(f"{SORTIE.relative_to(ROOT)} : {len(g.encode('utf-8')) / 1024:.0f} Kio, {nq_total} questions, {dur_totale}")
+    construire_exercice(
+        titre=TITRE, sous_titre=SOUS_TITRE, parties=PARTIES, sortie=SORTIE, script="construire_force_moment.py",
+        description=("Moment d'une force, bras de levier, équilibre, basculement, double levier et composantes d'une "
+                     "force : neuf parties à faire en mode entraînement ou en mode examen."),
+        methode_titre="moment d'une force", methode=METHODE, consignes=CONSIGNES, nq_attendu=39,
+        hero=Q(f=IMG / "f12.jpg", alt="Coupe-boulon à double levier, avec ses cotes et ses forces",
+               cap="Le coupe-boulon : un double levier, étudié dans la partie 8."),
+        facts=[("9 parties", "39 questions courtes"), ("1 h 20", "durée conseillée, qui fixe la pondération"),
+               ("1 document", "méthode, en mode entraînement"), ("0 tracé", "toutes les réponses se saisissent au clavier")])
 
 
 if __name__ == "__main__":

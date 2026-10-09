@@ -25,21 +25,45 @@ SOURCES = ROOT / "src" / "exercices"
 TITRE = "Modélisation des actions mécaniques"
 SOUS_TITRE = ("Modéliser les actions mécaniques : forces, moments et couples, torseurs, liaisons et leurs actions transmissibles. Des cours, des exercices et des études de cas interactifs de deux niveaux, à faire en mode entraînement ou en mode examen.")
 
-# Cartes avec contenu : la page est copiée de src/exercices/<source> vers <page> (lien de retour ajouté).
+# Cartes avec contenu : la page est copiée de src/<dossier>/<source> vers <page> (lien de retour ajouté).
+# Pages d'exercice construites sur le gabarit : lien de retour sur l'écran d'accueil et en tête du sujet.
+GABARIT_ANCRES = [('<div class="home-inner">', False), ('<main class="page">', False)]
+COURS_ANCRES = [('<main class="page cours">', False)]
 EXERCICES = [
+    # ---- cours (src/construire_cours.py)
+    {"rubrique": "cours", "tag": "Cours 1", "level": "Niveau 1", "title": "Projection d'une force",
+     "mots": ["Vecteur", "Norme", "Trigonométrie", "Projection"], "vign": "carte-cours-projection.jpg",
+     "alt": "Force F inclinée de α dans un repère, avec ses projections Fx et Fy", "page": "cours-projection.html",
+     "dossier": "cours", "source": "projection-source.html", "ancres": COURS_ANCRES, "bouton": "Lire le cours"},
+    {"rubrique": "cours", "tag": "Cours 2", "level": "Niveau 1", "title": "Couple et moment",
+     "mots": ["Moment", "Couple", "Bras de levier", "Produit vectoriel"], "vign": "carte-cours-couple-moment.jpg",
+     "alt": "Clé plate serrant un écrou, force F inclinée de α", "page": "cours-couple-moment.html",
+     "dossier": "cours", "source": "couple-moment-source.html", "ancres": COURS_ANCRES, "bouton": "Lire le cours"},
+    {"rubrique": "cours", "tag": "Cours 3", "level": "Niveau 2", "title": "Torseur d'action mécanique",
+     "mots": ["Torseur", "Point de réduction", "Transport du moment"], "vign": "carte-cours-torseur.jpg",
+     "alt": "Roue dentée hélicoïdale et les composantes de l'action sur une dent", "page": "cours-torseur.html",
+     "dossier": "cours", "source": "torseur-source.html", "ancres": COURS_ANCRES, "bouton": "Lire le cours"},
+    # ---- exercices (src/construire_force_moment.py, src/construire_exercices_sequence.py)
     {"rubrique": "exercices", "tag": "Exercice 1.1", "level": "Niveau 1", "title": "Force, moment et couple",
      "mots": ["Force", "Bras de levier", "Moment", "Couple", "Unités"], "vign": "carte-force-moment.jpg",
      "alt": "Force F appliquée à une distance du point O", "page": "force-moment.html",
-     "source": "force-moment-source.html",
-     # page construite sur le gabarit (src/construire_force_moment.py) : lien de retour sur l'écran d'accueil et en tête du sujet
-     "ancres": [('<div class="home-inner">', False), ('<main class="page">', False)], "css": ""},
+     "source": "force-moment-source.html", "ancres": GABARIT_ANCRES},
+    {"rubrique": "exercices", "tag": "Exercice 1.2", "level": "Niveau 1", "title": "Projections d'une force",
+     "mots": ["Coordonnées", "Projection", "Repère incliné", "Équilibre"], "vign": "carte-exercice-projections.jpg",
+     "alt": "Gousset de trois barres soudées et leurs tensions", "page": "exercice-projections.html",
+     "source": "projections-source.html", "ancres": GABARIT_ANCRES},
+    {"rubrique": "exercices", "tag": "Exercice 2.1", "level": "Niveau 2", "title": "Couples et moments",
+     "mots": ["Couple", "Moment", "Basculement", "Produit vectoriel"], "vign": "carte-exercice-couples-moments.jpg",
+     "alt": "Chargeur sur pneus et les poids du châssis, de la flèche et du godet", "page": "exercice-couples-moments.html",
+     "source": "couples-moments-source.html", "ancres": GABARIT_ANCRES},
+    {"rubrique": "exercices", "tag": "Exercice 2.2", "level": "Niveau 2", "title": "Torseurs : les bases",
+     "mots": ["Torseur", "Transport du moment", "Produit vectoriel"], "vign": "carte-exercice-torseurs.jpg",
+     "alt": "Clé à cliquet : force perpendiculaire au manche", "page": "exercice-torseurs.html",
+     "source": "torseurs-source.html", "ancres": GABARIT_ANCRES},
 ]
 # Cartes « en cours d'édition » : (rubrique, étiquette, niveau, titre, mots-clés)
 ENCOURS = [
-    ("cours", "Cours 1", "Niveau 1", "Forces, moments et couples", ["Force", "Moment", "Couple"]),
-    ("cours", "Cours 2", "Niveau 2", "Torseurs et liaisons", ["Torseur", "Liaisons", "Actions transmissibles"]),
     ("formulaire", "Formulaire", None, "Formulaire de modélisation", ["Formules", "Unités", "Rappels"]),
-    ("exercices", "Exercice 2.1", "Niveau 2", "Torseurs d'actions mécaniques", ["Torseur", "Changement de point", "Liaisons"]),
     ("etudes", "Étude 1", None, "Étude de cas", ["Système réel", "Modèle", "Actions mécaniques"]),
 ]
 RUBRIQUES = [("cours", "Les cours"), ("formulaire", "Le formulaire"), ("exercices", "Les exercices"),
@@ -163,7 +187,7 @@ body.hub #home{min-height:0}
 
 def page_exercice(e):
     """Copie de la page d'exercice, avec un lien de retour vers l'accueil de ce dépôt."""
-    s = (SOURCES / e["source"]).read_text(encoding="utf-8")
+    s = (ROOT / "src" / e.get("dossier", "exercices") / e["source"]).read_text(encoding="utf-8")
     retour = (f'<p class="home-back no-print"><a class="btn ghost retour-accueil" href="index.html">{HOUSE} Accueil : {TITRE}</a></p>')
     css = ("<style>/* lien de retour vers l'accueil du dépôt */\n"
            ".retour-accueil{display:inline-flex; align-items:center; gap:8px; text-decoration:none; margin:0 0 14px}\n"

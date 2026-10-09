@@ -421,6 +421,27 @@ body:not(.mode-training) .only-training,body:not(.mode-exam) .only-exam{display:
 /* sous-partie d'une partie */
 .sub-head{margin:22px 0 4px; padding:6px 12px; background:#EEF0EC; border-left:5px solid var(--jaune); font:700 1.05rem var(--f-titre)}
 .sub-head+p{margin-top:6px}
+/* torseur {X L ; Y M ; Z N}_point : affichage (tm) et saisie en six cases (torseur-q, mécanique fast-q du moteur) */
+.tm{display:inline-flex; align-items:center; gap:4px; font-family:var(--f-titre); vertical-align:middle; margin:4px 0}
+.tm-nom{font-weight:700; margin-right:4px; white-space:nowrap}
+.tm-b{font:300 4.2rem/1 var(--f-texte); transform:scaleX(.55); color:var(--encre)}
+.tm-g{display:grid; grid-template-columns:auto auto; gap:4px 18px; align-items:center}
+.tm-c{min-width:3.6em; text-align:right; font-weight:600; font-variant-numeric:tabular-nums}
+.tm-p{font-weight:700; align-self:flex-end; margin-bottom:8px}
+.tq-wrap{overflow-x:auto; padding:2px 0}
+.torseur-q{margin:14px 0 6px; padding:10px 0 12px 14px; border-left:3px solid var(--trait-fin)}
+.torseur-q .tm-c{min-width:0}
+.torseur-q .sol{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+.torseur-q .tq-lab{font:700 .85rem var(--f-titre); color:var(--encre-2); width:1.1em}
+.torseur-q .sol input{width:8.5em; max-width:34vw; border:1.5px solid var(--encre-2); padding:6px 8px; background:#fff; border-radius:2px; font:inherit; text-align:right}
+.torseur-q .sol input:disabled{background:#F2F3F1; -webkit-text-fill-color:var(--encre)}
+.torseur-q .sol.is-ok input{border:2px solid var(--vert); background:var(--vert-pale)}
+.torseur-q .sol.is-ko input{border:2px solid var(--rouge); background:var(--rouge-pale)}
+.torseur-q .sol{flex-wrap:nowrap}
+.torseur-q .sol .mark{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0)}
+.torseur-q .sol::after{content:""; display:inline-block; width:1em; font-weight:700}
+.torseur-q .sol.is-ok::after{content:"✓"; color:var(--vert)} .torseur-q .sol.is-ko::after{content:"✗"; color:var(--rouge)}
+@media print{ .torseur-q .sol input{width:6em} }
 </style>
 </head>
 <body class="no-mode">
@@ -1510,6 +1531,127 @@ var Grading = (function () {
     return { ok: !!okForm };
   }
 
+  // ---------- Expressions littérales (formules) ----------
+  // La saisie (« Fx = −F × sin α », « F.cos(alpha−beta) », « q*a/b »…) est analysée puis évaluée en plusieurs
+  // jeux de valeurs (g.vars) ; elle est juste si elle vaut partout l'expression attendue (g.expected) :
+  // toute écriture équivalente est donc acceptée, une valeur numérique isolée ne l'est pas.
+  // Angles en degrés dans sin, cos, tan. g.names : alias de saisie -> nom de variable (« α » -> « alpha »).
+  var EXPR_FUN = { sin: 1, cos: 1, tan: 1, sqrt: 1, racine: 1 };
+  function exprTokens(src, names) {
+    var s = String(src).toLowerCase()
+      .replace(/[−‒–—]/g, "-").replace(/[×·⋅∙]/g, "*").replace(/÷/g, "/")
+      .replace(/²/g, "^2").replace(/³/g, "^3").replace(/√/g, "sqrt").replace(/π/g, "pi")
+      .replace(/°/g, "").replace(/\s+/g, " ");
+    var cut = s.lastIndexOf("=");
+    if (cut >= 0) s = s.slice(cut + 1);
+    var keys = Object.keys(names).concat(Object.keys(EXPR_FUN), ["pi"]);
+    keys.sort(function (a, b) { return b.length - a.length; });
+    var out = [], i = 0, m;
+    while (i < s.length) {
+      var c = s.charAt(i);
+      if (c === " ") { i++; continue; }
+      if ((m = /^\d+(?:[.,]\d+)?/.exec(s.slice(i)))) { out.push({ t: "n", v: parseFloat(m[0].replace(",", ".")) }); i += m[0].length; continue; }
+      if ("+-*/^()".indexOf(c) >= 0) { out.push({ t: c }); i++; continue; }
+      if (c === "." || c === ",") { out.push({ t: "*" }); i++; continue; }        // F.cos α : point de multiplication
+      if (/[a-zͰ-Ͽ]/.test(c)) {                                      // « fcosalpha » -> f, cos, alpha
+        var hit = null;
+        for (var k = 0; k < keys.length && !hit; k++) if (s.substr(i, keys[k].length) === keys[k]) hit = keys[k];
+        if (!hit) return { err: "« " + /^[a-zͰ-Ͽ_]+/.exec(s.slice(i))[0] + " » n'est pas une grandeur de l'énoncé." };
+        if (EXPR_FUN[hit]) out.push({ t: "f", v: hit === "racine" ? "sqrt" : hit });
+        else if (hit === "pi") out.push({ t: "n", v: Math.PI });
+        else out.push({ t: "v", v: names[hit] });
+        i += hit.length;
+        continue;
+      }
+      return { err: "Caractère non reconnu : « " + c + " »." };
+    }
+    return { toks: out };
+  }
+  function exprParse(toks) {
+    var p = 0;
+    function peek() { return toks[p]; }
+    function startsAtom(t) { return t && (t.t === "n" || t.t === "v" || t.t === "f" || t.t === "("); }
+    function expr() {
+      var node = term();
+      while (peek() && (peek().t === "+" || peek().t === "-")) { var op = toks[p++].t; node = { op: op, a: node, b: term() }; }
+      return node;
+    }
+    function term() {
+      var node = unary();
+      for (;;) {
+        var t = peek();
+        if (t && (t.t === "*" || t.t === "/")) { p++; node = { op: t.t, a: node, b: unary() }; }
+        else if (startsAtom(t)) node = { op: "*", a: node, b: unary() };      // multiplication implicite
+        else return node;
+      }
+    }
+    function unary() {
+      var t = peek();
+      if (t && (t.t === "-" || t.t === "+")) { p++; var u = unary(); return t.t === "-" ? { op: "neg", a: u } : u; }
+      return power();
+    }
+    function power() {
+      var b = atom();
+      if (peek() && peek().t === "^") { p++; return { op: "^", a: b, b: unary() }; }
+      return b;
+    }
+    function atom() {
+      var t = toks[p++];
+      if (!t) throw new Error("fin");
+      if (t.t === "n") return { op: "n", v: t.v };
+      if (t.t === "v") return { op: "v", v: t.v };
+      if (t.t === "(") { var e = expr(); if (!toks[p] || toks[p].t !== ")") throw new Error(")"); p++; return e; }
+      if (t.t === "f") return { op: "f", v: t.v, a: power() };                  // cos α ou cos(α)
+      throw new Error("jeton");
+    }
+    var tree = expr();
+    if (p !== toks.length) throw new Error("reste");
+    return tree;
+  }
+  function exprEval(n, env) {
+    switch (n.op) {
+      case "n": return n.v;
+      case "v": return env[n.v];
+      case "neg": return -exprEval(n.a, env);
+      case "+": return exprEval(n.a, env) + exprEval(n.b, env);
+      case "-": return exprEval(n.a, env) - exprEval(n.b, env);
+      case "*": return exprEval(n.a, env) * exprEval(n.b, env);
+      case "/": return exprEval(n.a, env) / exprEval(n.b, env);
+      case "^": return Math.pow(exprEval(n.a, env), exprEval(n.b, env));
+      case "f":
+        var x = exprEval(n.a, env), r = Math.PI / 180;
+        return n.v === "sin" ? Math.sin(x * r) : n.v === "cos" ? Math.cos(x * r) : n.v === "tan" ? Math.tan(x * r) : Math.sqrt(x);
+    }
+    return NaN;
+  }
+  function exprUses(n, acc) {
+    if (!n) return acc;
+    if (n.op === "v") acc[n.v] = 1;
+    exprUses(n.a, acc); exprUses(n.b, acc);
+    return acc;
+  }
+  function gradeExpr(ans, g) {
+    var names = g.names || {};
+    var tk = exprTokens(ans, names);
+    if (tk.err) return { ok: false, invalid: tk.err };
+    if (!tk.toks.length) return { ok: false, invalid: "Écris une expression, par exemple F × cos(α)." };
+    var tree, ref;
+    try { tree = exprParse(tk.toks); } catch (e) { return { ok: false, invalid: "Expression incomplète ou mal parenthésée." }; }
+    var ident = {};                                     // l'expression attendue s'écrit avec les noms de variables
+    Object.keys(g.vars).forEach(function (v) { ident[v] = v; });
+    ref = exprParse(exprTokens(g.expected, ident).toks);
+    var used = exprUses(tree, {}), need = g.require || [];
+    for (var q = 0; q < need.length; q++) if (!used[need[q]]) return { ok: false };
+    var vars = Object.keys(g.vars), n = g.vars[vars[0]].length;
+    for (var i = 0; i < n; i++) {
+      var env = {};
+      vars.forEach(function (v) { env[v] = g.vars[v][i]; });
+      var a = exprEval(tree, env), b = exprEval(ref, env);
+      if (!isFinite(a) || !isFinite(b) || Math.abs(a - b) > 1e-6 * Math.max(1, Math.abs(b))) return { ok: false };
+    }
+    return { ok: true };
+  }
+
   function grade(ans, g) {
     if (ans == null || !String(ans).trim()) return { ok: false, score: 0, invalid: "Saisis une réponse avant de valider." };
     var r;
@@ -1520,6 +1662,7 @@ var Grading = (function () {
       case "intset": r = gradeIntSet(ans, g); break;
       case "yesno": r = gradeYesNo(ans, g); break;
       case "chasles": r = gradeChasles(ans, g); break;
+      case "expr": r = gradeExpr(ans, g); break;
       default: return { ok: false, score: 0, invalid: "Type de question inconnu." };
     }
     r.score = r.ok ? 1 : 0;
@@ -1533,7 +1676,7 @@ var Grading = (function () {
 
   return { norm: norm, tokens: tokens, compact: compact, lev: lev, fuzzyEq: fuzzyEq,
            parseNum: parseNum, splitNum: splitNum, normUnit: normUnit, unitCheck: unitCheck,
-           yesNo: yesNo, termSolids: termSolids, grade: grade, fmt: fmt };
+           yesNo: yesNo, termSolids: termSolids, exprTokens: exprTokens, grade: grade, fmt: fmt };
 })();
 if (typeof module !== "undefined") module.exports = Grading;
 /*GRADING-END*/
@@ -1736,7 +1879,7 @@ if (typeof module !== "undefined") module.exports = Grading;
         $(".mark", cell).textContent = r.ok ? "✓ Juste" : "✗ Faux";
       });
       btn.disabled = true;
-      btn.textContent = "Diagramme validé";
+      btn.textContent = btn.getAttribute("data-done") || "Diagramme validé";
       $(".q-status", root).textContent = ok + " case" + (ok > 1 ? "s" : "") + " juste" + (ok > 1 ? "s" : "") + " sur " + inputs.length;
       var ex = $(".q-expl", root); ex.hidden = false; ex.classList.add("reveal");
       afterValidation();
