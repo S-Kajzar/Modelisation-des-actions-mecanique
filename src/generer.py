@@ -31,15 +31,19 @@ GABARIT_ANCRES = [('<div class="home-inner">', False), ('<main class="page">', F
 COURS_ANCRES = [('<main class="page cours">', False)]
 EXERCICES = [
     # ---- cours (src/construire_cours.py)
-    {"rubrique": "cours", "tag": "Cours 1", "level": "Niveau 1", "title": "Projection d'une force",
+    {"rubrique": "cours", "tag": "Cours 1", "level": "Niveau 1", "title": "Modélisation des actions mécaniques",
+     "mots": ["Vecteur-force", "Poids", "Charge répartie", "Pression"], "vign": "carte-cours-modelisation.jpg",
+     "alt": "Câble tendu sur un support, schématisé par un vecteur-force incliné de 30°", "page": "cours-modelisation.html",
+     "dossier": "cours", "source": "modelisation-source.html", "ancres": COURS_ANCRES, "bouton": "Lire le cours"},
+    {"rubrique": "cours", "tag": "Cours 2", "level": "Niveau 1", "title": "Projection d'une force",
      "mots": ["Vecteur", "Norme", "Trigonométrie", "Projection"], "vign": "carte-cours-projection.jpg",
      "alt": "Force F inclinée de α dans un repère, avec ses projections Fx et Fy", "page": "cours-projection.html",
      "dossier": "cours", "source": "projection-source.html", "ancres": COURS_ANCRES, "bouton": "Lire le cours"},
-    {"rubrique": "cours", "tag": "Cours 2", "level": "Niveau 1", "title": "Couple et moment",
-     "mots": ["Moment", "Couple", "Bras de levier", "Produit vectoriel"], "vign": "carte-cours-couple-moment.jpg",
+    {"rubrique": "cours", "tag": "Cours 3", "level": "Niveau 1", "title": "Moments et couples",
+     "mots": ["Moment", "Varignon", "Vecteur-moment", "Couple"], "vign": "carte-cours-couple-moment.jpg",
      "alt": "Clé plate serrant un écrou, force F inclinée de α", "page": "cours-couple-moment.html",
      "dossier": "cours", "source": "couple-moment-source.html", "ancres": COURS_ANCRES, "bouton": "Lire le cours"},
-    {"rubrique": "cours", "tag": "Cours 3", "level": "Niveau 2", "title": "Torseur d'action mécanique",
+    {"rubrique": "cours", "tag": "Cours 4", "level": "Niveau 2", "title": "Torseur d'action mécanique",
      "mots": ["Torseur", "Point de réduction", "Transport du moment"], "vign": "carte-cours-torseur.jpg",
      "alt": "Roue dentée hélicoïdale et les composantes de l'action sur une dent", "page": "cours-torseur.html",
      "dossier": "cours", "source": "torseur-source.html", "ancres": COURS_ANCRES, "bouton": "Lire le cours"},

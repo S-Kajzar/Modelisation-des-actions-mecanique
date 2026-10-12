@@ -86,7 +86,11 @@
     var obs = new IntersectionObserver(function (es) {
       es.forEach(function (e) {
         if (!e.isIntersecting) return;
-        liens.forEach(function (a) { a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id); });
+        liens.forEach(function (a) {
+          var on = a.getAttribute("href") === "#" + e.target.id, nav = a.parentNode;
+          a.classList.toggle("on", on);
+          if (on && nav.scrollWidth > nav.clientWidth) nav.scrollLeft = a.offsetLeft - (nav.clientWidth - a.offsetWidth) / 2;
+        });
       });
     }, { rootMargin: "-30% 0px -60% 0px" });
     liens.forEach(function (a) { var s = $(a.getAttribute("href")); if (s) obs.observe(s); });
@@ -573,5 +577,261 @@
       c.addEventListener("click", voir);
       c.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); voir(); } });
     });
+  });
+  // ===================== jeu de classement (une ligne = un cas, des boutons = les catégories) =====================
+  $$(".jeu").forEach(function (root) {
+    var lignes = $$(".jeu-l", root);
+    function score() {
+      var n = lignes.filter(function (l) { return l.classList.contains("is-ok"); }).length;
+      $(".jeu-s", root).textContent = n + " / " + lignes.length + (n === lignes.length ? " : parfait !" : "");
+    }
+    lignes.forEach(function (l) {
+      $$("button", l).forEach(function (b) {
+        b.addEventListener("click", function () {
+          var ok = b.getAttribute("data-v") === l.getAttribute("data-ok");
+          l.classList.remove("is-ok", "is-ko"); l.classList.add(ok ? "is-ok" : "is-ko");
+          $$("button", l).forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+          $(".jeu-fb", l).textContent = ok ? "✔" : "✘";
+          score();
+        });
+      });
+    });
+    score();
+  });
+
+  // ===================== navette spatiale : la poussée passe-t-elle par G ? =====================
+  $$('[data-widget="navette"]').forEach(function (root) {
+    var svg = $("svg", root), GX = 330, GY = 130, K = 30;              // 1 m = 30 px
+    var sF = $('[data-in="F"]', root), sD = $('[data-in="d"]', root), anim = null;
+    var mkF = fleche(svg, "fl-nav", "#B42318"), mkR = fleche(svg, "fl-nav-r", "#1F5FA8");
+    el("line", { x1: 20, y1: GY, x2: 540, y2: GY, stroke: "#9AA2A8", "stroke-dasharray": "8 5" }, svg);
+    var corps = el("g", {}, svg);
+    el("path", { d: "M" + (GX - 150) + " " + GY + " q 25 -28 70 -28 h 150 l 40 -60 h 22 l -8 60 v 52 h -184 q -50 0 -90 -24 z",
+      fill: "#E8E2CF", stroke: "#1C2530", "stroke-width": 2 }, corps);
+    el("rect", { x: GX + 132, y: GY - 22, width: 18, height: 40, fill: "#46525C" }, corps);
+    el("circle", { cx: GX, cy: GY, r: 5, fill: "#1C2530" }, corps);
+    el("text", { x: GX + 8, y: GY - 8, "class": "g-lab" }, corps, "G");
+    var ligne = el("line", { stroke: "#B42318", "stroke-width": 1.5, "stroke-dasharray": "6 4" }, corps);
+    var fl = el("line", { stroke: "#B42318", "stroke-width": 6, "marker-end": mkF }, corps);
+    var tF = el("text", { "class": "g-lab", fill: "#B42318" }, corps, "F");
+    var cote = el("line", { stroke: "#1F5FA8", "stroke-width": 2 }, corps), tD = el("text", { "class": "g-lab-s", fill: "#1F5FA8" }, corps, "d");
+    var rot = el("path", { fill: "none", stroke: "#1F5FA8", "stroke-width": 3, "marker-end": mkR }, corps);
+    function rendu(dx, th) {
+      var F = +sF.value, d = +sD.value, y = GY + d * K, M = -F * d;
+      attr(corps, { transform: "translate(" + (dx || 0) + " 0) rotate(" + (th || 0) + " " + GX + " " + GY + ")" });
+      attr(ligne, { x1: GX - 200, y1: y, x2: GX + 250, y2: y });
+      var L = 15 + F / 20;
+      attr(fl, { x1: GX + 160 + L, y1: y, x2: GX + 160, y2: y }); attr(tF, { x: GX + 170 + L / 2, y: y - 10 });
+      attr(cote, { x1: GX - 60, y1: GY, x2: GX - 60, y2: y, visibility: Math.abs(d) > 0.05 ? "visible" : "hidden" });
+      attr(tD, { x: GX - 76, y: (GY + y) / 2 + 4, visibility: Math.abs(d) > 0.05 ? "visible" : "hidden" });
+      attr(rot, { d: Math.abs(d) > 0.05 ? (M > 0 ? arc(GX, GY, 34, -50, 200) : arc(GX, GY, 34, 200, -50)) : "" });
+      $('[data-o="F"]', root).textContent = fr(F, 0) + " kN"; $('[data-o="d"]', root).textContent = fr(d, 2) + " m";
+      $('[data-o="M"]', root).innerHTML = "M<sub>G</sub>(F) = F × d = " + fr(F, 0) + " × " + fr(Math.abs(d), 2) + " = <b>" + fr(Math.abs(M), 0) + " kN·m</b>";
+      var v = $('[data-o="cas"]', root);
+      if (Math.abs(d) < 0.05) { v.textContent = "Cas 1 : F passe par G → translation seule, sans rotation."; v.className = "simu-verdict ok"; }
+      else { v.textContent = "Cas 2 : F ne passe pas par G → translation + rotation " + (M > 0 ? "dans le sens trigonométrique." : "dans le sens horaire."); v.className = "simu-verdict ko"; }
+      return M;
+    }
+    [sF, sD].forEach(function (x) { x.addEventListener("input", function () { if (!anim) rendu(); }); });
+    $(".nav-go", root).addEventListener("click", function () {
+      if (anim) return;
+      var t0 = null, M = -(+sF.value) * (+sD.value);
+      function pas(t) {
+        if (t0 === null) t0 = t;
+        var u = Math.min(1, (t - t0) / 2200);
+        rendu(-(+sF.value) / 1000 * 260 * u * u, -M / 1500 * 60 * u * u);
+        if (u < 1) anim = requestAnimationFrame(pas); else setTimeout(function () { anim = null; rendu(); }, 600);
+      }
+      anim = requestAnimationFrame(pas);
+    });
+    rendu();
+  });
+
+  // ===================== couple de deux forces : le moment ne dépend pas du point O =====================
+  $$('[data-widget="couple"]').forEach(function (root) {
+    var svg = $("svg", root), CX = 260, CY = 130, K = 100;            // 1 m = 100 px
+    var sF = $('[data-in="F"]', root), sD = $('[data-in="d"]', root), O = { x: -1.6, y: 0.6 }, defi = false;
+    var mkF = fleche(svg, "fl-cp", "#B42318"), mkM = fleche(svg, "fl-cp-m", "#1F5FA8");
+    el("ellipse", { cx: CX, cy: CY, rx: 245, ry: 108, fill: "#F4F5F2", stroke: "#1C2530", "stroke-width": 2 }, svg);
+    var lA = el("line", { stroke: "#B42318", "stroke-dasharray": "5 4" }, svg), lB = el("line", { stroke: "#B42318", "stroke-dasharray": "5 4" }, svg);
+    var dA = el("line", { stroke: "#F2B705", "stroke-width": 4 }, svg), dB = el("line", { stroke: "#F2B705", "stroke-width": 4 }, svg);
+    var fA = el("line", { stroke: "#B42318", "stroke-width": 5, "marker-end": mkF }, svg), fB = el("line", { stroke: "#B42318", "stroke-width": 5, "marker-end": mkF }, svg);
+    var tA = el("text", { "class": "g-lab", fill: "#B42318" }, svg, "−F"), tB = el("text", { "class": "g-lab", fill: "#B42318" }, svg, "F");
+    var rot = el("path", { fill: "none", stroke: "#1F5FA8", "stroke-width": 3, "marker-end": mkM }, svg);
+    var hO = poignee(svg, "Point O", "#F2B705"), tO = el("text", { "class": "g-lab" }, svg, "O");
+    function X(x) { return CX + K * x; }
+    function Y(y) { return CY - K * y; }
+    function rendu() {
+      var F = +sF.value, d = +sD.value, xA = -d / 2, xB = d / 2, L = 30 + F * 0.9;
+      attr(fA, { x1: X(xA), y1: CY - L / 2, x2: X(xA), y2: CY + L / 2 }); attr(fB, { x1: X(xB), y1: CY + L / 2, x2: X(xB), y2: CY - L / 2 });
+      attr(tA, { x: X(xA) - 32, y: CY + L / 2 }); attr(tB, { x: X(xB) + 8, y: CY - L / 2 + 10 });
+      attr(lA, { x1: X(xA), y1: 14, x2: X(xA), y2: 246 }); attr(lB, { x1: X(xB), y1: 14, x2: X(xB), y2: 246 });
+      attr(dA, { x1: X(O.x), y1: Y(O.y), x2: X(xA), y2: Y(O.y) }); attr(dB, { x1: X(O.x), y1: Y(O.y) + 5, x2: X(xB), y2: Y(O.y) + 5 });
+      placer(hO, X(O.x), Y(O.y)); attr(tO, { x: X(O.x) - 22, y: Y(O.y) - 10 });
+      attr(rot, { d: arc(CX, CY, 34, -60, 200) });
+      var mB = (xB - O.x) * F, mA = (xA - O.x) * (-F);
+      $('[data-o="F"]', root).textContent = F + " N"; $('[data-o="d"]', root).textContent = fr(d, 2) + " m";
+      $('[data-o="mB"]', root).innerHTML = "M<sub>O</sub>(F) = F × " + frn(xB - O.x, 2) + " = " + frn(mB, 2) + " N·m";
+      $('[data-o="mA"]', root).innerHTML = "M<sub>O</sub>(−F) = −F × " + par(xA - O.x, 2) + " = " + frn(mA, 2) + " N·m";
+      $('[data-o="M"]', root).innerHTML = "M = " + frn(mB, 2) + " + " + par(mA, 2) + " = <b>" + frn(mA + mB, 2) + " N·m</b> = F × d";
+      if (!defi && Math.abs(O.x - xB) < 0.03) {
+        defi = true;
+        $('[data-o="defi"]', root).textContent = "✔ O sur la droite d'action de F : M_O(F) = 0, et le couple vaut toujours F × d, porté entièrement par −F.";
+      }
+    }
+    deplacable(svg, hO, function (pt) {
+      O = { x: clamp(Math.round((pt.x - CX) / K * 20) / 20, -2.4, 2.4), y: clamp(Math.round((CY - pt.y) / K * 20) / 20, -1, 1) };
+      rendu();
+    }, function (dx, dy) { O = { x: clamp(O.x + dx * 0.05, -2.4, 2.4), y: clamp(O.y + dy * 0.05, -1, 1) }; rendu(); });
+    [sF, sD].forEach(function (x) { x.addEventListener("input", rendu); });
+    rendu();
+  });
+
+  // ===================== composantes d'une force selon deux directions =====================
+  $$('[data-widget="composantes"]').forEach(function (root) {
+    var svg = $("svg", root), AX = 150, AY = 240, K = 2.2, F = 100, TF = 35;
+    var sU = $('[data-in="u"]', root), sV = $('[data-in="v"]', root), defi = false;
+    var mkF = fleche(svg, "fl-co-f", "#1B7A43"), mkU = fleche(svg, "fl-co-u", "#1F5FA8"), mkV = fleche(svg, "fl-co-v", "#B42318");
+    var du = el("line", { stroke: "#1F5FA8", "stroke-dasharray": "6 5" }, svg), dv = el("line", { stroke: "#B42318", "stroke-dasharray": "6 5" }, svg);
+    var para = el("path", { fill: "rgba(242,183,5,.12)", stroke: "#9AA2A8", "stroke-dasharray": "4 4" }, svg);
+    var vU = el("line", { stroke: "#1F5FA8", "stroke-width": 4, "marker-end": mkU }, svg), vV = el("line", { stroke: "#B42318", "stroke-width": 4, "marker-end": mkV }, svg);
+    var vF = el("line", { stroke: "#1B7A43", "stroke-width": 5, "marker-end": mkF }, svg);
+    el("circle", { cx: AX, cy: AY, r: 5, fill: "#1C2530" }, svg); el("text", { x: AX - 20, y: AY + 18, "class": "g-lab" }, svg, "A");
+    var tU = el("text", { "class": "g-lab", fill: "#1F5FA8" }, svg, "U"), tV = el("text", { "class": "g-lab", fill: "#B42318" }, svg, "V");
+    var tF = el("text", { "class": "g-lab", fill: "#1B7A43" }, svg, "F");
+    function P(x, y) { return [AX + K * x, AY - K * y]; }
+    function fleche2(e, x, y) {
+      var p = P(x, y), l = Math.hypot(p[0] - AX, p[1] - AY);
+      if (l < 8) { e.setAttribute("visibility", "hidden"); return; }
+      var k = (l - 7) / l;
+      attr(e, { x1: AX, y1: AY, x2: AX + (p[0] - AX) * k, y2: AY + (p[1] - AY) * k, visibility: "visible" });
+    }
+    function rendu() {
+      var pu = +sU.value, pv = +sV.value, ux = Math.cos(pu * RAD), uy = Math.sin(pu * RAD), vx = Math.cos(pv * RAD), vy = Math.sin(pv * RAD);
+      var fx = F * Math.cos(TF * RAD), fy = F * Math.sin(TF * RAD), det = ux * vy - uy * vx;
+      attr(du, { x1: AX - 400 * ux, y1: AY + 400 * uy, x2: AX + 400 * ux, y2: AY - 400 * uy });
+      attr(dv, { x1: AX - 400 * vx, y1: AY + 400 * vy, x2: AX + 400 * vx, y2: AY - 400 * vy });
+      fleche2(vF, fx, fy); var pf = P(fx, fy); attr(tF, { x: pf[0] + 8, y: pf[1] - 6 });
+      $('[data-o="u"]', root).textContent = pu + "°"; $('[data-o="v"]', root).textContent = pv + "°";
+      if (Math.abs(det) < 0.05) {
+        vU.setAttribute("visibility", "hidden"); vV.setAttribute("visibility", "hidden"); attr(para, { d: "" });
+        $('[data-o="res"]', root).textContent = "Directions parallèles : impossible de décomposer F selon elles.";
+        return;
+      }
+      var a = (fx * vy - fy * vx) / det, b = (ux * fy - uy * fx) / det;
+      var U = [a * ux, a * uy], V = [b * vx, b * vy];
+      fleche2(vU, U[0], U[1]); fleche2(vV, V[0], V[1]);
+      var p1 = P(U[0], U[1]), p2 = P(V[0], V[1]);
+      attr(para, { d: "M" + AX + " " + AY + " L" + p1.join(" ") + " L" + pf.join(" ") + " L" + p2.join(" ") + " Z" });
+      attr(tU, { x: p1[0] + 6, y: p1[1] + 16 }); attr(tV, { x: p2[0] - 18, y: p2[1] - 6 });
+      var orth = Math.abs(((pv - pu) % 180 + 180) % 180 - 90) < 0.5;
+      $('[data-o="res"]', root).innerHTML = "U = " + fr(Math.abs(a), 2) + " N ; V = " + fr(Math.abs(b), 2) + " N" +
+        (orth ? " — composantes <b>orthogonales</b>" + (pu === 0 && pv === 90 ? " suivant x et y : U = F<sub>x</sub>, V = F<sub>y</sub>." : ".") : "");
+      if (!defi && Math.abs(a) > F + 0.5 && Math.abs(b) > F + 0.5) {
+        defi = true;
+        $('[data-o="defi"]', root).textContent = "✔ Bien vu : des composantes peuvent être plus grandes que la force elle-même, quand les directions s'écartent beaucoup.";
+      }
+    }
+    [sU, sV].forEach(function (x) { x.addEventListener("input", rendu); });
+    rendu();
+  });
+
+  // ===================== poids : P = m × g, selon l'astre et l'altitude =====================
+  $$('[data-widget="poids"]').forEach(function (root) {
+    var ASTRES = { terre: [9.81, 6378, "la Terre"], lune: [1.62, 1737, "la Lune"], mars: [3.71, 3390, "Mars"] }, astre = "terre", defi = false;
+    var sM = $('[data-in="m"]', root), sH = $('[data-in="h"]', root), barre = $(".jauge-bar", root);
+    var COUL = { terre: ["#2E7DBA", "#5FA35A"], lune: ["#A7ADB2", "#C9CDD0"], mars: ["#B5532E", "#D9824F"] };
+    var svg = $("svg", root), mkP = fleche(svg, "fl-po", "#B42318");
+    var sol = el("circle", { cx: 210, cy: 1290, r: 1000 }, svg), croute = el("circle", { cx: 210, cy: 1290, r: 992, fill: "none", "stroke-width": 16 }, svg);
+    var alt = el("line", { x1: 330, x2: 330, stroke: "#1F5FA8", "stroke-width": 2, "stroke-dasharray": "5 4" }, svg);
+    var tAlt = el("text", { x: 338, "class": "g-lab-s", fill: "#1F5FA8" }, svg);
+    var boite = el("rect", { x: 194, width: 32, height: 28, rx: 4, fill: "#E8E2CF", stroke: "#1C2530", "stroke-width": 2 }, svg);
+    var vP = el("line", { x1: 210, x2: 210, stroke: "#B42318", "stroke-width": 5, "marker-end": mkP }, svg);
+    var gPt = el("circle", { cx: 210, r: 4, fill: "#1C2530" }, svg), tG = el("text", { x: 232, "class": "g-lab-s" }, svg, "G");
+    var tP = el("text", { x: 186, "text-anchor": "end", "class": "g-lab", style: "fill:#B42318;stroke:#fff;stroke-width:5px;paint-order:stroke;stroke-linejoin:round" }, svg, "P");
+    function rendu() {
+      var a = ASTRES[astre], m = +sM.value, h = +sH.value, g = a[0] * a[1] * a[1] / ((a[1] + h) * (a[1] + h)), P = m * g;
+      var yS = 290, y = yS - 14 - 200 * Math.sqrt(h / 20000), L = 12 + P / 981 * 110;
+      attr(sol, { fill: COUL[astre][1] }); attr(croute, { stroke: COUL[astre][0] });
+      attr(boite, { y: y - 14 }); attr(gPt, { cy: y }); attr(tG, { y: y - 2 });
+      attr(vP, { y1: y, y2: y + L }); attr(tP, { y: y + Math.max(L, 20) });
+      attr(alt, { y1: yS, y2: y + 14, visibility: h > 0 ? "visible" : "hidden" }); attr(tAlt, { y: (yS + y) / 2 + 12 }); tAlt.textContent = h > 0 ? "h" : "";
+      $('[data-o="m"]', root).textContent = m + " kg"; $('[data-o="h"]', root).textContent = fr(h, 0) + " km";
+      $('[data-o="g"]', root).innerHTML = "g = g<sub>0</sub> × R² / (R + h)² = " + fr(a[0], 2) + " × " + fr(a[1], 0) + "² / " + fr(a[1] + h, 0) + "² = <b>" + fr(g, 3) + " m·s⁻²</b>";
+      $('[data-o="P"]', root).innerHTML = "P = m × g = " + m + " × " + fr(g, 3) + " = <b>" + fr(P, 1) + " N</b>";
+      barre.style.width = Math.min(100, P / 981 * 100) + "%";
+      if (!defi && astre === "terre" && Math.abs(g - a[0] / 4) < 0.01) {
+        defi = true;
+        $('[data-o="defi"]', root).textContent = "✔ À h = R ≈ 6 378 km, la distance au centre double : g, donc le poids, est divisé par 4.";
+      }
+    }
+    $$("[data-astre]", root).forEach(function (b) {
+      b.addEventListener("click", function () {
+        astre = b.getAttribute("data-astre");
+        $$("[data-astre]", root).forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+        rendu();
+      });
+    });
+    [sM, sH].forEach(function (x) { x.addEventListener("input", rendu); });
+    rendu();
+  });
+
+  // ===================== charge linéique uniforme : R = q × L au milieu =====================
+  $$('[data-widget="lineique"]').forEach(function (root) {
+    var svg = $("svg", root), sQ = $('[data-in="q"]', root), sL = $('[data-in="L"]', root), X0 = 40, Y0 = 150, K = 200;
+    var mk = fleche(svg, "fl-li", "#1F5FA8"), mkR = fleche(svg, "fl-li-r", "#B42318");
+    var poutre = el("rect", { y: Y0 - 26, height: 26, fill: "#D7DDE2", stroke: "#1C2530", "stroke-width": 2 }, svg);
+    el("rect", { x: 10, y: Y0 + 1, width: 500, height: 10, fill: "#CFC8A6" }, svg);
+    var g = el("g", {}, svg), rR = el("line", { stroke: "#B42318", "stroke-width": 6, "marker-end": mkR }, svg);
+    var tR = el("text", { "class": "g-lab", fill: "#B42318" }, svg, "R"), tL = el("text", { "class": "g-lab-s", "text-anchor": "middle" }, svg);
+    function rendu() {
+      var q = +sQ.value, L = +sL.value, w = L * K, h = 12 + q / 5000 * 50, R = q * L;
+      attr(poutre, { x: X0, width: w });
+      while (g.firstChild) g.removeChild(g.firstChild);
+      var n = Math.max(2, Math.round(L * 10));
+      for (var i = 0; i <= n; i++) el("line", { x1: X0 + w * i / n, y1: Y0 + 50 + h, x2: X0 + w * i / n, y2: Y0 + 14, stroke: "#1F5FA8", "stroke-width": 2, "marker-end": mk }, g);
+      el("line", { x1: X0, y1: Y0 + 50 + h, x2: X0 + w, y2: Y0 + 50 + h, stroke: "#1F5FA8", "stroke-width": 2 }, g);
+      var lr = 20 + Math.min(120, R / 40);
+      attr(rR, { x1: X0 + w / 2, y1: Y0 - 30, x2: X0 + w / 2, y2: Y0 - 30 - lr });
+      attr(tR, { x: X0 + w / 2 + 8, y: Y0 - 30 - lr / 2 }); attr(tL, { x: X0 + w / 2, y: Y0 + 72 + h }); tL.textContent = "L = " + fr(L, 2) + " m";
+      $('[data-o="q"]', root).textContent = fr(q, 0) + " N/m"; $('[data-o="L"]', root).textContent = fr(L, 2) + " m";
+      $('[data-o="R"]', root).innerHTML = "R = q × L = " + fr(q, 0) + " × " + fr(L, 2) + " = <b>" + fr(R, 0) + " N</b>, au milieu de la longueur L";
+    }
+    [sQ, sL].forEach(function (x) { x.addEventListener("input", rendu); });
+    rendu();
+  });
+
+  // ===================== pression sur un piston de vérin : R = p × S =====================
+  $$('[data-widget="verin"]').forEach(function (root) {
+    var svg = $("svg", root), sP = $('[data-in="p"]', root), sD = $('[data-in="d"]', root), YC = 140, defi = false;
+    var mkP = fleche(svg, "fl-ve-p", "#1F5FA8"), mkR = fleche(svg, "fl-ve-r", "#B42318");
+    var corps = el("rect", { x: 150, width: 300, fill: "#F4F5F2", stroke: "#1C2530", "stroke-width": 3 }, svg);
+    var huile = el("rect", { x: 330, fill: "rgba(178,106,0,.25)" }, svg), piston = el("rect", { x: 300, width: 30, fill: "#9AA2A8", stroke: "#1C2530", "stroke-width": 2 }, svg);
+    var tige = el("rect", { x: 40, y: YC - 10, width: 262, height: 20, fill: "#D7DDE2", stroke: "#1C2530", "stroke-width": 2 }, svg);
+    var g = el("g", {}, svg), rR = el("line", { stroke: "#B42318", "stroke-width": 7, "marker-end": mkR }, svg);
+    var tR = el("text", { "class": "g-lab", fill: "#B42318" }, svg, "R = p × S");
+    function rendu() {
+      var p = +sP.value, d = +sD.value, S = Math.PI * Math.pow(d / 10, 2) / 4, R = p * S, hpx = 40 + d * 0.9;
+      attr(corps, { y: YC - hpx / 2 - 6, height: hpx + 12 }); attr(huile, { y: YC - hpx / 2, height: hpx, width: 116 });
+      attr(piston, { y: YC - hpx / 2, height: hpx });
+      while (g.firstChild) g.removeChild(g.firstChild);
+      var n = Math.max(3, Math.round(hpx / 22));
+      for (var i = 0; i < n; i++) {
+        var y = YC - hpx / 2 + hpx * (i + 0.5) / n;
+        if (p > 0) el("line", { x1: 330 + 26 + p / 300 * 70, y1: y, x2: 333, y2: y, stroke: "#1F5FA8", "stroke-width": 2, "marker-end": mkP }, g);
+      }
+      var lr = Math.min(130, 10 + R / 80);
+      attr(rR, { x1: 160, y1: YC, x2: 160 - lr, y2: YC, visibility: R > 0 ? "visible" : "hidden" });
+      attr(tR, { x: 20, y: YC - 22 });
+      $('[data-o="p"]', root).textContent = p + " bar"; $('[data-o="d"]', root).textContent = d + " mm";
+      $('[data-o="S"]', root).innerHTML = "S = π d² / 4 = π × " + fr(d / 10, 1) + "² / 4 = <b>" + fr(S, 2) + " cm²</b>";
+      $('[data-o="R"]', root).innerHTML = "R = p × S = " + p + " × " + fr(S, 2) + " = <b>" + fr(R, 0) + " daN</b> (" + fr(R * 10, 0) + " N), soit environ " + fr(R / 1000, 1) + " t";
+      if (!defi && p === 100 && R >= 8000) {
+        defi = true;
+        $('[data-o="defi"]', root).textContent = "✔ 8 tonnes avec 100 bars : il faut S ≥ 80 cm², soit d ≥ 101 mm. Ici d = " + d + " mm.";
+      }
+    }
+    [sP, sD].forEach(function (x) { x.addEventListener("input", rendu); });
+    rendu();
   });
 })();

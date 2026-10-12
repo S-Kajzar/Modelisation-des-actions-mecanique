@@ -464,6 +464,7 @@ body.cours-page .page{max-width:1040px}
 .cours-nav a{font:600 .9rem var(--f-titre); color:var(--encre); background:var(--papier); border:1.5px solid var(--encre); padding:4px 11px; text-decoration:none}
 .cours-nav a:hover{background:var(--jaune-pale)}
 .cours-nav a.on{background:var(--encre); color:var(--jaune)}
+@media (max-width:700px){ .cours-nav{flex-wrap:nowrap; overflow-x:auto; scrollbar-width:thin} .cours-nav a{flex:0 0 auto; white-space:nowrap} }
 .cours-sec .part-head h2{padding:14px 16px}
 .cours-split{display:flex; gap:20px; align-items:flex-start; flex-wrap:wrap}
 .cours-split>div{flex:1 1 300px; min-width:0}
@@ -587,6 +588,16 @@ details.a-toi .formule{border-color:var(--vert); margin:8px 0}
 .tm-c.clic{cursor:pointer; border-bottom:2px dotted var(--bleu); text-align:center}
 .tm-c.clic[aria-pressed="true"]{background:var(--jaune); border-bottom-color:var(--encre)}
 .torseurs-vivants{display:flex; flex-wrap:wrap; gap:6px 22px; align-items:center}
+/* jeu de classement */
+.jeu{background:#fff; border:1px solid var(--trait); padding:8px 14px; margin:12px 0}
+.jeu h3{margin:4px 0 8px}
+.jeu-l{display:flex; flex-wrap:wrap; gap:6px; align-items:center; padding:6px 4px; border-bottom:1px dashed var(--trait-fin)}
+.jeu-l>span{flex:1 1 240px}
+.jeu-l button{border:1.5px solid var(--encre); background:#fff; padding:3px 9px; font:600 .85rem var(--f-titre); cursor:pointer}
+.jeu-l button[aria-pressed="true"]{background:var(--encre); color:#fff}
+.jeu-l.is-ok{background:var(--vert-pale)} .jeu-l.is-ko{background:var(--rouge-pale)}
+.jeu-fb{width:1.4em; font-weight:700}
+.jeu-s{font:700 1.1rem var(--f-titre); margin:8px 0 0}
 /* quiz */
 .quiz{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:12px}
 .quiz-q{border:1.5px solid var(--encre); background:#fff; padding:8px 14px 10px; margin:0}
@@ -620,8 +631,8 @@ details.a-toi .formule{border-color:var(--vert); margin:8px 0}
 <body class="cours-page">
 <div class="lecture" aria-hidden="true"></div>
 <main class="page cours"><p class="home-back no-print"><a class="btn ghost retour-accueil" href="index.html"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 9.8V20h4.5v-5.5h4V20h4.5V9.8"/></svg> Accueil : Modélisation des actions mécaniques</a></p>
-<header class="cours-tete"><span class="mc-tag">Cours 3</span><span class="pastille n2">Niveau 2</span><h1>Torseur d'action mécanique</h1><p>Écrire une action mécanique sous forme de torseur, puis changer de point de réduction. Environ 30 minutes : un torseur à explorer, un simulateur de transport du moment, un exemple résolu pas à pas et un quiz.</p></header>
-<div class="cours-cadre"><div><h2>Objectif</h2><ul><li>Écrire une action mécanique sous forme de torseur.</li></ul></div><div><h2>Prérequis</h2><ul><li>Cours 1 et 2 : coordonnées d'une force, moment et produit vectoriel.</li></ul></div></div>
+<header class="cours-tete"><span class="mc-tag">Cours 4</span><span class="pastille n2">Niveau 2</span><h1>Torseur d'action mécanique</h1><p>Écrire une action mécanique sous forme de torseur, puis changer de point de réduction. Environ 30 minutes : un torseur à explorer, un simulateur de transport du moment, un exemple résolu pas à pas et un quiz.</p></header>
+<div class="cours-cadre"><div><h2>Objectif</h2><ul><li>Écrire une action mécanique sous forme de torseur.</li></ul></div><div><h2>Prérequis</h2><ul><li>Cours 1 à 3 : coordonnées d'une force, moment et produit vectoriel.</li></ul></div></div>
 <nav class="cours-nav no-print" aria-label="Étapes du cours"><a href="#c3-def">1. Le torseur</a><a href="#c3-lettres">2. Les lettres</a><a href="#c3-transport">3. Changer de point</a><a href="#c3-somme">4. Plusieurs actions</a><a href="#c3-exemple">5. Exemple</a><a href="#c3-quiz">6. Quiz</a></nav>
 <section class="part cours-sec" id="c3-def" aria-labelledby="c3-def-t"><header class="part-head"><div class="part-num" aria-hidden="true">1</div><div><h2 id="c3-def-t">Une action, deux vecteurs : le torseur</h2></div></header><div class="part-body"><p>Une action mécanique possède donc deux composantes : la <b>force</b> et le <b>moment</b> de cette force. Le <b>torseur</b> d'une action mécanique est une forme d'écriture, de présentation : elle peut être sous forme <b>vectorielle</b> ou sous forme <b>analytique</b>. Ses coordonnées varient suivant le <b>point de réduction</b> du torseur.</p><details class="a-toi"><summary>À toi : écris le torseur de la force <span class="vec">F</span> au point B, sous les deux formes. Clique ensuite pour vérifier.</summary><div><div class="formule"><span class="f-main">{<i>T</i><sub>F</sub>}<sub>B</sub> = { <span class="vec">F</span> ; <span class="vec">M</span><sub>B</sub>(<span class="vec">F</span>) }<sub>B</sub></span><span class="f-units">forme vectorielle : la résultante, puis le moment au point B</span></div><div class="formule"><span class="f-main">{<i>T</i><sub>F</sub>}<sub>B</sub> = <span class="tm"><span class="tm-b" aria-hidden="true">{</span><span class="tm-g"><span class="tm-c">X</span><span class="tm-c">L</span><span class="tm-c">Y</span><span class="tm-c">M</span><span class="tm-c">Z</span><span class="tm-c">N</span></span><span class="tm-b" aria-hidden="true">}</span><sub class="tm-p">B (R)</sub></span></span><span class="f-units">forme analytique, dans le repère R</span></div></div></details><div class="remarque"><p>Le torseur rassemble en une seule écriture ce qui fait <b>avancer</b> (la force) et ce qui fait <b>tourner</b> (le moment) : c'est l'outil de la statique pour écrire l'équilibre.</p></div></div></section><section class="part cours-sec" id="c3-lettres" aria-labelledby="c3-lettres-t"><header class="part-head"><div class="part-num" aria-hidden="true">2</div><div><h2 id="c3-lettres-t">Que représente chaque lettre ?</h2></div></header><div class="part-body"><div class="simu" data-widget="lettres"><h3>Explore le torseur</h3><p class="cours-defi">À toi : clique sur chaque lettre.</p><p style="font-size:1.3rem"><span class="tm"><span class="tm-nom">{<i>T</i><sub>F</sub>}<sub>B</sub> =</span><span class="tm-b" aria-hidden="true">{</span><span class="tm-g"><span class="tm-c clic" role="button" tabindex="0" aria-pressed="false" data-info="&lt;b&gt;X&lt;/b&gt; : coordonnée de la force &lt;span class=&quot;vec&quot;&gt;F&lt;/span&gt; sur l&#x27;axe x du repère R, en N.">X</span><span class="tm-c clic" role="button" tabindex="0" aria-pressed="false" data-info="&lt;b&gt;L&lt;/b&gt; : coordonnée du moment &lt;span class=&quot;vec&quot;&gt;M&lt;/span&gt;&lt;sub&gt;B&lt;/sub&gt;(&lt;span class=&quot;vec&quot;&gt;F&lt;/span&gt;) sur l&#x27;axe x, en N·m : il fait tourner autour de x.">L</span><span class="tm-c clic" role="button" tabindex="0" aria-pressed="false" data-info="&lt;b&gt;Y&lt;/b&gt; : coordonnée de la force sur l&#x27;axe y, en N.">Y</span><span class="tm-c clic" role="button" tabindex="0" aria-pressed="false" data-info="&lt;b&gt;M&lt;/b&gt; : coordonnée du moment sur l&#x27;axe y, en N·m.">M</span><span class="tm-c clic" role="button" tabindex="0" aria-pressed="false" data-info="&lt;b&gt;Z&lt;/b&gt; : coordonnée de la force sur l&#x27;axe z, en N.">Z</span><span class="tm-c clic" role="button" tabindex="0" aria-pressed="false" data-info="&lt;b&gt;N&lt;/b&gt; : coordonnée du moment sur l&#x27;axe z, en N·m. Pour une force dans le plan (x, y), c&#x27;est la seule non nulle.">N</span></span><span class="tm-b" aria-hidden="true">}</span><sub class="tm-p">B</sub></span></p><div class="carte-txt tm-info" aria-live="polite"><p class="small">X, Y, Z sont les coordonnées de la force ; L, M, N celles du moment au point B, dans le même repère R.</p></div></div><div class="check" data-ans="-50" data-tol="0.001" data-why="Y est la coordonnée de la force sur y : −50 N. Et L = M = N = 0, car B est le point d&#x27;application."><span>Une force <span class="vec">F</span> = (120 ; −50 ; 0) N est appliquée en B. Dans {<i>T</i><sub>F</sub>}<sub>B</sub>, que vaut Y (en N) ?</span><input type="text" inputmode="decimal" aria-label="Ta réponse" autocomplete="off"> N <button type="button" class="btn ghost">Vérifier</button><span class="check-fb" aria-live="polite"></span></div></div></section><section class="part cours-sec" id="c3-transport" aria-labelledby="c3-transport-t"><header class="part-head"><div class="part-num" aria-hidden="true">3</div><div><h2 id="c3-transport-t">Changer de point de réduction</h2></div></header><div class="part-body"><div class="remarque"><p><b>Remarques</b></p><ul><li>Si le point de réduction du torseur change, les coordonnées de la force ne varient pas : <b>seul le moment est à recalculer</b>.</li><li>Le moment au <b>point d'application</b> de la force est <b>toujours nul</b>.</li></ul></div><p>Pour une force <span class="vec">F</span> appliquée en A, le moment en un autre point B se calcule avec le produit vectoriel. Plus généralement, on <b>transporte</b> le moment d'un point A à un point B :</p><div class="formule"><span class="f-main"><span class="vec">M</span><sub>B</sub> = <span class="vec">M</span><sub>A</sub> + <span class="vec">BA</span> ∧ <span class="vec">R</span></span><span class="f-units">formule de transport du moment<br>pour une force seule appliquée en A : <span class="vec">M</span><sub>B</sub> = <span class="vec">BA</span> ∧ <span class="vec">F</span></span></div><div class="simu" data-widget="transport"><h3>Simulateur : déplace le point de réduction B</h3><div class="simu-corps"><div><svg viewBox="0 0 520 330" role="img" aria-label="Plan quadrillé : force F appliquée en A, point de réduction B déplaçable, droite d'action en pointillés et bras de levier en jaune"></svg><p class="simu-aide">La résultante est la même en A et en B ; seule la dernière case, le moment N, change.</p></div><div class="simu-grid"><p class="small">Fais glisser B (jaune), le point d'application A ou l'extrémité verte de la force. Les points s'accrochent tous les 0,5 m ; 1 m de flèche représente 200 N.</p><p class="small"><span data-o="A"></span> · <span data-o="B"></span><br><span data-o="F"></span></p><div class="simu-out"><div class="simu-calc torseurs-vivants"><p data-o="tA"></p><p data-o="tB"></p></div><p class="simu-calc small" data-o="N"></p><p class="simu-verdict" data-o="verdict" aria-live="polite"></p></div><div class="defi"><b>Défi :</b> trouve trois positions de B, différentes de A, où le moment est nul. <span data-o="defi" aria-live="polite"></span></div></div></div></div></div></section><section class="part cours-sec" id="c3-somme" aria-labelledby="c3-somme-t"><header class="part-head"><div class="part-num" aria-hidden="true">4</div><div><h2 id="c3-somme-t">Plusieurs actions : le torseur résultant</h2></div></header><div class="part-body"><p>Pour additionner des actions mécaniques, on écrit leurs torseurs <b>au même point</b>, puis on additionne les résultantes et les moments :</p><div class="formule"><span class="f-main">{<i>T</i><sub>1</sub>}<sub>O</sub> + {<i>T</i><sub>2</sub>}<sub>O</sub> = { <span class="vec">R</span><sub>1</sub> + <span class="vec">R</span><sub>2</sub> ; <span class="vec">M</span><sub>O1</sub> + <span class="vec">M</span><sub>O2</sub> }<sub>O</sub></span><span class="f-units">deux torseurs écrits en des points différents ne s'additionnent pas</span></div><details class="a-toi"><summary>À toi : deux forces opposées de 100 N sont appliquées en A (0 ; 1 ; 0) m, <span class="vec">F</span><sub>A</sub> = (100 ; 0 ; 0) N, et en B (0 ; −1 ; 0) m, <span class="vec">F</span><sub>B</sub> = (−100 ; 0 ; 0) N. Écris leur torseur résultant en O. Clique ensuite pour vérifier.</summary><div><p>Résultante : (100 − 100 ; 0 ; 0) = (0 ; 0 ; 0). Moments en O, sur z : x<sub>A</sub>F<sub>Ay</sub> − y<sub>A</sub>F<sub>Ax</sub> = 0 − 1 × 100 = −100 N·m et 0 − (−1) × (−100) = −100 N·m.</p><div class="formule"><span class="f-main">{<i>T</i>}<sub>O</sub> = <span class="tm"><span class="tm-b" aria-hidden="true">{</span><span class="tm-g"><span class="tm-c">0</span><span class="tm-c">0</span><span class="tm-c">0</span><span class="tm-c">0</span><span class="tm-c">0</span><span class="tm-c">−200</span></span><span class="tm-b" aria-hidden="true">}</span><sub class="tm-p">O</sub></span></span><span class="f-units">résultante nulle, moment non nul : c'est un <b>couple pur</b>, comme celui d'un tourne-vis</span></div></div></details></div></section><section class="part cours-sec" id="c3-exemple" aria-labelledby="c3-exemple-t"><header class="part-head"><div class="part-num" aria-hidden="true">5</div><div><h2 id="c3-exemple-t">Exemple résolu pas à pas</h2></div></header><div class="part-body"><div class="exemple stepper"><h3>Torseur d'une force en A, puis en O</h3><ol><li>Une force <span class="vec">F</span> = (300 ; −400 ; 0) N est appliquée au point A (2 ; 1 ; 0) m.</li><li>Coordonnées de la résultante : X = 300 N, Y = −400 N, Z = 0.</li><li>Au point d'application, le moment est nul : {<i>T</i>}<sub>A</sub> = <span class="tm"><span class="tm-b" aria-hidden="true">{</span><span class="tm-g"><span class="tm-c">300</span><span class="tm-c">0</span><span class="tm-c">−400</span><span class="tm-c">0</span><span class="tm-c">0</span><span class="tm-c">0</span></span><span class="tm-b" aria-hidden="true">}</span><sub class="tm-p">A</sub></span>.</li><li><span class="vec">OA</span> = (2 ; 1 ; 0) m. <span class="vec">M</span><sub>O</sub> = <span class="vec">OA</span> ∧ <span class="vec">F</span> = (1 × 0 − 0 × (−400) ; 0 × 300 − 2 × 0 ; 2 × (−400) − 1 × 300) = (0 ; 0 ; −1 100) N·m.</li><li>Torseur au point O : {<i>T</i>}<sub>O</sub> = <span class="tm"><span class="tm-b" aria-hidden="true">{</span><span class="tm-g"><span class="tm-c">300</span><span class="tm-c">0</span><span class="tm-c">−400</span><span class="tm-c">0</span><span class="tm-c">0</span><span class="tm-c">−1 100</span></span><span class="tm-b" aria-hidden="true">}</span><sub class="tm-p">O</sub></span> : même résultante, nouveau moment.</li><li>Contrôle par la formule de transport au point C (5 ; 1 ; 0) m : <span class="vec">CO</span> = (−5 ; −1 ; 0) ; <span class="vec">CO</span> ∧ <span class="vec">F</span> a pour composante sur z (−5) × (−400) − (−1) × 300 = 2 300 ; donc N<sub>C</sub> = −1 100 + 2 300 = <b>1 200 N·m</b>. Directement : <span class="vec">CA</span> = (−3 ; 0 ; 0), (−3) × (−400) − 0 × 300 = 1 200 N·m. ✔</li></ol><div class="stepper-foot"><button type="button" class="btn st-next">Étape suivante</button><button type="button" class="btn ghost st-all">Tout afficher</button><button type="button" class="btn ghost st-reset">Recommencer</button></div></div></div></section><section class="part cours-sec" id="c3-quiz" aria-labelledby="c3-quiz-t"><header class="part-head"><div class="part-num" aria-hidden="true">6</div><div><h2 id="c3-quiz-t">Quiz : vérifie tes connaissances</h2></div></header><div class="part-body"><div class="quiz-bloc"><p>Choisis une réponse : la correction s'affiche aussitôt.</p><div class="quiz"><fieldset class="quiz-q" data-ok="0"><legend><span class="q-num">1</span> Le torseur d'une force F appliquée en A, écrit au point A, a un moment…</legend><label><input type="radio" name="q3-0" value="0"> nul</label><label><input type="radio" name="q3-0" value="1"> égal à F</label><label><input type="radio" name="q3-0" value="2"> égal à OA ∧ F</label><p class="quiz-fb" aria-live="polite"></p><p class="quiz-why" hidden>Le moment d'une force en son point d'application est toujours nul.</p></fieldset><fieldset class="quiz-q" data-ok="1"><legend><span class="q-num">2</span> Quand on change de point de réduction, la résultante…</legend><label><input type="radio" name="q3-1" value="0"> change</label><label><input type="radio" name="q3-1" value="1"> ne change pas</label><label><input type="radio" name="q3-1" value="2"> s'annule</label><p class="quiz-fb" aria-live="polite"></p><p class="quiz-why" hidden>Les coordonnées de la force ne varient pas : seul le moment est à recalculer.</p></fieldset><fieldset class="quiz-q" data-ok="2"><legend><span class="q-num">3</span> Dans {X L ; Y M ; Z N}<sub>B</sub>, les lettres L, M, N sont…</legend><label><input type="radio" name="q3-2" value="0"> les coordonnées de la force</label><label><input type="radio" name="q3-2" value="1"> les coordonnées du point B</label><label><input type="radio" name="q3-2" value="2"> les coordonnées du moment en B</label><p class="quiz-fb" aria-live="polite"></p><p class="quiz-why" hidden>X, Y, Z : la force ; L, M, N : le moment au point de réduction B.</p></fieldset><fieldset class="quiz-q" data-ok="0"><legend><span class="q-num">4</span> F = (0 ; 100 ; 0) N est appliquée en A (2 ; 0 ; 0) m. Au point O, N vaut…</legend><label><input type="radio" name="q3-3" value="0"> 200 N·m</label><label><input type="radio" name="q3-3" value="1"> −200 N·m</label><label><input type="radio" name="q3-3" value="2"> 0</label><p class="quiz-fb" aria-live="polite"></p><p class="quiz-why" hidden>N = x<sub>A</sub> F<sub>y</sub> − y<sub>A</sub> F<sub>x</sub> = 2 × 100 − 0 = 200 N·m.</p></fieldset><fieldset class="quiz-q" data-ok="2"><legend><span class="q-num">5</span> Même force, au point B (2 ; 5 ; 0) m, le moment vaut…</legend><label><input type="radio" name="q3-4" value="0"> 500 N·m</label><label><input type="radio" name="q3-4" value="1"> 200 N·m</label><label><input type="radio" name="q3-4" value="2"> 0</label><p class="quiz-fb" aria-live="polite"></p><p class="quiz-why" hidden>B est sur la droite d'action de F (la verticale x = 2) : le bras de levier est nul.</p></fieldset><fieldset class="quiz-q" data-ok="0"><legend><span class="q-num">6</span> Pour additionner deux torseurs, il faut d'abord…</legend><label><input type="radio" name="q3-5" value="0"> les écrire au même point</label><label><input type="radio" name="q3-5" value="1"> additionner leurs points</label><label><input type="radio" name="q3-5" value="2"> rien de particulier</label><p class="quiz-fb" aria-live="polite"></p><p class="quiz-why" hidden>On ne peut additionner que des torseurs réduits au même point.</p></fieldset><fieldset class="quiz-q" data-ok="1"><legend><span class="q-num">7</span> La relation M<sub>B</sub> = M<sub>A</sub> + BA ∧ R sert à…</legend><label><input type="radio" name="q3-6" value="0"> calculer une force</label><label><input type="radio" name="q3-6" value="1"> transporter le moment d'un point à un autre</label><label><input type="radio" name="q3-6" value="2"> calculer une norme</label><p class="quiz-fb" aria-live="polite"></p><p class="quiz-why" hidden>C'est la formule de transport du moment : elle donne le moment en B à partir de celui en A.</p></fieldset></div><div class="quiz-score" aria-live="polite"><span class="qz-score"></span><span class="qz-stars" aria-hidden="true"></span><span class="qz-msg small"></span><button type="button" class="btn ghost qz-reset">Recommencer</button></div></div></div></section>
 <div class="cours-foot no-print"><span class="small">S'entraîner :</span> <a class="btn" href="exercice-torseurs.html">Exercice 2.2 — Torseurs : les bases</a>
@@ -717,7 +728,11 @@ details.a-toi .formule{border-color:var(--vert); margin:8px 0}
     var obs = new IntersectionObserver(function (es) {
       es.forEach(function (e) {
         if (!e.isIntersecting) return;
-        liens.forEach(function (a) { a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id); });
+        liens.forEach(function (a) {
+          var on = a.getAttribute("href") === "#" + e.target.id, nav = a.parentNode;
+          a.classList.toggle("on", on);
+          if (on && nav.scrollWidth > nav.clientWidth) nav.scrollLeft = a.offsetLeft - (nav.clientWidth - a.offsetWidth) / 2;
+        });
       });
     }, { rootMargin: "-30% 0px -60% 0px" });
     liens.forEach(function (a) { var s = $(a.getAttribute("href")); if (s) obs.observe(s); });
@@ -1204,6 +1219,262 @@ details.a-toi .formule{border-color:var(--vert); margin:8px 0}
       c.addEventListener("click", voir);
       c.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); voir(); } });
     });
+  });
+  // ===================== jeu de classement (une ligne = un cas, des boutons = les catégories) =====================
+  $$(".jeu").forEach(function (root) {
+    var lignes = $$(".jeu-l", root);
+    function score() {
+      var n = lignes.filter(function (l) { return l.classList.contains("is-ok"); }).length;
+      $(".jeu-s", root).textContent = n + " / " + lignes.length + (n === lignes.length ? " : parfait !" : "");
+    }
+    lignes.forEach(function (l) {
+      $$("button", l).forEach(function (b) {
+        b.addEventListener("click", function () {
+          var ok = b.getAttribute("data-v") === l.getAttribute("data-ok");
+          l.classList.remove("is-ok", "is-ko"); l.classList.add(ok ? "is-ok" : "is-ko");
+          $$("button", l).forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+          $(".jeu-fb", l).textContent = ok ? "✔" : "✘";
+          score();
+        });
+      });
+    });
+    score();
+  });
+
+  // ===================== navette spatiale : la poussée passe-t-elle par G ? =====================
+  $$('[data-widget="navette"]').forEach(function (root) {
+    var svg = $("svg", root), GX = 330, GY = 130, K = 30;              // 1 m = 30 px
+    var sF = $('[data-in="F"]', root), sD = $('[data-in="d"]', root), anim = null;
+    var mkF = fleche(svg, "fl-nav", "#B42318"), mkR = fleche(svg, "fl-nav-r", "#1F5FA8");
+    el("line", { x1: 20, y1: GY, x2: 540, y2: GY, stroke: "#9AA2A8", "stroke-dasharray": "8 5" }, svg);
+    var corps = el("g", {}, svg);
+    el("path", { d: "M" + (GX - 150) + " " + GY + " q 25 -28 70 -28 h 150 l 40 -60 h 22 l -8 60 v 52 h -184 q -50 0 -90 -24 z",
+      fill: "#E8E2CF", stroke: "#1C2530", "stroke-width": 2 }, corps);
+    el("rect", { x: GX + 132, y: GY - 22, width: 18, height: 40, fill: "#46525C" }, corps);
+    el("circle", { cx: GX, cy: GY, r: 5, fill: "#1C2530" }, corps);
+    el("text", { x: GX + 8, y: GY - 8, "class": "g-lab" }, corps, "G");
+    var ligne = el("line", { stroke: "#B42318", "stroke-width": 1.5, "stroke-dasharray": "6 4" }, corps);
+    var fl = el("line", { stroke: "#B42318", "stroke-width": 6, "marker-end": mkF }, corps);
+    var tF = el("text", { "class": "g-lab", fill: "#B42318" }, corps, "F");
+    var cote = el("line", { stroke: "#1F5FA8", "stroke-width": 2 }, corps), tD = el("text", { "class": "g-lab-s", fill: "#1F5FA8" }, corps, "d");
+    var rot = el("path", { fill: "none", stroke: "#1F5FA8", "stroke-width": 3, "marker-end": mkR }, corps);
+    function rendu(dx, th) {
+      var F = +sF.value, d = +sD.value, y = GY + d * K, M = -F * d;
+      attr(corps, { transform: "translate(" + (dx || 0) + " 0) rotate(" + (th || 0) + " " + GX + " " + GY + ")" });
+      attr(ligne, { x1: GX - 200, y1: y, x2: GX + 250, y2: y });
+      var L = 15 + F / 20;
+      attr(fl, { x1: GX + 160 + L, y1: y, x2: GX + 160, y2: y }); attr(tF, { x: GX + 170 + L / 2, y: y - 10 });
+      attr(cote, { x1: GX - 60, y1: GY, x2: GX - 60, y2: y, visibility: Math.abs(d) > 0.05 ? "visible" : "hidden" });
+      attr(tD, { x: GX - 76, y: (GY + y) / 2 + 4, visibility: Math.abs(d) > 0.05 ? "visible" : "hidden" });
+      attr(rot, { d: Math.abs(d) > 0.05 ? (M > 0 ? arc(GX, GY, 34, -50, 200) : arc(GX, GY, 34, 200, -50)) : "" });
+      $('[data-o="F"]', root).textContent = fr(F, 0) + " kN"; $('[data-o="d"]', root).textContent = fr(d, 2) + " m";
+      $('[data-o="M"]', root).innerHTML = "M<sub>G</sub>(F) = F × d = " + fr(F, 0) + " × " + fr(Math.abs(d), 2) + " = <b>" + fr(Math.abs(M), 0) + " kN·m</b>";
+      var v = $('[data-o="cas"]', root);
+      if (Math.abs(d) < 0.05) { v.textContent = "Cas 1 : F passe par G → translation seule, sans rotation."; v.className = "simu-verdict ok"; }
+      else { v.textContent = "Cas 2 : F ne passe pas par G → translation + rotation " + (M > 0 ? "dans le sens trigonométrique." : "dans le sens horaire."); v.className = "simu-verdict ko"; }
+      return M;
+    }
+    [sF, sD].forEach(function (x) { x.addEventListener("input", function () { if (!anim) rendu(); }); });
+    $(".nav-go", root).addEventListener("click", function () {
+      if (anim) return;
+      var t0 = null, M = -(+sF.value) * (+sD.value);
+      function pas(t) {
+        if (t0 === null) t0 = t;
+        var u = Math.min(1, (t - t0) / 2200);
+        rendu(-(+sF.value) / 1000 * 260 * u * u, -M / 1500 * 60 * u * u);
+        if (u < 1) anim = requestAnimationFrame(pas); else setTimeout(function () { anim = null; rendu(); }, 600);
+      }
+      anim = requestAnimationFrame(pas);
+    });
+    rendu();
+  });
+
+  // ===================== couple de deux forces : le moment ne dépend pas du point O =====================
+  $$('[data-widget="couple"]').forEach(function (root) {
+    var svg = $("svg", root), CX = 260, CY = 130, K = 100;            // 1 m = 100 px
+    var sF = $('[data-in="F"]', root), sD = $('[data-in="d"]', root), O = { x: -1.6, y: 0.6 }, defi = false;
+    var mkF = fleche(svg, "fl-cp", "#B42318"), mkM = fleche(svg, "fl-cp-m", "#1F5FA8");
+    el("ellipse", { cx: CX, cy: CY, rx: 245, ry: 108, fill: "#F4F5F2", stroke: "#1C2530", "stroke-width": 2 }, svg);
+    var lA = el("line", { stroke: "#B42318", "stroke-dasharray": "5 4" }, svg), lB = el("line", { stroke: "#B42318", "stroke-dasharray": "5 4" }, svg);
+    var dA = el("line", { stroke: "#F2B705", "stroke-width": 4 }, svg), dB = el("line", { stroke: "#F2B705", "stroke-width": 4 }, svg);
+    var fA = el("line", { stroke: "#B42318", "stroke-width": 5, "marker-end": mkF }, svg), fB = el("line", { stroke: "#B42318", "stroke-width": 5, "marker-end": mkF }, svg);
+    var tA = el("text", { "class": "g-lab", fill: "#B42318" }, svg, "−F"), tB = el("text", { "class": "g-lab", fill: "#B42318" }, svg, "F");
+    var rot = el("path", { fill: "none", stroke: "#1F5FA8", "stroke-width": 3, "marker-end": mkM }, svg);
+    var hO = poignee(svg, "Point O", "#F2B705"), tO = el("text", { "class": "g-lab" }, svg, "O");
+    function X(x) { return CX + K * x; }
+    function Y(y) { return CY - K * y; }
+    function rendu() {
+      var F = +sF.value, d = +sD.value, xA = -d / 2, xB = d / 2, L = 30 + F * 0.9;
+      attr(fA, { x1: X(xA), y1: CY - L / 2, x2: X(xA), y2: CY + L / 2 }); attr(fB, { x1: X(xB), y1: CY + L / 2, x2: X(xB), y2: CY - L / 2 });
+      attr(tA, { x: X(xA) - 32, y: CY + L / 2 }); attr(tB, { x: X(xB) + 8, y: CY - L / 2 + 10 });
+      attr(lA, { x1: X(xA), y1: 14, x2: X(xA), y2: 246 }); attr(lB, { x1: X(xB), y1: 14, x2: X(xB), y2: 246 });
+      attr(dA, { x1: X(O.x), y1: Y(O.y), x2: X(xA), y2: Y(O.y) }); attr(dB, { x1: X(O.x), y1: Y(O.y) + 5, x2: X(xB), y2: Y(O.y) + 5 });
+      placer(hO, X(O.x), Y(O.y)); attr(tO, { x: X(O.x) - 22, y: Y(O.y) - 10 });
+      attr(rot, { d: arc(CX, CY, 34, -60, 200) });
+      var mB = (xB - O.x) * F, mA = (xA - O.x) * (-F);
+      $('[data-o="F"]', root).textContent = F + " N"; $('[data-o="d"]', root).textContent = fr(d, 2) + " m";
+      $('[data-o="mB"]', root).innerHTML = "M<sub>O</sub>(F) = F × " + frn(xB - O.x, 2) + " = " + frn(mB, 2) + " N·m";
+      $('[data-o="mA"]', root).innerHTML = "M<sub>O</sub>(−F) = −F × " + par(xA - O.x, 2) + " = " + frn(mA, 2) + " N·m";
+      $('[data-o="M"]', root).innerHTML = "M = " + frn(mB, 2) + " + " + par(mA, 2) + " = <b>" + frn(mA + mB, 2) + " N·m</b> = F × d";
+      if (!defi && Math.abs(O.x - xB) < 0.03) {
+        defi = true;
+        $('[data-o="defi"]', root).textContent = "✔ O sur la droite d'action de F : M_O(F) = 0, et le couple vaut toujours F × d, porté entièrement par −F.";
+      }
+    }
+    deplacable(svg, hO, function (pt) {
+      O = { x: clamp(Math.round((pt.x - CX) / K * 20) / 20, -2.4, 2.4), y: clamp(Math.round((CY - pt.y) / K * 20) / 20, -1, 1) };
+      rendu();
+    }, function (dx, dy) { O = { x: clamp(O.x + dx * 0.05, -2.4, 2.4), y: clamp(O.y + dy * 0.05, -1, 1) }; rendu(); });
+    [sF, sD].forEach(function (x) { x.addEventListener("input", rendu); });
+    rendu();
+  });
+
+  // ===================== composantes d'une force selon deux directions =====================
+  $$('[data-widget="composantes"]').forEach(function (root) {
+    var svg = $("svg", root), AX = 150, AY = 240, K = 2.2, F = 100, TF = 35;
+    var sU = $('[data-in="u"]', root), sV = $('[data-in="v"]', root), defi = false;
+    var mkF = fleche(svg, "fl-co-f", "#1B7A43"), mkU = fleche(svg, "fl-co-u", "#1F5FA8"), mkV = fleche(svg, "fl-co-v", "#B42318");
+    var du = el("line", { stroke: "#1F5FA8", "stroke-dasharray": "6 5" }, svg), dv = el("line", { stroke: "#B42318", "stroke-dasharray": "6 5" }, svg);
+    var para = el("path", { fill: "rgba(242,183,5,.12)", stroke: "#9AA2A8", "stroke-dasharray": "4 4" }, svg);
+    var vU = el("line", { stroke: "#1F5FA8", "stroke-width": 4, "marker-end": mkU }, svg), vV = el("line", { stroke: "#B42318", "stroke-width": 4, "marker-end": mkV }, svg);
+    var vF = el("line", { stroke: "#1B7A43", "stroke-width": 5, "marker-end": mkF }, svg);
+    el("circle", { cx: AX, cy: AY, r: 5, fill: "#1C2530" }, svg); el("text", { x: AX - 20, y: AY + 18, "class": "g-lab" }, svg, "A");
+    var tU = el("text", { "class": "g-lab", fill: "#1F5FA8" }, svg, "U"), tV = el("text", { "class": "g-lab", fill: "#B42318" }, svg, "V");
+    var tF = el("text", { "class": "g-lab", fill: "#1B7A43" }, svg, "F");
+    function P(x, y) { return [AX + K * x, AY - K * y]; }
+    function fleche2(e, x, y) {
+      var p = P(x, y), l = Math.hypot(p[0] - AX, p[1] - AY);
+      if (l < 8) { e.setAttribute("visibility", "hidden"); return; }
+      var k = (l - 7) / l;
+      attr(e, { x1: AX, y1: AY, x2: AX + (p[0] - AX) * k, y2: AY + (p[1] - AY) * k, visibility: "visible" });
+    }
+    function rendu() {
+      var pu = +sU.value, pv = +sV.value, ux = Math.cos(pu * RAD), uy = Math.sin(pu * RAD), vx = Math.cos(pv * RAD), vy = Math.sin(pv * RAD);
+      var fx = F * Math.cos(TF * RAD), fy = F * Math.sin(TF * RAD), det = ux * vy - uy * vx;
+      attr(du, { x1: AX - 400 * ux, y1: AY + 400 * uy, x2: AX + 400 * ux, y2: AY - 400 * uy });
+      attr(dv, { x1: AX - 400 * vx, y1: AY + 400 * vy, x2: AX + 400 * vx, y2: AY - 400 * vy });
+      fleche2(vF, fx, fy); var pf = P(fx, fy); attr(tF, { x: pf[0] + 8, y: pf[1] - 6 });
+      $('[data-o="u"]', root).textContent = pu + "°"; $('[data-o="v"]', root).textContent = pv + "°";
+      if (Math.abs(det) < 0.05) {
+        vU.setAttribute("visibility", "hidden"); vV.setAttribute("visibility", "hidden"); attr(para, { d: "" });
+        $('[data-o="res"]', root).textContent = "Directions parallèles : impossible de décomposer F selon elles.";
+        return;
+      }
+      var a = (fx * vy - fy * vx) / det, b = (ux * fy - uy * fx) / det;
+      var U = [a * ux, a * uy], V = [b * vx, b * vy];
+      fleche2(vU, U[0], U[1]); fleche2(vV, V[0], V[1]);
+      var p1 = P(U[0], U[1]), p2 = P(V[0], V[1]);
+      attr(para, { d: "M" + AX + " " + AY + " L" + p1.join(" ") + " L" + pf.join(" ") + " L" + p2.join(" ") + " Z" });
+      attr(tU, { x: p1[0] + 6, y: p1[1] + 16 }); attr(tV, { x: p2[0] - 18, y: p2[1] - 6 });
+      var orth = Math.abs(((pv - pu) % 180 + 180) % 180 - 90) < 0.5;
+      $('[data-o="res"]', root).innerHTML = "U = " + fr(Math.abs(a), 2) + " N ; V = " + fr(Math.abs(b), 2) + " N" +
+        (orth ? " — composantes <b>orthogonales</b>" + (pu === 0 && pv === 90 ? " suivant x et y : U = F<sub>x</sub>, V = F<sub>y</sub>." : ".") : "");
+      if (!defi && Math.abs(a) > F + 0.5 && Math.abs(b) > F + 0.5) {
+        defi = true;
+        $('[data-o="defi"]', root).textContent = "✔ Bien vu : des composantes peuvent être plus grandes que la force elle-même, quand les directions s'écartent beaucoup.";
+      }
+    }
+    [sU, sV].forEach(function (x) { x.addEventListener("input", rendu); });
+    rendu();
+  });
+
+  // ===================== poids : P = m × g, selon l'astre et l'altitude =====================
+  $$('[data-widget="poids"]').forEach(function (root) {
+    var ASTRES = { terre: [9.81, 6378, "la Terre"], lune: [1.62, 1737, "la Lune"], mars: [3.71, 3390, "Mars"] }, astre = "terre", defi = false;
+    var sM = $('[data-in="m"]', root), sH = $('[data-in="h"]', root), barre = $(".jauge-bar", root);
+    var COUL = { terre: ["#2E7DBA", "#5FA35A"], lune: ["#A7ADB2", "#C9CDD0"], mars: ["#B5532E", "#D9824F"] };
+    var svg = $("svg", root), mkP = fleche(svg, "fl-po", "#B42318");
+    var sol = el("circle", { cx: 210, cy: 1290, r: 1000 }, svg), croute = el("circle", { cx: 210, cy: 1290, r: 992, fill: "none", "stroke-width": 16 }, svg);
+    var alt = el("line", { x1: 330, x2: 330, stroke: "#1F5FA8", "stroke-width": 2, "stroke-dasharray": "5 4" }, svg);
+    var tAlt = el("text", { x: 338, "class": "g-lab-s", fill: "#1F5FA8" }, svg);
+    var boite = el("rect", { x: 194, width: 32, height: 28, rx: 4, fill: "#E8E2CF", stroke: "#1C2530", "stroke-width": 2 }, svg);
+    var vP = el("line", { x1: 210, x2: 210, stroke: "#B42318", "stroke-width": 5, "marker-end": mkP }, svg);
+    var gPt = el("circle", { cx: 210, r: 4, fill: "#1C2530" }, svg), tG = el("text", { x: 232, "class": "g-lab-s" }, svg, "G");
+    var tP = el("text", { x: 186, "text-anchor": "end", "class": "g-lab", style: "fill:#B42318;stroke:#fff;stroke-width:5px;paint-order:stroke;stroke-linejoin:round" }, svg, "P");
+    function rendu() {
+      var a = ASTRES[astre], m = +sM.value, h = +sH.value, g = a[0] * a[1] * a[1] / ((a[1] + h) * (a[1] + h)), P = m * g;
+      var yS = 290, y = yS - 14 - 200 * Math.sqrt(h / 20000), L = 12 + P / 981 * 110;
+      attr(sol, { fill: COUL[astre][1] }); attr(croute, { stroke: COUL[astre][0] });
+      attr(boite, { y: y - 14 }); attr(gPt, { cy: y }); attr(tG, { y: y - 2 });
+      attr(vP, { y1: y, y2: y + L }); attr(tP, { y: y + Math.max(L, 20) });
+      attr(alt, { y1: yS, y2: y + 14, visibility: h > 0 ? "visible" : "hidden" }); attr(tAlt, { y: (yS + y) / 2 + 12 }); tAlt.textContent = h > 0 ? "h" : "";
+      $('[data-o="m"]', root).textContent = m + " kg"; $('[data-o="h"]', root).textContent = fr(h, 0) + " km";
+      $('[data-o="g"]', root).innerHTML = "g = g<sub>0</sub> × R² / (R + h)² = " + fr(a[0], 2) + " × " + fr(a[1], 0) + "² / " + fr(a[1] + h, 0) + "² = <b>" + fr(g, 3) + " m·s⁻²</b>";
+      $('[data-o="P"]', root).innerHTML = "P = m × g = " + m + " × " + fr(g, 3) + " = <b>" + fr(P, 1) + " N</b>";
+      barre.style.width = Math.min(100, P / 981 * 100) + "%";
+      if (!defi && astre === "terre" && Math.abs(g - a[0] / 4) < 0.01) {
+        defi = true;
+        $('[data-o="defi"]', root).textContent = "✔ À h = R ≈ 6 378 km, la distance au centre double : g, donc le poids, est divisé par 4.";
+      }
+    }
+    $$("[data-astre]", root).forEach(function (b) {
+      b.addEventListener("click", function () {
+        astre = b.getAttribute("data-astre");
+        $$("[data-astre]", root).forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+        rendu();
+      });
+    });
+    [sM, sH].forEach(function (x) { x.addEventListener("input", rendu); });
+    rendu();
+  });
+
+  // ===================== charge linéique uniforme : R = q × L au milieu =====================
+  $$('[data-widget="lineique"]').forEach(function (root) {
+    var svg = $("svg", root), sQ = $('[data-in="q"]', root), sL = $('[data-in="L"]', root), X0 = 40, Y0 = 150, K = 200;
+    var mk = fleche(svg, "fl-li", "#1F5FA8"), mkR = fleche(svg, "fl-li-r", "#B42318");
+    var poutre = el("rect", { y: Y0 - 26, height: 26, fill: "#D7DDE2", stroke: "#1C2530", "stroke-width": 2 }, svg);
+    el("rect", { x: 10, y: Y0 + 1, width: 500, height: 10, fill: "#CFC8A6" }, svg);
+    var g = el("g", {}, svg), rR = el("line", { stroke: "#B42318", "stroke-width": 6, "marker-end": mkR }, svg);
+    var tR = el("text", { "class": "g-lab", fill: "#B42318" }, svg, "R"), tL = el("text", { "class": "g-lab-s", "text-anchor": "middle" }, svg);
+    function rendu() {
+      var q = +sQ.value, L = +sL.value, w = L * K, h = 12 + q / 5000 * 50, R = q * L;
+      attr(poutre, { x: X0, width: w });
+      while (g.firstChild) g.removeChild(g.firstChild);
+      var n = Math.max(2, Math.round(L * 10));
+      for (var i = 0; i <= n; i++) el("line", { x1: X0 + w * i / n, y1: Y0 + 50 + h, x2: X0 + w * i / n, y2: Y0 + 14, stroke: "#1F5FA8", "stroke-width": 2, "marker-end": mk }, g);
+      el("line", { x1: X0, y1: Y0 + 50 + h, x2: X0 + w, y2: Y0 + 50 + h, stroke: "#1F5FA8", "stroke-width": 2 }, g);
+      var lr = 20 + Math.min(120, R / 40);
+      attr(rR, { x1: X0 + w / 2, y1: Y0 - 30, x2: X0 + w / 2, y2: Y0 - 30 - lr });
+      attr(tR, { x: X0 + w / 2 + 8, y: Y0 - 30 - lr / 2 }); attr(tL, { x: X0 + w / 2, y: Y0 + 72 + h }); tL.textContent = "L = " + fr(L, 2) + " m";
+      $('[data-o="q"]', root).textContent = fr(q, 0) + " N/m"; $('[data-o="L"]', root).textContent = fr(L, 2) + " m";
+      $('[data-o="R"]', root).innerHTML = "R = q × L = " + fr(q, 0) + " × " + fr(L, 2) + " = <b>" + fr(R, 0) + " N</b>, au milieu de la longueur L";
+    }
+    [sQ, sL].forEach(function (x) { x.addEventListener("input", rendu); });
+    rendu();
+  });
+
+  // ===================== pression sur un piston de vérin : R = p × S =====================
+  $$('[data-widget="verin"]').forEach(function (root) {
+    var svg = $("svg", root), sP = $('[data-in="p"]', root), sD = $('[data-in="d"]', root), YC = 140, defi = false;
+    var mkP = fleche(svg, "fl-ve-p", "#1F5FA8"), mkR = fleche(svg, "fl-ve-r", "#B42318");
+    var corps = el("rect", { x: 150, width: 300, fill: "#F4F5F2", stroke: "#1C2530", "stroke-width": 3 }, svg);
+    var huile = el("rect", { x: 330, fill: "rgba(178,106,0,.25)" }, svg), piston = el("rect", { x: 300, width: 30, fill: "#9AA2A8", stroke: "#1C2530", "stroke-width": 2 }, svg);
+    var tige = el("rect", { x: 40, y: YC - 10, width: 262, height: 20, fill: "#D7DDE2", stroke: "#1C2530", "stroke-width": 2 }, svg);
+    var g = el("g", {}, svg), rR = el("line", { stroke: "#B42318", "stroke-width": 7, "marker-end": mkR }, svg);
+    var tR = el("text", { "class": "g-lab", fill: "#B42318" }, svg, "R = p × S");
+    function rendu() {
+      var p = +sP.value, d = +sD.value, S = Math.PI * Math.pow(d / 10, 2) / 4, R = p * S, hpx = 40 + d * 0.9;
+      attr(corps, { y: YC - hpx / 2 - 6, height: hpx + 12 }); attr(huile, { y: YC - hpx / 2, height: hpx, width: 116 });
+      attr(piston, { y: YC - hpx / 2, height: hpx });
+      while (g.firstChild) g.removeChild(g.firstChild);
+      var n = Math.max(3, Math.round(hpx / 22));
+      for (var i = 0; i < n; i++) {
+        var y = YC - hpx / 2 + hpx * (i + 0.5) / n;
+        if (p > 0) el("line", { x1: 330 + 26 + p / 300 * 70, y1: y, x2: 333, y2: y, stroke: "#1F5FA8", "stroke-width": 2, "marker-end": mkP }, g);
+      }
+      var lr = Math.min(130, 10 + R / 80);
+      attr(rR, { x1: 160, y1: YC, x2: 160 - lr, y2: YC, visibility: R > 0 ? "visible" : "hidden" });
+      attr(tR, { x: 20, y: YC - 22 });
+      $('[data-o="p"]', root).textContent = p + " bar"; $('[data-o="d"]', root).textContent = d + " mm";
+      $('[data-o="S"]', root).innerHTML = "S = π d² / 4 = π × " + fr(d / 10, 1) + "² / 4 = <b>" + fr(S, 2) + " cm²</b>";
+      $('[data-o="R"]', root).innerHTML = "R = p × S = " + p + " × " + fr(S, 2) + " = <b>" + fr(R, 0) + " daN</b> (" + fr(R * 10, 0) + " N), soit environ " + fr(R / 1000, 1) + " t";
+      if (!defi && p === 100 && R >= 8000) {
+        defi = true;
+        $('[data-o="defi"]', root).textContent = "✔ 8 tonnes avec 100 bars : il faut S ≥ 80 cm², soit d ≥ 101 mm. Ici d = " + d + " mm.";
+      }
+    }
+    [sP, sD].forEach(function (x) { x.addEventListener("input", rendu); });
+    rendu();
   });
 })();
 </script>

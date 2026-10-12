@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """Cours interactifs de la séquence « Modélisation des actions mécaniques : force, couple, torseur ».
 
-    python3 src/construire_cours.py   # écrit src/cours/{projection,couple-moment,torseur}-source.html
+    python3 src/construire_cours.py   # écrit src/cours/{modelisation,projection,couple-moment,torseur}-source.html
     python3 src/generer.py            # publie cours-*.html avec le lien de retour vers l'accueil
 
 Construction reprise des cours du dépôt RDM : sections numérotées, formules encadrées, réponses « À toi » à
@@ -10,9 +10,10 @@ dévoiler, simulateurs à manipuler avec leurs défis, textes à trous, cartes �
 exemples pas à pas et quiz final. Charte : bloc de style du gabarit, complété par src/cours/cours.css ;
 comportements : src/cours/cours.js (aucune dépendance externe, page utilisable hors ligne).
 
-  - Cours 1 (niveau 1) : projection d'une force — pages 1 et 2 de la séquence ;
-  - Cours 2 (niveau 1) : couple et moment — pages 5 et 6 ;
-  - Cours 3 (niveau 2) : torseur d'action mécanique — page 9.
+  - Cours 1 (niveau 1) : modélisation des actions mécaniques — chapitre « Forces et actions mécaniques » ;
+  - Cours 2 (niveau 1) : projection d'une force — pages 1 et 2 de la séquence ;
+  - Cours 3 (niveau 1) : moments et couples — pages 5 et 6, enrichies du chapitre « Moments et couples » ;
+  - Cours 4 (niveau 2) : torseur d'action mécanique — page 9.
 """
 import pathlib
 import sys
@@ -148,7 +149,7 @@ def page(*, fichier, titre, description, tag, niveau, sous_titre, objectif, prer
 
 
 # =====================================================================================================================
-# COURS 1 — PROJECTION D'UNE FORCE (pages 1 et 2)
+# COURS 2 — PROJECTION D'UNE FORCE (pages 1 et 2)
 # =====================================================================================================================
 NOEUDS = [("Accélération", 120, 52, "#E2A3A2", "dynamique"), ("Effort", 360, 60, "#F9C49A", "statique dynamique rdm"),
           ("Matériaux", 590, 114, "#CFC8A6", "rdm"), ("Vitesse", 96, 182, "#9BD2E0", "cinematique dynamique"),
@@ -315,12 +316,12 @@ def cours_projection():
              check("F = 250 N, inclinée de α = 40° sur l'axe x. Calcule F<sub>x</sub> au centième (en N).", 191.51, 0.01,
                    "F<sub>x</sub> = 250 × cos 40° ≈ 191,51 N.", "N"))
     s6 = sec(6, "c1-quiz", "Quiz : vérifie tes connaissances", quiz("q1-", QUIZ_1))
-    page(fichier="projection-source.html", titre="Projection d'une force", tag="Cours 1", niveau=1,
+    page(fichier="projection-source.html", titre="Projection d'une force", tag="Cours 2", niveau=1,
          description="Cours interactif : coordonnées d'un vecteur, norme, relations trigonométriques et projection d'une "
                      "force sur les axes d'un repère, avec simulateurs et quiz.",
          sous_titre="Décrire une force par ses coordonnées : vecteur, norme, trigonométrie et projection sur les axes. "
                     "Environ 30 minutes : manipule les figures, relève les défis, puis teste-toi avec le quiz.",
-         objectif="Écrire les coordonnées d'un vecteur force.", prerequis="Mathématiques : notion de vecteur.",
+         objectif="Écrire les coordonnées d'un vecteur force.", prerequis="Cours 1 : le vecteur-force ; mathématiques : notion de vecteur.",
          nav=[("c1-meca", "La mécanique"), ("c1-coord", "Coordonnées"), ("c1-norme", "Norme"), ("c1-trigo", "Trigonométrie"),
               ("c1-proj", "Projection"), ("c1-quiz", "Quiz")],
          sections=[s1, s2, s3, s4, s5, s6],
@@ -329,30 +330,52 @@ def cours_projection():
 
 
 # =====================================================================================================================
-# COURS 2 — COUPLE ET MOMENT (pages 5 et 6)
+# COURS 3 — MOMENTS ET COUPLES (pages 5 et 6 de la séquence, enrichies du chapitre « Moments et couples »)
 # =====================================================================================================================
 QUIZ_2 = [
     ("Le moment d'une force s'exprime en…", ["N", "N·m", "N/m"], 1, "Une force (N) multipliée par une distance (m)."),
+    ("Une poussée dont la droite d'action passe par le centre de gravité G de la navette provoque…",
+     ["une translation seule", "une rotation seule", "une translation et une rotation"], 0,
+     "Le moment en G est nul : pas de rotation, la navette avance en ligne droite."),
     ("Une force de 50 N, perpendiculaire à une clé de 0,3 m, crée un couple de…", ["15 N·m", "166,7 N·m", "50,3 N·m"], 0,
      "M = F × d = 50 × 0,3 = 15 N·m."),
     ("Même clé, même force, mais inclinée de 30° sur la clé :", ["15 N·m", "13 N·m", "7,5 N·m"], 2,
-     "M = OA × F × sin α = 0,3 × 50 × sin 30° = 7,5 N·m : la force est moins efficace."),
-    ("Une force dont la droite d'action passe par O a, en O, un moment…", ["maximal", "nul", "égal à F"], 1,
-     "Le bras de levier est nul : la force ne fait pas tourner autour de O."),
+     "M = F × AB × sin α = 50 × 0,3 × sin 30° = 7,5 N·m : la force est moins efficace."),
     ("Une rotation dans le sens horaire correspond à un moment…", ["positif", "négatif", "nul"], 1,
      "Convention : sens trigonométrique positif, sens horaire négatif."),
-    ("OA = (0,2 ; 0 ; 0) m et F = (0 ; 100 ; 0) N. M<sub>O</sub>(F) vaut…", ["(0 ; 0 ; 20) N·m", "(0 ; 0 ; −20) N·m",
-                                                                            "(20 ; 0 ; 0) N·m"], 0,
-     "Sur z : x<sub>OA</sub> y<sub>F</sub> − y<sub>OA</sub> x<sub>F</sub> = 0,2 × 100 − 0 = 20 N·m."),
-    ("Une force contenue dans le plan (x, y), appliquée en un point de ce plan : son moment en O est porté par…",
-     ["l'axe x", "le plan (x, y)", "l'axe z"], 2, "Le moment est perpendiculaire au plan qui contient la force et le point."),
+    ("Le théorème de Varignon dit que le moment d'une force est égal…",
+     ["à la somme des moments de ses composantes", "au produit de ses composantes", "à la norme de la force"], 0,
+     "M<sub>A</sub>(F) = M<sub>A</sub>(U) + M<sub>A</sub>(V) : pratique quand le bras de levier est difficile à trouver."),
+    ("AB = (0,2 ; 0 ; 0) m et F = (0 ; 100 ; 0) N. M<sub>A</sub>(F) = AB ∧ F vaut…",
+     ["(0 ; 0 ; 20) N·m", "(0 ; 0 ; −20) N·m", "(20 ; 0 ; 0) N·m"], 0,
+     "Sur z : x<sub>AB</sub> y<sub>F</sub> − y<sub>AB</sub> x<sub>F</sub> = 0,2 × 100 − 0 = 20 N·m."),
+    ("Deux forces opposées de 30 N, distantes de 0,5 m : leur couple vaut, en n'importe quel point O…",
+     ["15 N·m", "0", "60 N·m"], 0, "M = F × d = 30 × 0,5 = 15 N·m, quel que soit O."),
+    ("Un couple de 50 N·m peut être obtenu avec…", ["25 N à 2 m", "25 N à 0,5 m", "100 N à 2 m"], 0,
+     "M = F × d : 25 × 2 = 50 N·m. Seul le produit compte."),
     ("Pour serrer plus fort sans forcer davantage, on…", ["raccourcit la clé", "allonge la clé", "incline la force vers la clé"],
      1, "Un bras de levier plus long donne un moment plus grand pour la même force."),
 ]
 
 
 def cours_couple():
-    s1 = sec(1, "c2-action", "Action mécanique : force et moment",
+    nav_svg = ('<svg viewBox="0 0 560 260" role="img" aria-label="Navette spatiale vue de profil, centre de gravité G, '
+               'poussée F des moteurs à l\'arrière, décalée de d par rapport à G"></svg>')
+    s1 = sec(1, "c2-navette", "Pourquoi le moment ?",
+             "<p>Les effets d'une force sur un solide dépendent non seulement de son intensité et de sa direction, mais "
+             "aussi du <b>moment</b> qu'elle peut engendrer. Le moment d'une force mesure son aptitude à faire "
+             "<b>tourner</b> l'objet sur lequel elle agit.</p><p>Exemple : la navette spatiale, au repos dans l'espace, "
+             "est poussée par ses moteurs (force " + v("F") + ").</p><ul><li><b>Cas 1</b> : si " + v("F") + " passe par "
+             "le centre de gravité G, la navette est animée d'un mouvement de <b>translation</b> rectiligne, de même "
+             "direction et de même sens que " + v("F") + ".</li><li><b>Cas 2</b> : si " + v("F") + " ne passe pas par G, "
+             "elle est à la fois animée d'une <b>translation</b> et d'une <b>rotation</b> autour de G. L'importance de "
+             "la rotation dépend de la distance d entre G et la droite d'action de " + v("F") + ".</li></ul>" +
+             simu("navette", "Simulateur : pilote la navette", nav_svg,
+                  curseur("F", "Poussée F", 100, 1000, 50, 600, "F") + curseur("d", "Décalage d de la poussée", -1.5, 1.5, 0.05, 0.8, "d") +
+                  '<p><button type="button" class="btn nav-go">Allumer les moteurs</button></p>',
+                  '<div class="simu-calc"><p data-o="M"></p></div><p class="simu-verdict" data-o="cas" aria-live="polite"></p>',
+                  aide="Ramène d à 0 : la poussée passe par G et la navette file droit. Plus d est grand, plus elle tourne."))
+    s2 = sec(2, "c2-action", "Action mécanique : force et moment",
              "<p>On appelle <b>actions mécaniques</b> toute cause susceptible de maintenir un corps en équilibre, de "
              "créer ou de modifier un mouvement de ce corps, et de déformer un corps.</p>"
              "<p>La force de l'action mécanique peut créer un mouvement de rotation autour d'un point ou d'un axe. "
@@ -370,28 +393,26 @@ def cours_couple():
                    sel("moment", ["force", "moment"]) + " qui engendre un mouvement de " +
                    sel("rotation", ["translation", "rotation"]) + " et s'exprime en " +
                    sel("newtons-mètres (N·m)", ["newtons (N)", "newtons-mètres (N·m)", "mètres (m)"]) + ".</li></ul>"))
-    s2 = sec(2, "c2-vecteur", "Représenter un couple",
-             img("c-moment.png", "Plan P contenant la force F appliquée en A et le point B ; H pied de la perpendiculaire "
-                 "menée de B à la droite d'action ; vecteur moment en B dessiné avec une double flèche", 480,
-                 "Pour distinguer une force d'un couple, on dessine ce dernier avec une <b>double flèche</b>.") +
-             "<p>Un couple se représente par un <b>vecteur</b>, défini par quatre caractéristiques.</p>"
-             "<p class=\"cours-defi\">À toi : retourne chaque carte.</p>" +
-             cartes([("Son point d'application", "Le point par rapport auquel on calcule le moment (B sur la figure) : "
-                      "on écrit M<sub>B</sub>(F)."),
-                     ("Sa direction", "Perpendiculaire au plan P qui contient la force et le point : c'est l'axe de rotation."),
-                     ("Son sens", "Donné par la règle du tire-bouchon : le tire-bouchon avance dans le sens du vecteur moment "
-                      "quand on le tourne comme la force fait tourner le solide."),
-                     ("Son intensité", "La norme du moment, en N·m : ‖M<sub>B</sub>(F)‖ = F × BH, où BH, la distance de B "
-                      "à la droite d'action, est le <b>bras de levier</b>.")]))
     cle = ('<svg viewBox="0 0 520 300" role="img" aria-label="Clé plate vue de dessus : écrou en O, force F en A '
            'inclinée de α sur la clé, bras de levier d en jaune"></svg>')
-    s3 = sec(3, "c2-calcul", "Calcul du couple",
-             "<div class=\"cours-split\"><div><p>Un couple est engendré par une force ou un ensemble de forces. Prenons "
-             "l'exemple d'un écrou serré avec la clé correspondante. L'écrou, d'axe vertical, est placé au point O. La "
-             "force " + v("F") + ", horizontale, est exercée à l'extrémité A de la clé ; elle est inclinée d'un angle α "
-             "par rapport à la clé (α varie de 0° à 180°).</p><p>Le couple de serrage est d'autant plus élevé que :</p>"
-             "<ul><li>la distance OA est grande ;</li><li>la force " + v("F") + " est importante ;</li><li>l'angle α se "
-             "rapproche de 90° (le couple est nul pour α = 0° et pour α = 180°).</li></ul></div>" +
+    s3 = sec(3, "c2-calcul", "Moment d'une force par rapport à un point",
+             "<p>Le moment de la force " + v("F") + " par rapport au point A, noté M<sub>A</sub>(" + v("F") + "), est égal "
+             "au produit de F par le <b>bras de levier</b> d, distance entre A et la droite d'action de " + v("F") + " :</p>" +
+             formule("M<sub>A</sub>(" + v("F") + ") = F × d", "d = AH, H pied de la perpendiculaire menée de A<br>"
+                     "M en N·m, F en N, d en m") +
+             '<div class="remarque"><p><b>Convention de signe</b> : si F fait tourner le solide autour de A dans le '
+             "<b>sens trigonométrique</b>, le moment est <b>positif</b> ; dans le sens horaire, il est <b>négatif</b>.</p></div>" +
+             check("Exemple 1 : F<sub>1</sub> = 240 N à d<sub>1</sub> = 0,1 m fait tourner le solide dans le sens "
+                   "trigonométrique autour de A ; F<sub>2</sub>, à d<sub>2</sub> = 0,12 m, le fait tourner dans le sens "
+                   "horaire. Quelle intensité F<sub>2</sub> (en N) annule le moment total en A ?", 200, 0.01,
+                   "M<sub>A</sub>(F<sub>1</sub>) + M<sub>A</sub>(F<sub>2</sub>) = 240 × 0,1 − 0,12 F<sub>2</sub> = 0, d'où "
+                   "F<sub>2</sub> = 24 / 0,12 = 200 N.", "N") +
+             "<h3>Avec le point d'application</h3><div class=\"cours-split\"><div><p>Si B est le point d'application de "
+             + v("F") + " et si la longueur AB est connue, on remarque que AB × sin α = d, d'où :</p>" +
+             formule("M<sub>A</sub>(" + v("F") + ") = F × AB × sin α", "α : angle entre AB et la force") +
+             "<p>Exemple de l'écrou serré avec une clé : le couple de serrage est d'autant plus élevé que la distance "
+             "est grande, que la force est importante et que l'angle α se rapproche de 90° (couple nul pour α = 0° "
+             "et 180°).</p></div>" +
              img("c-cle.png", "Clé plate serrant un écrou en O ; force F en A inclinée de α par rapport à la clé", 420) +
              "</div>" +
              simu("cle", "Simulateur : serre l'écrou", cle,
@@ -403,22 +424,52 @@ def cours_couple():
                   defi="<b>Défi :</b> serre l'écrou à 30 N·m avec la plus petite force possible. "
                        "<span data-o=\"defi\" aria-live=\"polite\"></span>",
                   aide="En jaune, le bras de levier d : la distance de O à la droite d'action de F (en pointillés).") +
-             "<p>Si les vecteurs " + v("OA") + " et " + v("F") + " sont dans le même plan, la norme du moment par "
-             "rapport au point O de la force " + v("F") + " se calcule avec la relation :</p>" +
-             a_toi("écris la relation, puis vérifie avec le simulateur.",
-                   formule("‖" + v("M") + "<sub>O</sub>(" + v("F") + ")‖ = OA × F × sin α",
-                           "en N·m : OA en m, F en N<br>OA × sin α = d, le bras de levier")) +
-             '<div class="remarque"><p><b>Remarques</b></p><ul><li>Si α = 90°, alors sin α = 1 : la formule se '
-             "simplifie, le couple est le produit de la force par la distance, appelée aussi <b>bras de levier</b> : "
-             "M = F × d.</li><li>Si la rotation s'effectue dans le <b>sens trigonométrique</b>, le couple est "
-             "<b>positif</b>.</li><li>Si la rotation s'effectue dans le <b>sens horaire</b>, le couple est "
-             "<b>négatif</b>.</li></ul></div>" +
+             a_toi("clé à molette : la main exerce 100 N à 0,2 m du centre de l'écrou. Calcule le couple de serrage pour "
+                   "α = 90°, 60°, 30° et 0°.",
+                   "<p>M = 100 × 0,2 × sin α = 20 sin α : <b>20 N·m</b> à 90°, <b>17,32 N·m</b> à 60°, <b>10 N·m</b> à 30°, "
+                   "<b>0</b> à 0°. Plus la main est inclinée, plus le couple diminue : la position la plus efficace est "
+                   "α = 90°. Les clés dynamométriques permettent des serrages contrôlés et mesurés.</p>") +
              check("Clé de 0,25 m, force de 120 N perpendiculaire à la clé : que vaut le couple (en N·m) ?", 30, 0.01,
-                   "M = F × d = 120 × 0,25 = 30 N·m.", "N·m") +
-             check("Même clé, même force, mais inclinée de 30° sur la clé : que vaut le couple (en N·m) ?", 15, 0.01,
-                   "M = OA × F × sin α = 0,25 × 120 × sin 30° = 15 N·m : moitié moins.", "N·m"))
+                   "M = F × d = 120 × 0,25 = 30 N·m.", "N·m"))
+    s4 = sec(4, "c2-varignon", "Théorème de Varignon",
+             "<p>Le moment de la force " + v("F") + " au point A est égal à la <b>somme des moments de ses composantes</b> "
+             + v("U") + " et " + v("V") + " par rapport au même point.</p>" +
+             formule("M<sub>A</sub>(" + v("F") + ") = M<sub>A</sub>(" + v("U") + ") + M<sub>A</sub>(" + v("V") + ")",
+                     "avec les composantes sur x et y : M<sub>A</sub>(F) = −F<sub>x</sub> × d<sub>y</sub> + F<sub>y</sub> × d<sub>x</sub>") +
+             stepper("Exemple : une force de 1 000 N à 60°", [
+                 "Une force F = 1 000 N, inclinée de 60° sur l'axe x, s'applique en B, situé à 160 mm à droite et à "
+                 "100 mm au-dessus de A. Trouver d, la distance de A à la droite d'action, est difficile.",
+                 "Composantes : F<sub>x</sub> = F cos 60° = 1 000 × 0,5 = 500 N ; F<sub>y</sub> = F sin 60° = 1 000 × "
+                 "0,866 = 866 N.",
+                 "F<sub>x</sub>, horizontale, passe à 0,1 m au-dessus de A et fait tourner dans le sens horaire : "
+                 "M<sub>A</sub>(F<sub>x</sub>) = −500 × 0,1 = −50 N·m.",
+                 "F<sub>y</sub>, verticale, passe à 0,16 m à droite de A et fait tourner dans le sens trigonométrique : "
+                 "M<sub>A</sub>(F<sub>y</sub>) = 866 × 0,16 = 138,6 N·m.",
+                 "Varignon : M<sub>A</sub>(F) = −50 + 138,6 = <b>88,6 N·m</b> = F × d, d'où d = 88,6 mm. Le calcul par "
+                 "les composantes est ici plus simple que la recherche directe de d."]) +
+             check("Même méthode : F<sub>x</sub> = 300 N passe à 0,2 m au-dessus de A (sens horaire) et F<sub>y</sub> = "
+                   "400 N passe à 0,5 m à droite de A (sens trigonométrique). Que vaut M<sub>A</sub>(F) en N·m ?", 140, 0.01,
+                   "−300 × 0,2 + 400 × 0,5 = −60 + 200 = 140 N·m.", "N·m"))
+    s5 = sec(5, "c2-vecteur", "Le vecteur-moment",
+             "<p>En statique ou en dynamique <b>dans l'espace</b>, le moment scalaire ne suffit plus : le moment d'une "
+             "force est décrit par un <b>vecteur</b>, défini à partir d'un produit vectoriel. Soit B un point quelconque "
+             "de la droite d'action de " + v("F") + " ; le moment en A de " + v("F") + " est :</p>" +
+             formule(v("M") + "<sub>A</sub>(" + v("F") + ") = " + v("AB") + " ∧ " + v("F"),
+                     "vecteur perpendiculaire à la fois à " + v("F") + " et à " + v("AB")) +
+             img("c-moment.png", "Plan P contenant la force F appliquée en A et le point B ; H pied de la perpendiculaire "
+                 "menée de B à la droite d'action ; vecteur moment en B dessiné avec une double flèche", 480,
+                 "Pour distinguer une force d'un moment, on dessine ce dernier avec une <b>double flèche</b>.") +
+             "<p class=\"cours-defi\">À toi : retourne chaque carte.</p>" +
+             cartes([("Son point d'application", "Le point par rapport auquel on calcule le moment : on écrit "
+                      "M<sub>A</sub>(F)."),
+                     ("Sa direction", "Perpendiculaire au plan qui contient " + v("AB") + " et " + v("F") + " : c'est l'axe de rotation."),
+                     ("Son sens", "Règle des trois doigts de la main droite : pouce selon " + v("AB") + ", index selon " +
+                      v("F") + ", le majeur donne le sens du moment. C'est aussi la règle du tire-bouchon."),
+                     ("Son intensité", "‖M<sub>A</sub>(F)‖ = F × d = F × AB × sin α, en N·m.")]) +
+             '<div class="remarque"><p>Le produit vectoriel n\'est <b>pas commutatif</b> : ' + v("AB") + " ∧ " + v("F") +
+             " = −" + v("F") + " ∧ " + v("AB") + ". L'ordre compte : d'abord le vecteur position, ensuite la force.</p></div>")
     pv_rows = "".join(
-        f'<tr><th>{c}</th><td><input type="text" data-v="a{c}" value="{a}" aria-label="{c} de OA"></td>'
+        f'<tr><th>{c}</th><td><input type="text" data-v="a{c}" value="{a}" aria-label="{c} de AB"></td>'
         f'<td class="pv-op">{"∧" if c == "y" else ""}</td>'
         f'<td><input type="text" data-v="b{c}" value="{b}" aria-label="{c} de F"></td><td class="pv-op">{"=" if c == "y" else ""}</td>'
         f'<td class="res" data-r="{c}"></td></tr>'
@@ -428,60 +479,291 @@ def cours_couple():
              f'<button type="button" data-c="x" aria-pressed="true">Composante x</button>'
              f'<button type="button" data-c="y" aria-pressed="false">Composante y</button>'
              f'<button type="button" data-c="z" aria-pressed="false">Composante z</button></div>'
-             f'<div style="overflow-x:auto"><table class="pv"><thead><tr><th></th><th>{v("OA")} (m)</th><th></th>'
-             f'<th>{v("F")} (N)</th><th></th><th>{v("M")}<sub>O</sub> (N·m)</th></tr></thead><tbody>{pv_rows}</tbody></table></div>'
+             f'<div style="overflow-x:auto"><table class="pv"><thead><tr><th></th><th>{v("AB")} (m)</th><th></th>'
+             f'<th>{v("F")} (N)</th><th></th><th>{v("M")}<sub>A</sub> (N·m)</th></tr></thead><tbody>{pv_rows}</tbody></table></div>'
              f'<p class="simu-calc" data-o="detail"></p><p class="small" data-o="plan"></p>'
-             f'<div class="simu-choix"><button type="button" data-preset="0 0 0.05 -2000 4000 -1000">Exemple de la roue</button>'
-             f'<button type="button" data-preset="0.3 0.2 0 100 50 0">Force dans le plan (x, y)</button>'
-             f'<button type="button" data-preset="0.2 0 0 0 100 0">Clé : OA sur x, F sur y</button></div>'
+             f'<div class="simu-choix"><button type="button" data-preset="0 0 0.05 -2000 4000 -1000">Roue hélicoïdale</button>'
+             f'<button type="button" data-preset="0.5 -0.3 0 500 -866 0">Poutre encastrée</button>'
+             f'<button type="button" data-preset="0.2 0 0 0 100 0">Clé : AB sur x, F sur y</button></div>'
              f'<p class="simu-aide">Change les valeurs : en vert le produit qu\'on ajoute, en rouge celui qu\'on retranche.</p></div>')
-    s4 = sec(4, "c2-coord", "Coordonnées d'un moment : le produit vectoriel",
-             "<p>Si les vecteurs " + v("OA") + " (x<sub>OA</sub> ; y<sub>OA</sub> ; z<sub>OA</sub>) et " + v("F") +
-             " (x<sub>F</sub> ; y<sub>F</sub> ; z<sub>F</sub>) ne sont pas dans le même plan, les coordonnées du moment au "
-             "point O de la force " + v("F") + " se calculent avec le <b>produit vectoriel</b>. Ses composantes sont "
-             "définies par la différence des <b>produits en croix</b>.</p>" +
-             a_toi("écris les trois composantes de " + v("OA") + " ∧ " + v("F") + ".",
-                   formule(v("OA") + " ∧ " + v("F") + " = (y<sub>OA</sub> z<sub>F</sub> − z<sub>OA</sub> y<sub>F</sub> ; "
-                           "z<sub>OA</sub> x<sub>F</sub> − x<sub>OA</sub> z<sub>F</sub> ; x<sub>OA</sub> y<sub>F</sub> − "
-                           "y<sub>OA</sub> x<sub>F</sub>)",
-                           "pour la composante sur x, on cache la ligne x et on croise les lignes y et z ; "
-                           "pour y : les lignes z et x ; pour z : les lignes x et y")) + pvect +
-             "<h3>Exemple : la roue dentée hélicoïdale</h3><div class=\"cours-split\">" +
+    s6 = sec(6, "c2-coord", "Coordonnées du vecteur-moment, moment par rapport à un axe",
+             "<p>Posons " + v("AB") + " = r<sub>x</sub> " + v("i") + " + r<sub>y</sub> " + v("j") + " + r<sub>z</sub> " +
+             v("k") + " et " + v("F") + " = F<sub>x</sub> " + v("i") + " + F<sub>y</sub> " + v("j") + " + F<sub>z</sub> " +
+             v("k") + ". Les composantes du produit vectoriel sont les différences des <b>produits en croix</b> :</p>" +
+             a_toi("écris les trois composantes de " + v("AB") + " ∧ " + v("F") + ".",
+                   formule(v("M") + "<sub>A</sub>(" + v("F") + ") = (r<sub>y</sub>F<sub>z</sub> − r<sub>z</sub>F<sub>y</sub> ; "
+                           "r<sub>z</sub>F<sub>x</sub> − r<sub>x</sub>F<sub>z</sub> ; r<sub>x</sub>F<sub>y</sub> − r<sub>y</sub>F<sub>x</sub>)",
+                           "pour la composante sur x, on cache la ligne x et on croise les lignes y et z")) + pvect +
+             a_toi("poutre encastrée : AB = (0,5 ; −0,3 ; 0) m et F = (500 ; −866 ; 0) N (force de 1 000 N à 30° de la "
+                   "verticale). Calcule M<sub>A</sub>(F), puis vérifie avec le bouton « Poutre encastrée ».",
+                   "<p>Sur z : 0,5 × (−866) − (−0,3) × 500 = −433 + 150 = <b>−283 N·m</b> ; les composantes sur x et y "
+                   "sont nulles. M<sub>A</sub>(F) = −283 " + v("k") + " N·m : rotation dans le sens horaire.</p>") +
+             "<h3>Moment d'une force par rapport à un axe</h3><p>Le moment de " + v("F") + " par rapport à un axe de "
+             "vecteur unitaire " + v("u") + " est le produit scalaire de " + v("u") + " par le vecteur-moment en un point A "
+             "de l'axe : c'est la projection de " + v("M") + "<sub>A</sub>(" + v("F") + ") sur " + v("u") + ".</p>" +
+             formule("M<sub>u</sub>(" + v("F") + ") = " + v("u") + " · " + v("M") + "<sub>A</sub>(" + v("F") + ")") +
+             "<div class=\"cours-split\">" +
              img("c-roue-helicoidale.jpg", "Roue dentée à denture hélicoïdale : en A, la force F décomposée en Fa, Ft et Fr ; "
-                 "x parallèle à l'axe u de la roue ; rayon r = 50 mm", 360) +
-             "<div><p>Soit une force " + v("F") + " s'exerçant au point A d'une roue dentée à dentures hélicoïdales ; "
-             "déterminons le moment de cette force par rapport à l'axe " + v("u") + " de la roue (x est parallèle à u).</p>"
-             "<ul><li>" + v("F") + " = " + v("F") + "<sub>a</sub> + " + v("F") + "<sub>t</sub> + " + v("F") + "<sub>r</sub></li>"
-             "<li>" + v("F") + " = −2 000 " + v("x") + " + 4 000 " + v("y") + " − 1 000 " + v("z") + " (en N)</li>"
-             "<li>" + v("OA") + " = 0,05 " + v("z") + " (en m)</li></ul>" +
-             a_toi("calcule " + v("M") + "<sub>O</sub>(" + v("F") + ") = " + v("OA") + " ∧ " + v("F") + ".",
-                   "<p>Sur x : 0 × (−1 000) − 0,05 × 4 000 = <b>−200 N·m</b> ; sur y : 0,05 × (−2 000) − 0 × (−1 000) = "
-                   "<b>−100 N·m</b> ; sur z : 0 × 4 000 − 0 × (−2 000) = <b>0</b>.</p>" +
+                 "x parallèle à l'axe u de la roue ; rayon r = 50 mm", 340) +
+             "<div><p>Exemple de la roue dentée hélicoïdale : " + v("F") + " = −2 000 " + v("x") + " + 4 000 " + v("y") +
+             " − 1 000 " + v("z") + " (N) et " + v("OA") + " = 0,05 " + v("z") + " (m), x parallèle à l'axe u de la roue.</p>" +
+             a_toi("calcule M<sub>O</sub>(F), puis M<sub>u</sub>(F).",
                    formule(v("M") + "<sub>O</sub>(" + v("F") + ") = (−200 ; −100 ; 0) N·m") +
-                   "<p>Le moment par rapport à l'axe de la roue (x) vaut −200 N·m : le couple transmis est de 200 N·m, "
-                   "soit F<sub>t</sub> × r = 4 000 × 0,05. La composante sur y vient de la force axiale : elle fléchit "
-                   "l'arbre.</p>") + "</div></div>" +
-             '<div class="remarque"><p><b>Remarque</b> : le moment est toujours perpendiculaire au plan P (qui contient '
-             "la force et le point). Si la force est dans le plan (x, y), le vecteur moment est suivant l'axe z : essaie "
-             "le bouton « Force dans le plan (x, y) » du calculateur.</p></div>")
-    s5 = sec(5, "c2-quiz", "Quiz : vérifie tes connaissances", quiz("q2-", QUIZ_2))
-    page(fichier="couple-moment-source.html", titre="Couple et moment", tag="Cours 2", niveau=1,
-         description="Cours interactif : moment d'une force, couple, bras de levier et produit vectoriel, avec un "
-                     "simulateur de clé de serrage, un calculateur pas à pas et un quiz.",
-         sous_titre="Ce qui fait tourner : le moment d'une force par rapport à un point, le couple, le bras de levier, "
-                    "puis le calcul vectoriel du moment. Environ 35 minutes, avec un simulateur de clé, un calculateur "
-                    "de produit vectoriel et un quiz.",
-         objectif="Déterminer le couple engendré par une force.",
-         prerequis="Cours 1 : coordonnées et projection d'une force.",
-         nav=[("c2-action", "Force et moment"), ("c2-vecteur", "Le vecteur couple"), ("c2-calcul", "Calcul du couple"),
-              ("c2-coord", "Produit vectoriel"), ("c2-quiz", "Quiz")],
-         sections=[s1, s2, s3, s4, s5],
+                   "<p>M<sub>u</sub>(F) = " + v("x") + " · M<sub>O</sub>(F) = <b>−200 N·m</b>. Des trois composantes de F, "
+                   "seul l'effort tangentiel F<sub>t</sub> (4 000 N, orthogonal à u) fait tourner la roue : 4 000 × 0,05 "
+                   "= 200 N·m. F<sub>a</sub>, parallèle à u, et F<sub>r</sub>, qui coupe u, n'interviennent pas.</p>") +
+             "</div></div>")
+    cp = ('<svg viewBox="0 0 520 260" role="img" aria-label="Disque soumis à deux forces opposées F et −F distantes de '
+          'd ; point O déplaçable"></svg>')
+    s7 = sec(7, "c2-couple", "Couple et vecteur-couple",
+             "<p>Le moment engendré par <b>deux forces égales et opposées</b>, de lignes d'action différentes (non "
+             "colinéaires), constitue un <b>couple</b> M. Son intensité F × d est <b>indépendante du point O</b> choisi : "
+             "elle ne dépend que de la distance d entre les deux forces et de l'intensité F.</p>" +
+             formule("M = M<sub>O</sub>(" + v("F") + ") + M<sub>O</sub>(−" + v("F") + ") = F × d",
+                     "avec O à la distance a de −F : F(a + d) − F a = F d") +
+             simu("couple", "Simulateur : déplace le point O", cp,
+                  curseur("F", "Intensité F", 10, 100, 5, 50, "F") + curseur("d", "Distance d", 0.2, 2, 0.05, 1, "d"),
+                  '<div class="simu-calc"><p data-o="mB"></p><p data-o="mA"></p><p data-o="M"></p></div>',
+                  defi="<b>Défi :</b> place O sur la droite d'action de F. <span data-o=\"defi\" aria-live=\"polite\"></span>",
+                  aide="Où que soit O, les deux moments changent mais leur somme reste F × d.") +
+             "<h3>Vecteur-couple et signes</h3><p>Soit A et B deux points quelconques des supports de −" + v("F") +
+             " et de " + v("F") + " : " + v("M") + " = " + v("AB") + " ∧ " + v("F") + ", vecteur perpendiculaire au plan "
+             "formé par " + v("F") + " et −" + v("F") + ", de norme AB × F × sin θ = F × d. Un <b>couple positif</b> "
+             "fait tourner dans le sens trigonométrique.</p>" +
+             '<div class="remarque"><p><b>Propriétés</b> : la valeur d\'un couple ne change pas si l\'on déplace F et −F '
+             "dans des plans parallèles (d constant), si on les tourne en bloc dans leur plan, ou si on les fait glisser "
+             "le long de leur support. Elle reste aussi la même si l'on modifie F et d en proportions inverses : "
+             "M = F<sub>1</sub> d<sub>1</sub> = F<sub>2</sub> d<sub>2</sub>.</p></div>" +
+             check("Couples équivalents : 50 N·m = 50 N × 1 m = 25 N × 2 m. Quelle force faut-il avec d = 0,4 m (en N) ?",
+                   125, 0.01, "F = M / d = 50 / 0,4 = 125 N.", "N") +
+             "<h3>Exemple : la clé à bougie</h3><p>Une clé à bougie a une tige de manœuvre coulissante de 0,4 m. Les mains "
+             "exercent F et −F de 100 N à ses extrémités A et B ; E est l'axe de la bougie. Selon la position de la tige :</p>"
+             '<div class="recap-wrap" style="padding:0"><table class="t"><thead><tr><th>Position</th><th>EB</th><th>EA</th>'
+             "<th>M = F × EB + F × EA</th></tr></thead><tbody>"
+             "<tr><td>1</td><td>0,2 m</td><td>0,2 m</td><td>100 × 0,2 + 100 × 0,2 = 40 N·m</td></tr>"
+             "<tr><td>2</td><td>0,3 m</td><td>0,1 m</td><td>100 × 0,3 + 100 × 0,1 = 40 N·m</td></tr>"
+             "<tr><td>3</td><td>0,15 m</td><td>0,25 m</td><td>100 × 0,15 + 100 × 0,25 = 40 N·m</td></tr>"
+             "<tr><td>4</td><td>0 m</td><td>0,4 m</td><td>0 + 100 × 0,4 = 40 N·m</td></tr></tbody></table></div>"
+             "<p>Le couple de desserrage vaut toujours F × AB = 100 × 0,4 = <b>40 N·m</b> : c'est un couple, sa valeur ne "
+             "dépend pas du point E. En vectoriel : " + v("M") + " = " + v("AB") + " ∧ " + v("F") + " = 40 " + v("k") + " N·m.</p>")
+    s8 = sec(8, "c2-resultant", "Moment résultant de plusieurs forces",
+             "<p>Le moment résultant en un point A de n forces F<sub>1</sub>, F<sub>2</sub>, …, F<sub>n</sub> est égal à la "
+             "<b>somme des moments en A</b> de chacune des forces.</p>" +
+             formule(v("M") + "<sub>A</sub> = " + v("M") + "<sub>A</sub>(" + v("F") + "<sub>1</sub>) + " + v("M") + "<sub>A</sub>(" +
+                     v("F") + "<sub>2</sub>) + … + " + v("M") + "<sub>A</sub>(" + v("F") + "<sub>n</sub>)",
+                     "forces coplanaires : la même somme, en moments algébriques (avec leur signe)") +
+             '<div class="remarque"><p>C\'est l\'outil des problèmes d\'<b>équilibre</b> (moment résultant nul) et de '
+             "<b>basculement</b> (signe du moment résultant) : balance romaine, chargeur sur pneus… à pratiquer dans "
+             "l'exercice 2.1.</p></div>" +
+             check("Trois forces sur une barre, moments en A : +120 N·m, −45 N·m et −30 N·m. Que vaut le moment résultant "
+                   "en A (en N·m) ?", 45, 0.01, "120 − 45 − 30 = 45 N·m, positif : sens trigonométrique.", "N·m"))
+    s9 = sec(9, "c2-quiz", "Quiz : vérifie tes connaissances", quiz("q2-", QUIZ_2))
+    page(fichier="couple-moment-source.html", titre="Moments et couples", tag="Cours 3", niveau=1,
+         description="Cours interactif : moment d'une force, théorème de Varignon, vecteur-moment, moment par rapport à "
+                     "un axe, couple et vecteur-couple, avec des simulateurs (navette, clé, couple) et un quiz.",
+         sous_titre="Ce qui fait tourner : moment d'une force par rapport à un point, théorème de Varignon, "
+                    "vecteur-moment et moment par rapport à un axe, couple et vecteur-couple. Environ 50 minutes, avec "
+                    "une navette à piloter, une clé à serrer, un couple à explorer, un calculateur et un quiz.",
+         objectif="Déterminer le moment d'une force et le couple engendré par des forces.",
+         prerequis="Cours 1 et 2 : vecteur-force, coordonnées et projection d'une force.",
+         nav=[("c2-navette", "Pourquoi"), ("c2-action", "Force et moment"), ("c2-calcul", "Moment en un point"),
+              ("c2-varignon", "Varignon"), ("c2-vecteur", "Vecteur-moment"), ("c2-coord", "Coordonnées et axe"),
+              ("c2-couple", "Couple"), ("c2-resultant", "Plusieurs forces"), ("c2-quiz", "Quiz")],
+         sections=[s1, s2, s3, s4, s5, s6, s7, s8, s9],
          liens=[("force-moment.html", "Exercice 1.1 — Force, moment et couple"),
                 ("exercice-couples-moments.html", "Exercice 2.1 — Couples et moments")])
 
 
 # =====================================================================================================================
-# COURS 3 — TORSEUR D'ACTION MÉCANIQUE (page 9)
+# COURS 1 — MODÉLISATION DES ACTIONS MÉCANIQUES (chapitre « Forces et actions mécaniques »)
+# =====================================================================================================================
+QUIZ_0 = [
+    ("Un vecteur-force est défini par…", ["une intensité et un point", "une intensité, une direction, un sens et un point "
+                                                                       "d'application", "une masse et une vitesse"], 1,
+     "Les quatre caractéristiques : point d'application, direction, sens, intensité."),
+    ("L'intensité d'une force s'exprime en…", ["kg", "N (ou daN, kN)", "N·m"], 1, "Le newton et ses multiples ; 1 daN = 10 N."),
+    ("Une force F peut être remplacée par deux composantes U et V…", ["d'une seule façon", "d'une infinité de façons",
+                                                                     "jamais"], 1,
+     "Il y a une infinité de solutions, selon les directions choisies : F = U + V."),
+    ("F = 1 000 daN est inclinée de 30° sous l'axe x. F<sub>y</sub> vaut…", ["−500 daN", "500 daN", "−866 daN"], 0,
+     "F<sub>y</sub> = −F sin 30° = −500 daN : la force tire vers le bas."),
+    ("Un sac de 10 kg sur Terre (g = 9,81 m·s⁻²) a un poids de…", ["10 N", "98,1 N", "981 N"], 1, "P = m × g = 10 × 9,81 = 98,1 N."),
+    ("Le poids et l'attraction d'un aimant sont des actions…", ["de contact", "à distance", "réparties"], 1,
+     "Elles s'exercent sans contact : ce sont les actions à distance."),
+    ("Une charge linéique de 500 N/m répartie sur 2 m équivaut à une résultante de…", ["250 N", "1 000 N", "500 N"], 1,
+     "R = q × L = 500 × 2 = 1 000 N, au milieu de la longueur."),
+    ("100 bars sur un piston de 50 cm² donnent une poussée de…", ["5 000 daN", "2 daN", "500 daN"], 0,
+     "R = p × S = 100 bar × 50 cm² = 5 000 daN (1 bar = 1 daN/cm²)."),
+]
+JEU_DISTANCE = [("Le poids d'un sac à dos", "distance"), ("Le pied du footballeur sur le ballon", "contact"),
+                ("Un aimant qui attire un trombone", "distance"), ("Le câble qui tire sur un support", "contact"),
+                ("L'huile sous pression sur un piston", "contact"), ("Le vent sur un panneau", "contact")]
+JEU_CONTACT = [("Une bille posée sur un plan", "concentree"), ("Un cylindre couché sur une table", "lineique"),
+               ("Un cube posé sur le sol", "surfacique"), ("L'huile sur le piston d'un vérin", "surfacique"),
+               ("Une roue de train sur le rail", "concentree"), ("Un rouleau de peinture sur un mur", "lineique")]
+
+
+def jeu(titre, lignes, choix):
+    ls = "".join(f'<div class="jeu-l" data-ok="{ok}"><span>{t}</span>' +
+                 "".join(f'<button type="button" data-v="{k}" aria-pressed="false">{n}</button>' for k, n in choix) +
+                 '<b class="jeu-fb" aria-live="polite"></b></div>' for t, ok in lignes)
+    return f'<div class="jeu"><h3>{titre}</h3>{ls}<p class="jeu-s" aria-live="polite"></p></div>'
+
+
+def img_forces(nom, alt, w, cap=""):
+    return figure(fig("cours-forces/" + nom, alt, w, cap))
+
+
+def cours_modelisation():
+    s1 = sec(1, "c0-force", "Le vecteur-force",
+             "<p>Une <b>force</b> modélise une action mécanique : ce qui peut maintenir un corps en équilibre, créer ou "
+             "modifier son mouvement, ou le déformer. On la représente par un <b>vecteur-force</b>, défini par quatre "
+             "caractéristiques.</p><p class=\"cours-defi\">À toi : retourne chaque carte.</p>" +
+             cartes([("Son point d'application", "Le point où s'exerce l'action (ou un point de son support)."),
+                     ("Sa direction", "La droite d'action, ou support, de la force : verticale, horizontale, inclinée de 30°…"),
+                     ("Son sens", "Vers où la force agit sur sa droite d'action : le câble tire, le pied pousse."),
+                     ("Son intensité", "Sa valeur, ou module, en newtons (N) ou unités dérivées : daN, kN.")]) +
+             '<div class="remarque"><p>Les forces sont aussi appelées <b>glisseurs</b> (voir le cours sur les torseurs) : '
+             "on peut faire glisser une force le long de sa droite d'action sans changer son effet sur un solide.</p></div>"
+             "<h3>Du réel au modèle : la schématisation</h3>" +
+             img_forces("cable.jpg", "Câble tendu fixé sur une articulation : schématisé par le vecteur-force A2/1 de 1 000 daN, "
+                        "incliné de 30° sous l'axe x", 720,
+                        "L'action du câble 2 sur le support 1 : point d'application A, direction celle du câble, sens de A "
+                        "vers I (le câble tire), intensité 1 000 daN.") +
+             img_forces("ballon.jpg", "Pied frappant un ballon : schématisé par la force T2/1 de 15 N, inclinée de 40° sur la "
+                        "verticale, et le poids P1 de 5 N", 720,
+                        "Au moment du tir : l'action du pied est T<sub>2/1</sub> (15 N, inclinée de 40° sur la verticale, "
+                        "vers l'intérieur du ballon) ; le poids P<sub>1</sub> (5 N) est vertical, vers le bas, appliqué en G.") +
+             check("Combien vaut l'intensité de l'action du câble sur le support, en newtons ?", 10000, 0.5,
+                   "1 000 daN = 10 000 N, car 1 daN = 10 N.", "N"))
+    co = ('<svg viewBox="0 0 480 320" role="img" aria-label="Force F appliquée en A et ses composantes U et V selon deux '
+          'directions réglables"></svg>')
+    s2 = sec(2, "c0-comp", "Composantes d'une force",
+             "<p>Une force " + v("F") + " agissant en un point A peut toujours être remplacée par deux autres forces, ses "
+             "<b>composantes</b> " + v("U") + " et " + v("V") + ", agissant au même point et vérifiant :</p>" +
+             formule(v("F") + " = " + v("U") + " + " + v("V"), "c'est l'inverse de la résultante : une infinité de solutions, "
+                     "selon les directions choisies") +
+             simu("composantes", "Simulateur : choisis les directions de U et de V", co,
+                  curseur("u", "Direction de U", -90, 90, 1, 0, "u") + curseur("v", "Direction de V", 0, 180, 1, 90, "v"),
+                  '<div class="simu-calc"><p data-o="res"></p></div>',
+                  defi="<b>Défi :</b> trouve deux directions pour lesquelles U et V sont toutes deux plus grandes que F "
+                       "(100 N). <span data-o=\"defi\" aria-live=\"polite\"></span>",
+                  aide="F = 100 N est fixe. Le parallélogramme montre que U + V redonne toujours F.") +
+             '<div class="remarque"><p>Lorsque U et V sont perpendiculaires, les composantes sont dites '
+             "<b>orthogonales</b>. Suivant les axes x et y : " + v("F") + " = " + v("F") + "<sub>x</sub> + " + v("F") +
+             "<sub>y</sub> ; dans l'espace : " + v("F") + " = " + v("F") + "<sub>x</sub> + " + v("F") + "<sub>y</sub> + " +
+             v("F") + "<sub>z</sub>.</p></div>")
+    pro = ('<svg viewBox="0 0 460 380" role="img" aria-label="Repère (O, x, y) ; force F réglable et ses projections '
+           'Fx sur x et Fy sur y"></svg>')
+    s3 = sec(3, "c0-coord", "Coordonnées cartésiennes d'une force",
+             "<p>Les coordonnées cartésiennes F<sub>x</sub> et F<sub>y</sub> sont les composantes orthogonales "
+             "particulières de " + v("F") + " suivant x et y. Avec α, l'angle entre F et l'axe x :</p>" +
+             formule("F<sub>x</sub> = F cos α &nbsp; F<sub>y</sub> = F sin α", "tan α = F<sub>y</sub> / F<sub>x</sub> "
+                     "&nbsp;·&nbsp; F² = F<sub>x</sub>² + F<sub>y</sub>²") +
+             simu("projection", "Simulateur : projette une force", pro,
+                  '<div class="simu-choix" role="group" aria-label="Angle de référence">'
+                  '<button type="button" data-mode="alpha" aria-pressed="true">α depuis l\'axe x</button>'
+                  '<button type="button" data-mode="beta" aria-pressed="false">β depuis l\'axe y</button></div>' +
+                  curseur("F", "Intensité F", 0, 1000, 10, 500, "F") +
+                  '<label><span><span data-o="nom"></span> : <output data-o="ang"></output></span>'
+                  '<input type="range" data-in="ang" min="-180" max="180" step="1" value="30"></label>',
+                  '<div class="simu-calc"><p data-o="fx"></p><p data-o="fy"></p></div>'
+                  '<p class="small" data-o="signe"></p><p class="small" data-o="verif"></p>',
+                  defi="<b>Défis :</b> trouve un angle pour lequel F<sub>x</sub> = F<sub>y</sub>. "
+                       "<span class=\"defi-ok\" data-defi=\"egal\"></span><br>Trouve un réglage où F<sub>x</sub> &lt; 0 et "
+                       "F<sub>y</sub> &gt; 0. <span class=\"defi-ok\" data-defi=\"signe\"></span>",
+                  aide="Fais glisser l'extrémité jaune de la force, ou utilise les curseurs.") +
+             a_toi("reprends le câble : A<sub>2/1</sub> = 1 000 daN, incliné de 30° sous l'axe x. Calcule ses coordonnées.",
+                   "<p>A<sub>x</sub> = 1 000 × cos 30° = <b>866 daN</b> ; A<sub>y</sub> = −1 000 × sin 30° = <b>−500 daN</b> "
+                   "(le câble tire vers le bas). " + v("A") + "<sub>2/1</sub> = 866 " + v("i") + " − 500 " + v("j") + ". "
+                   "Contrôle : tan 30° = 500 / 866 ≈ 0,577 et √(866² + 500²) ≈ 1 000 daN.</p>") +
+             "<p class=\"small\">Pour t'entraîner davantage : cours 2 (projection d'une force) et exercice 1.3 (les quatre "
+             "quadrants).</p>")
+    s4 = sec(4, "c0-distance", "Actions à distance : le poids",
+             "<p>Les actions mécaniques représentent les efforts exercés sur et entre les solides réels. On les divise en "
+             "deux grandes familles : les actions <b>à distance</b> et les actions <b>de contact</b> (les plus nombreuses "
+             "et les plus diverses).</p>" +
+             jeu("Jeu : à distance ou de contact ?", JEU_DISTANCE, [("distance", "à distance"), ("contact", "de contact")]) +
+             "<p>Les actions à distance sont essentiellement de deux types : le <b>poids</b> et l'<b>aimantation</b>. Le "
+             "poids d'un solide est représenté par le <b>vecteur-poids</b> " + v("P") + " :</p><ul><li>point d'application : "
+             "G, le centre de gravité ;</li><li>direction : la verticale passant par G ;</li><li>sens : vers le bas ;</li>"
+             "<li>intensité :</li></ul>" +
+             formule("P = m × g", "P en N ; m en kg<br>g = 9,81 m·s⁻² : accélération de la pesanteur") +
+             '<div class="remarque"><p>g varie avec la latitude (de 9,78 m·s⁻² à l\'équateur à 9,83 m·s⁻² aux pôles) et avec '
+             "l'altitude h : g = g<sub>0</sub> × R² / (R + h)², avec g<sub>0</sub> = 9,81 m·s⁻² et R ≈ 6 378 km, le "
+             "rayon de la Terre.</p></div>" +
+             simu("poids", "Simulateur : combien pèse-t-on ?",
+                  '<svg viewBox="0 0 420 360" role="img" aria-label="Un objet de centre de gravité G posé sur un astre ou '
+                  'à l\'altitude h, et son poids P, vertical vers le bas"></svg>',
+                  '<div class="simu-choix" role="group" aria-label="Astre"><button type="button" data-astre="terre" '
+                  'aria-pressed="true">Terre</button><button type="button" data-astre="lune" aria-pressed="false">Lune</button>'
+                  '<button type="button" data-astre="mars" aria-pressed="false">Mars</button></div>' +
+                  curseur("m", "Masse m", 1, 100, 1, 60, "m") + curseur("h", "Altitude h", 0, 20000, 100, 0, "h"),
+                  '<div class="simu-calc"><p data-o="g"></p><p data-o="P"></p></div>'
+                  '<div><span>Poids (barre pleine : 981 N)</span><div class="jauge"><div class="jauge-bar"></div></div></div>',
+                  defi="<b>Défi :</b> sur Terre, à quelle altitude ton poids est-il divisé par 4 ? "
+                       "<span data-o=\"defi\" aria-live=\"polite\"></span>",
+                  aide="La longueur de P suit son intensité : change d'astre, monte en altitude.") +
+             check("Une valise de 23 kg : quel est son poids sur Terre, en N (au dixième) ?", 225.6, 0.06,
+                   "P = 23 × 9,81 ≈ 225,6 N.", "N"))
+    li = ('<svg viewBox="0 0 520 290" role="img" aria-label="Solide posé sur un plan : charge linéique uniforme q '
+          'répartie sur la longueur L et sa résultante R au milieu"></svg>')
+    ve = ('<svg viewBox="0 0 480 280" role="img" aria-label="Vérin : l\'huile sous pression p pousse le piston de '
+          'diamètre d ; résultante R = p × S"></svg>')
+    s5 = sec(5, "c0-contact", "Actions de contact : concentrées ou réparties",
+             "<p>Les actions de contact se divisent en trois groupes :</p><ul><li>les actions ou charges "
+             "<b>concentrées</b> : l'effort s'exerce en un point ou sur une toute petite surface ; il est schématisé par "
+             "un vecteur-force (N, daN, kN) ;</li><li>les actions <b>réparties sur une ligne</b> : charge ou pression "
+             "linéique q, en N/m ;</li><li>les actions <b>réparties sur une surface</b> : pression superficielle p, en "
+             "Pa (N/m²).</li></ul>" +
+             jeu("Jeu : concentrée, linéique ou surfacique ?", JEU_CONTACT,
+                 [("concentree", "concentrée"), ("lineique", "linéique"), ("surfacique", "surfacique")]) +
+             "<h3>Charge linéique uniforme</h3><p>Pour simplifier les calculs, une charge linéique uniforme q, répartie "
+             "sur une longueur L, est remplacée par sa <b>résultante</b> R, située au milieu, en général perpendiculaire "
+             "au contact :</p>" + formule("R = q × L", "R en N ; q en N/m ; L en m") +
+             simu("lineique", "Simulateur : charge répartie sur une ligne", li,
+                  curseur("q", "Charge linéique q", 100, 5000, 100, 1000, "q") + curseur("L", "Longueur L", 0.1, 2, 0.05, 1, "L"),
+                  '<div class="simu-calc"><p data-o="R"></p></div>') +
+             check("Un cylindre de poids 100 N repose sur une ligne de contact de 10 cm. Que vaut la charge linéique q, "
+                   "en N/m ?", 1000, 0.5, "q = R / L = 100 / 0,1 = 1 000 N/m.", "N/m") +
+             "<h3>Pression de contact sur une surface</h3><p>Sur une surface plane, l'ensemble des pressions est remplacé "
+             "par sa résultante R, perpendiculaire à la surface :</p>" +
+             formule("p = R / S &nbsp; ou &nbsp; R = p × S", "R en N, S en m², p en Pa (N/m²)<br>ou R en daN, S en cm², "
+                     "p en bar") +
+             '<div class="remarque"><p><b>Correspondances</b> : 1 bar = 10⁵ Pa = 100 000 Pa = 1 daN/cm² ; 1 MPa = 10⁶ Pa '
+             "= 1 N/mm² = 10 bars.</p></div>" +
+             check("Un cube de poids 100 N repose sur une base de 10 cm × 10 cm. Quelle pression de contact, en Pa ?", 10000,
+                   0.5, "p = R / S = 100 / (0,1 × 0,1) = 100 / 0,01 = 10 000 Pa = 10⁴ Pa.", "Pa") +
+             img_forces("verin.jpg", "Vérin hydraulique : l'huile sous pression p (100 bars) agit sur le piston de diamètre "
+                        "d ; la résultante R = p × S donne la poussée F du vérin", 720,
+                        "Vérin : la pression uniforme de l'huile agit perpendiculairement au piston ; sa résultante R = p × S "
+                        "est portée par l'axe du vérin.") +
+             simu("verin", "Simulateur : la poussée d'un vérin", ve,
+                  curseur("p", "Pression p", 0, 300, 5, 100, "p") + curseur("d", "Diamètre d du piston", 20, 200, 1, 100, "d"),
+                  '<div class="simu-calc"><p data-o="S"></p><p data-o="R"></p></div>',
+                  defi="<b>Défi :</b> avec 100 bars, quel diamètre faut-il pour pousser 8 tonnes (8 000 daN) ? "
+                       "<span data-o=\"defi\" aria-live=\"polite\"></span>") +
+             a_toi("calcule la poussée d'un vérin de diamètre 10 cm alimenté à 100 bars.",
+                   "<p>R = p × S = 100 × π × 10² / 4 = 100 × 78,54 = <b>7 854 daN</b> : la « poussée de 8 tonnes » d'un vérin "
+                   "courant.</p>"))
+    s6 = sec(6, "c0-quiz", "Quiz : vérifie tes connaissances", quiz("q0-", QUIZ_0))
+    page(fichier="modelisation-source.html", titre="Modélisation des actions mécaniques", tag="Cours 1", niveau=1,
+         description="Cours interactif : vecteur-force, composantes et coordonnées d'une force, poids, actions de contact "
+                     "concentrées ou réparties, pression, avec des simulateurs, des jeux et un quiz.",
+         sous_titre="Du réel au modèle : vecteur-force, composantes, coordonnées, poids et actions de contact "
+                    "(concentrées, linéiques, surfaciques). Environ 40 minutes, avec des simulateurs, deux jeux de "
+                    "classement et un quiz.",
+         objectif="Schématiser une action mécanique par une force, une charge répartie ou une pression.",
+         prerequis="Mathématiques : notion de vecteur.",
+         nav=[("c0-force", "Le vecteur-force"), ("c0-comp", "Composantes"), ("c0-coord", "Coordonnées"),
+              ("c0-distance", "Le poids"), ("c0-contact", "Actions de contact"), ("c0-quiz", "Quiz")],
+         sections=[s1, s2, s3, s4, s5, s6],
+         liens=[("exercice-projections.html", "Exercice 1.2 — Projections d'une force"),
+                ("exercice-quadrants.html", "Exercice 1.3 — Les quatre quadrants")])
+
+
+# =====================================================================================================================
+# COURS 4 — TORSEUR D'ACTION MÉCANIQUE (page 9)
 # =====================================================================================================================
 LETTRES = {
     "X": "<b>X</b> : coordonnée de la force " + v("F") + " sur l'axe x du repère R, en N.",
@@ -585,14 +867,14 @@ def cours_torseur():
                  "−1 100 + 2 300 = <b>1 200 N·m</b>. Directement : " + v("CA") + " = (−3 ; 0 ; 0), (−3) × (−400) − 0 × 300 = "
                  "1 200 N·m. ✔"]))
     s6 = sec(6, "c3-quiz", "Quiz : vérifie tes connaissances", quiz("q3-", QUIZ_3))
-    page(fichier="torseur-source.html", titre="Torseur d'action mécanique", tag="Cours 3", niveau=2,
+    page(fichier="torseur-source.html", titre="Torseur d'action mécanique", tag="Cours 4", niveau=2,
          description="Cours interactif : écrire une action mécanique sous forme de torseur, changer de point de réduction "
                      "et additionner des torseurs, avec un simulateur, un exemple pas à pas et un quiz.",
          sous_titre="Écrire une action mécanique sous forme de torseur, puis changer de point de réduction. Environ "
                     "30 minutes : un torseur à explorer, un simulateur de transport du moment, un exemple résolu pas à "
                     "pas et un quiz.",
          objectif="Écrire une action mécanique sous forme de torseur.",
-         prerequis="Cours 1 et 2 : coordonnées d'une force, moment et produit vectoriel.",
+         prerequis="Cours 1 à 3 : coordonnées d'une force, moment et produit vectoriel.",
          nav=[("c3-def", "Le torseur"), ("c3-lettres", "Les lettres"), ("c3-transport", "Changer de point"),
               ("c3-somme", "Plusieurs actions"), ("c3-exemple", "Exemple"), ("c3-quiz", "Quiz")],
          sections=[s1, s2, s3, s4, s5, s6],
@@ -600,6 +882,7 @@ def cours_torseur():
 
 
 if __name__ == "__main__":
+    cours_modelisation()
     cours_projection()
     cours_couple()
     cours_torseur()

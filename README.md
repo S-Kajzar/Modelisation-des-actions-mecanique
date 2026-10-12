@@ -7,17 +7,19 @@ autonome, sans dépendance externe, utilisable hors ligne.
 | Adresse | Contenu |
 |---|---|
 | `index.html` | accueil : Les cours, Le formulaire, Les exercices, Études de cas |
-| `cours-projection.html` | Cours 1 (Niveau 1) — Projection d'une force : carte des disciplines, repère interactif, triangle, simulateur de projection, quiz |
-| `cours-couple-moment.html` | Cours 2 (Niveau 1) — Couple et moment : texte à trous, cartes, simulateur de clé, produit vectoriel pas à pas, quiz |
-| `cours-torseur.html` | Cours 3 (Niveau 2) — Torseur d'action mécanique : torseur à explorer, simulateur de transport du moment, exemple pas à pas, quiz |
+| `cours-modelisation.html` | Cours 1 (Niveau 1) — Modélisation des actions mécaniques : vecteur-force, simulateurs (composantes, projection, poids, charge linéique, vérin), deux jeux de classement, quiz |
+| `cours-projection.html` | Cours 2 (Niveau 1) — Projection d'une force : carte des disciplines, repère interactif, triangle, simulateur de projection, quiz |
+| `cours-couple-moment.html` | Cours 3 (Niveau 1) — Moments et couples : navette, simulateur de clé, Varignon pas à pas, vecteur-moment, produit vectoriel, simulateur de couple, quiz |
+| `cours-torseur.html` | Cours 4 (Niveau 2) — Torseur d'action mécanique : torseur à explorer, simulateur de transport du moment, exemple pas à pas, quiz |
 | `force-moment.html` | Exercice 1.1 (Niveau 1) — Force, moment et couple : 9 parties, 39 questions, 1 h 20 |
 | `exercice-projections.html` | Exercice 1.2 (Niveau 1) — Projections d'une force : 4 parties, 27 questions, 52 min |
 | `exercice-quadrants.html` | Exercice 1.3 (Niveau 1) — Projections, les quatre quadrants : entraînement à valeurs tirées au hasard, 8 forces, 32 questions, 40 min ; `?graine=N` rejoue un tirage |
 | `exercice-couples-moments.html` | Exercice 2.1 (Niveau 2) — Couples et moments : 5 parties, 20 questions, 58 min |
 | `exercice-torseurs.html` | Exercice 2.2 (Niveau 2) — Torseurs, les bases : 5 parties, 22 questions dont 16 torseurs, 1 h 04 |
 
-Les cours et les exercices 1.2, 2.1 et 2.2 viennent de la séquence « Modélisation des actions mécaniques : force,
-couple, torseur » (pages 1-2, 5-6 et 9 pour les cours ; exercices 1 à 4, 5 à 9 et 10 à 14). Corrections et
+Les cours 2 à 4 et les exercices 1.2, 2.1 et 2.2 viennent de la séquence « Modélisation des actions mécaniques : force,
+couple, torseur » (pages 1-2, 5-6 et 9 pour les cours ; exercices 1 à 4, 5 à 9 et 10 à 14) ; le cours 1 et les
+compléments du cours 3 reprennent les chapitres « Forces et actions mécaniques » et « Moments et couples ». Corrections et
 décisions : [`NOTE-DE-LIVRAISON.md`](NOTE-DE-LIVRAISON.md). Le formulaire et l'étude de cas restent « En cours d'édition ».
 
 ## Régénérer les pages
@@ -28,7 +30,7 @@ python3 outils/extraire_figures.py DOSSIER           # figures et vignettes (src
 python3 src/construire_force_moment.py               # gabarit + contenu -> src/exercices/force-moment-source.html
 python3 src/construire_exercices_sequence.py         # -> src/exercices/{projections,couples-moments,torseurs}-source.html
 python3 src/construire_exercice_quadrants.py         # -> src/exercices/quadrants-source.html (tirage au chargement)
-python3 src/construire_cours.py                      # -> src/cours/{projection,couple-moment,torseur}-source.html
+python3 src/construire_cours.py                      # -> src/cours/{modelisation,projection,couple-moment,torseur}-source.html
 python3 src/generer.py                               # écrit index.html et publie toutes les pages
 ```
 

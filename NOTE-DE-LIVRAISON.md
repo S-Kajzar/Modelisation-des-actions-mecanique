@@ -1,22 +1,24 @@
 # Note de livraison — séquence « Force, couple, torseur »
 
-Source : *Séquence : Modélisation des actions mécaniques* (10 pages). Toutes les valeurs attendues ont été recalculées ;
+Sources : *Séquence : Modélisation des actions mécaniques* (10 pages) ; chapitres « Forces et actions mécaniques » et
+« Moments et couples » d'un cours de mécanique (cours 1 et enrichissement du cours 3). Toutes les valeurs attendues ont été recalculées ;
 les figures ont été lues sur un rendu à 300 dpi.
 
 ## Organisation retenue
 
 | Carte | Niveau | Pages du PDF | Contenu |
 |---|---|---|---|
-| Cours 1 — Projection d'une force | 1 | 1 et 2 | rappels : coordonnées, norme, trigonométrie, projection |
+| Cours 1 — Modélisation des actions mécaniques | 1 | chapitre « Forces » | vecteur-force, composantes, poids, actions de contact, pression |
+| Cours 2 — Projection d'une force | 1 | 1 et 2 | rappels : coordonnées, norme, trigonométrie, projection |
 | Exercice 1.2 — Projections d'une force | 1 | 4 | exercices 1 à 4 |
-| Cours 2 — Couple et moment | 1 | 5 et 6 | moment, couple, bras de levier, produit vectoriel |
+| Cours 3 — Moments et couples | 1 | 5 et 6 + chapitre « Moments et couples » | moment, Varignon, vecteur-moment, moment / axe, couple |
 | Exercice 2.1 — Couples et moments | 2 | 7 et 8 | exercices 5 à 9 |
-| Cours 3 — Torseur d'action mécanique | 2 | 9 | torseur, point de réduction |
+| Cours 4 — Torseur d'action mécanique | 2 | 9 | torseur, point de réduction |
 | Exercice 2.2 — Torseurs : les bases | 2 | 9 et 10 | exercices 10 à 14 |
 
-- **Niveau du cours 2** : non précisé dans la demande ; placé en **niveau 1**, car il contient les bases du moment
+- **Niveau du cours 3** : non précisé dans la demande ; placé en **niveau 1**, car il contient les bases du moment
   utilisées par l'exercice 1.1 ; sa partie « produit vectoriel » prépare le niveau 2.
-- **QCM de la page 3** : non repris (la demande vise les pages 1-2 pour le cours) ; il pourrait compléter le quiz du cours 1.
+- **QCM de la page 3** : non repris (la demande vise les pages 1-2 pour le cours) ; il pourrait compléter le quiz du cours 2.
 - **Numérotation** : chaque exercice du PDF devient une partie de la carte. Exercice 1.2 : parties 1 à 4 = exercices 1 à 4 ;
   exercice 2.1 : parties 1 à 5 = exercices 5 à 9 ; exercice 2.2 : parties 1 à 5 = exercices 10 à 14.
 
@@ -70,12 +72,22 @@ les figures ont été lues sur un rendu à 300 dpi.
 
 - Les cadres à compléter du PDF (norme, rapports trigonométriques, projections, formule du couple, produit vectoriel,
   notation du torseur) deviennent des réponses « À toi » à dévoiler, des textes à trous ou des listes à choisir.
-- Cours 2 : les quatre puces vides « Un couple se représente par un vecteur » sont complétées (point d'application,
+- Cours 3 : les quatre puces vides « Un couple se représente par un vecteur » sont complétées (point d'application,
   direction, sens par la règle du tire-bouchon, intensité) ; l'exemple de la roue hélicoïdale est résolu :
   M<sub>O</sub>(F) = (−200 ; −100 ; 0) N·m.
-- Cours 3 : **ajout** de la formule de transport M<sub>B</sub> = M<sub>A</sub> + BA ∧ R et de l'addition de torseurs au
+- Cours 4 : **ajout** de la formule de transport M<sub>B</sub> = M<sub>A</sub> + BA ∧ R et de l'addition de torseurs au
   même point, absentes de la page 9 mais nécessaires aux exercices 11 à 14 ; exemple du couple pur.
-- Simulateurs, défis, exemples résolus et quiz (8, 8 et 7 questions) sont rédigés pour ces cours.
+- Simulateurs, défis, exemples résolus et quiz (8, 8, 10 et 7 questions) sont rédigés pour ces cours.
+- Cours 1 (nouveau) : vecteur-force et schématisation (câble, ballon), composantes (simulateur du parallélogramme),
+  coordonnées, poids P = m g (Terre, Lune, Mars, altitude), deux jeux de classement (à distance / de contact ;
+  concentrée / linéique / surfacique), charge linéique R = q L, pression R = p S et vérin (R = 7 854 daN à 100 bars
+  pour d = 10 cm).
+- Cours 3 (enrichi) : navette spatiale (translation seule ou translation + rotation), convention de signe, exemple
+  F<sub>2</sub> = 200 N, clé à molette (20 sin α N·m), théorème de Varignon (M<sub>A</sub> = 88,6 N·m), vecteur-moment
+  et règle des trois doigts, poutre encastrée (−283 N·m), moment par rapport à un axe (roue hélicoïdale :
+  M<sub>u</sub> = −200 N·m), couple de deux forces (simulateur : M = F d quel que soit O), couples équivalents, clé à
+  bougie (40 N·m dans les quatre positions), moment résultant. La balance romaine et le chargeur ne sont pas repris dans
+  le cours : ce sont des questions de l'exercice 2.1.
 
 ## Points signalés sans modification
 

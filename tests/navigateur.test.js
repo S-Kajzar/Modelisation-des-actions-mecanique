@@ -10,7 +10,7 @@ const { reponseJuste } = require("./reponses.js");
 const URL = (p) => "file://" + path.join(__dirname, "..", p);
 const EXERCICES = ["force-moment.html", "exercice-projections.html", "exercice-quadrants.html", "exercice-couples-moments.html",
   "exercice-torseurs.html"];
-const COURS = ["cours-projection.html", "cours-couple-moment.html", "cours-torseur.html"];
+const COURS = ["cours-modelisation.html", "cours-projection.html", "cours-couple-moment.html", "cours-torseur.html"];
 let navigateur;
 
 test.before(async () => { navigateur = await chromium.launch(); });
@@ -82,7 +82,7 @@ for (const page of EXERCICES) {
 }
 
 for (const page of COURS) {
-  test(page + " : simulateurs sans erreur, quiz entièrement juste = 3 étoiles", async () => {
+  test(page + " : simulateurs sans erreur, quiz entièrement juste = 3 étoiles, jeux réussis", async () => {
     const { p, erreurs } = await ouvrir(page);
     for (const fs of await p.$$(".quiz-q")) {
       const ok = await fs.getAttribute("data-ok");
@@ -92,6 +92,10 @@ for (const page of COURS) {
     for (const t of await p.$$(".trous")) {
       await (await t.$(".trous-sol")).click();
       assert.match(await (await t.$(".trous-s")).innerText(), /Tout est juste/);
+    }
+    for (const j of await p.$$(".jeu")) {
+      for (const l of await j.$$(".jeu-l")) await (await l.$(`button[data-v="${await l.getAttribute("data-ok")}"]`)).click();
+      assert.match(await (await j.$(".jeu-s")).innerText(), /parfait/);
     }
     for (const c of await p.$$(".check")) {
       await (await c.$("input")).fill((await c.getAttribute("data-ans")).replace(".", ","));
