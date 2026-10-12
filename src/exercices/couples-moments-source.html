@@ -60,7 +60,7 @@ body.panel-open .page{margin-right:calc(var(--panel) + var(--rail) + 24px); marg
 .part-head h2{font:700 1.45rem/1.15 var(--f-titre); margin:0; padding:12px 16px 2px}
 .part-head .duree{padding:0 16px 10px; font-size:.9rem; color:var(--encre-2)}
 .part-body{padding:4px 22px 0}
-.part-body>p,.part-body>ul{max-width:72ch}
+.part-body>p,.part-body>ul{max-width:none}
 h4.sub{font:700 1.1rem var(--f-titre); margin:26px 0 6px; padding-top:10px; border-top:1px dashed var(--trait)}
 
 /* barre de question (reprend l'en-tête du questionnaire) */
@@ -77,7 +77,7 @@ h4.sub{font:700 1.1rem var(--f-titre); margin:26px 0 6px; padding-top:10px; bord
 .doc-chip[aria-pressed="true"]{background:var(--jaune)}
 
 /* données */
-.data{border:1px solid var(--encre); padding:8px 14px; margin:12px 0; max-width:72ch; background:#FBFBF9}
+.data{border:1px solid var(--encre); padding:8px 14px; margin:12px 0; max-width:none; background:#FBFBF9}
 .data p{margin:.25rem 0}
 .data .data-title{font:700 .95rem var(--f-titre); text-decoration:underline; text-underline-offset:3px}
 .data ul{margin:.2rem 0; padding-left:1.1rem}
@@ -115,9 +115,9 @@ table.nomencl td:first-child{font-weight:700; text-align:center}
 /* ---------- questions ---------- */
 .q{margin:14px 0 6px; padding:10px 0 12px 14px; border-left:3px solid var(--trait-fin)}
 .q.is-ok{border-left-color:var(--vert)} .q.is-ko{border-left-color:var(--rouge)} .q.is-half{border-left-color:var(--orange)}
-.q-stem{margin:0 0 3px; max-width:74ch}
+.q-stem{margin:0 0 3px; max-width:none}
 .q-num{display:inline-block; font:700 .92rem var(--f-titre); background:var(--encre); color:#fff; padding:1px 7px; margin-right:6px; border-radius:2px}
-.q-hint{margin:0 0 8px; font-size:.88rem; color:var(--encre-2); max-width:74ch}
+.q-hint{margin:0 0 8px; font-size:.88rem; color:var(--encre-2); max-width:none}
 .q-row{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
 .q-input{flex:1 1 240px; max-width:420px; border:1.5px solid var(--encre-2); background:#fff; padding:7px 10px; border-radius:2px}
 .q-input:disabled{background:#F2F3F1; color:var(--encre); -webkit-text-fill-color:var(--encre)}
@@ -133,7 +133,7 @@ table.nomencl td:first-child{font-weight:700; text-align:center}
 .is-ok .q-status{color:var(--vert)} .is-ko .q-status{color:var(--rouge)} .is-half .q-status{color:var(--orange)}
 .q-msg{margin:4px 0 0; font-size:.88rem; color:var(--rouge); min-height:0}
 .q-msg:empty{display:none}
-.q-expl{margin-top:10px; background:#F6F7F4; border:1px solid var(--trait-fin); padding:8px 14px; max-width:78ch}
+.q-expl{margin-top:10px; background:#F6F7F4; border:1px solid var(--trait-fin); padding:8px 14px; max-width:none}
 .is-ok .q-expl{border-top:3px solid var(--vert)} .is-ko .q-expl{border-top:3px solid var(--rouge)} .is-half .q-expl{border-top:3px solid var(--orange)}
 .q-unit-msg{margin:.1rem 0 .4rem; font-weight:600; color:var(--orange)}
 .q-unit-msg[hidden]{display:none}
@@ -178,7 +178,7 @@ table.nomencl td:first-child{font-weight:700; text-align:center}
 .sketch{margin:14px 0 6px; padding:10px 0 12px 14px; border-left:3px dashed var(--bleu)}
 .sk-layout{display:flex; flex-direction:column-reverse; gap:8px}
 .sk-main{min-width:0}
-.sk-side{max-width:78ch}
+.sk-side{max-width:none}
 .sk-side p,.sk-side ul{margin:.2rem 0}
 .nomencl-grid{display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); border:1px solid var(--trait); font-size:.85rem; margin:2px 0 4px}
 .nomencl-grid span{padding:3px 8px; border-right:1px solid var(--trait-fin); border-bottom:1px solid var(--trait-fin)}
@@ -270,7 +270,7 @@ dl.steps dd{margin:2px 0 0 0}
 @media (max-width:760px){ .banner{padding:0 12px; gap:10px} .banner .btn-docs{display:block} .banner .count{font-size:.78rem} }
 
 /* ---------- auto-évaluation des tracés ---------- */
-.selfeval{margin:12px 0 4px; border:1.5px solid var(--bleu); background:var(--bleu-pale); padding:10px 14px; max-width:78ch}
+.selfeval{margin:12px 0 4px; border:1.5px solid var(--bleu); background:var(--bleu-pale); padding:10px 14px; max-width:none}
 .selfeval[hidden]{display:none}
 .se-title{margin:0 0 2px; font:700 1rem var(--f-titre)}
 .se-lead{margin:0 0 8px; font-size:.9rem; color:var(--encre-2)}
@@ -285,7 +285,7 @@ dl.steps dd{margin:2px 0 0 0}
 .recap{background:var(--papier); border:2px solid var(--encre); margin:0 0 36px; padding:0 0 18px}
 .recap-head{border-bottom:2px solid var(--encre); padding:14px 20px 12px; background:#F4F5F2}
 .recap-head h2{margin:0 0 4px; font:700 1.5rem var(--f-titre)}
-.recap-head p{margin:0; max-width:74ch}
+.recap-head p{margin:0; max-width:none}
 .recap-wrap{overflow-x:auto; padding:14px 20px 0}
 .recap-table{min-width:620px}
 .recap-table th[scope="row"]{font-weight:600; text-align:left}
@@ -296,7 +296,7 @@ dl.steps dd{margin:2px 0 0 0}
 .recap-table th[scope="row"]{width:38%}
 .recap-table tfoot th{background:var(--encre); color:#fff; font:700 1.1rem var(--f-titre); border-color:var(--encre)}
 .recap-table tfoot th.final-note{color:var(--jaune); text-align:right; white-space:nowrap}
-.recap .final-detail{padding:8px 20px 0; margin:0; max-width:80ch}
+.recap .final-detail{padding:8px 20px 0; margin:0; max-width:none}
 .recap-foot{display:flex; gap:12px; align-items:center; flex-wrap:wrap; padding:14px 20px 0}
 .recap-foot .btn{padding:10px 18px; font-size:1.02rem}
 
@@ -348,7 +348,7 @@ body:not(.no-mode) #home{display:none}
 .home-inner{max-width:1040px; margin:0 auto}
 .home-head{background:var(--papier); border:2px solid var(--encre); border-left:10px solid var(--jaune); padding:20px 24px}
 #home h1{margin:0 0 8px; font:700 clamp(1.7rem,4vw,2.6rem)/1.06 var(--f-titre); letter-spacing:-.01em}
-.home-sub{margin:0; max-width:78ch; color:var(--encre-2)}
+.home-sub{margin:0; max-width:none; color:var(--encre-2)}
 .home-hero{margin:18px 0 0; background:var(--papier); border:1px solid var(--trait); padding:10px}
 .home-hero img{display:block; width:100%; height:auto}
 .home-hero figcaption{margin-top:6px; padding:0 4px}
@@ -384,7 +384,7 @@ body:not(.mode-training) .only-training,body:not(.mode-exam) .only-exam{display:
 .mode-exam.graded #exam-submit-wrap,.mode-training #exam-submit-wrap{display:none}
 .banner .exam-state{font:700 1.05rem var(--f-titre); color:var(--jaune)}
 #exam-submit-wrap{padding:16px 20px 4px}
-.es-lead{margin:0 0 10px; max-width:74ch}
+.es-lead{margin:0 0 10px; max-width:none}
 .btn-exam{background:var(--bleu); border-color:var(--bleu); padding:12px 20px; font-size:1.05rem}
 .btn-exam:hover{background:#17508F}
 .es-warn{margin:8px 0 0; color:var(--rouge); font-weight:600}
