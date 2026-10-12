@@ -43,6 +43,8 @@ python3 src/generer.py                               # écrit index.html et publ
 - `src/construire_cours.py`, `src/cours/cours.css`, `src/cours/cours.js` : cours interactifs (construction reprise des
   cours du dépôt RDM : sections numérotées, formules, réponses « À toi », simulateurs et défis, textes à trous, cartes à
   retourner, vérifications rapides, exemples pas à pas, quiz).
+- `src/figures_forces.py` : schémas vectoriels du cours 1 (câble, ballon avec bascule « réel → modèle », types de
+  contact, coordonnées du câble), dessinés en SVG pour rester nets à toutes les tailles.
 - `src/generer.py` : cartes de l'accueil (`EXERCICES` pour les contenus, `ENCOURS` pour les cartes en cours d'édition)
   et copie des pages avec lien de retour vers l'accueil.
 - `src/images/` : vignettes des cartes (480 × 270) ; `src/images/force-moment/`, `src/images/sequence/` : figures.

@@ -519,8 +519,24 @@ details.a-toi .formule{border-color:var(--vert); margin:8px 0}
 /* éléments SVG */
 .g-grille line{stroke:#E1E5E2; stroke-width:1}
 .g-axe{stroke:var(--encre); stroke-width:2; fill:none}
-.g-lab{font:600 15px var(--f-texte); fill:var(--encre)}
-.g-lab-s{font:600 12px var(--f-texte); fill:var(--encre-2)}
+.g-lab{font:600 15px var(--f-texte)} .g-lab:not([fill]){fill:var(--encre)}
+.g-lab-s{font:600 12px var(--f-texte)} .g-lab-s:not([fill]){fill:var(--encre-2)}
+/* schémas : du réel au modèle (bouton « Schématiser »), schémas statiques */
+.schema,.fig-svg{margin:18px auto; max-width:760px}
+.fig-svg{max-width:440px}
+.schema svg,.fig-svg svg,.schemas3 svg{display:block; width:100%; height:auto; background:#fff; border:1px solid var(--trait)}
+.schema figcaption,.fig-svg figcaption,.schemas3 figcaption{font-size:.9rem; color:var(--encre-2); margin-top:6px}
+.schema-btns{display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin:8px 0 0}
+.schema .reel-att,.schema .reel-lab,.schema .modele>*{transition:opacity .6s ease}
+.schema .modele>*{opacity:0}
+.schema.is-modele .modele>*{opacity:1}
+.schema.is-modele .modele>:nth-child(n+9){transition-delay:.35s}
+.schema.is-modele .reel-att{opacity:.2}
+.schema.is-modele .reel-lab{opacity:0}
+.schema-zone{overflow-x:auto}
+@media (max-width:600px){ .schema-zone svg{min-width:560px} }
+.schemas3{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:14px; margin:16px 0}
+.schemas3 figure{margin:0}
 .g-pt{cursor:grab; outline:none}
 .g-pt:active{cursor:grabbing}
 .g-pt circle.h{fill:transparent}
@@ -615,6 +631,7 @@ details.a-toi .formule{border-color:var(--vert); margin:8px 0}
 .cours-foot{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:6px 0 0}
 .cours-foot a.btn{display:inline-flex; align-items:center; gap:8px; text-decoration:none}
 @media print{
+  .schema .modele>*{opacity:1!important} .schema .reel-att{opacity:.2!important} .schema .reel-lab{opacity:0!important}
   .lecture,.cours-nav,.cours-foot,.no-print,.simu-choix,.trous-foot,.stepper-foot,.defi,.simu-grid,.quiz-score button{display:none!important}
   body.cours-page{padding:0; background:#fff}
   .stepper li[hidden],.quiz-why[hidden]{display:block!important}
@@ -681,6 +698,13 @@ details.a-toi .formule{border-color:var(--vert); margin:8px 0}
       orient: "auto-start-reverse", markerUnits: "userSpaceOnUse" }, defs);
     attr(m, { markerWidth: "14", markerHeight: "14" });
     el("path", { d: "M0 0 10 5 0 10z", fill: couleur }, m);
+    return "url(#" + id + ")";
+  }
+  function hachures(svg, id) {
+    var defs = $("defs", svg) || el("defs", {}, svg);
+    var p = el("pattern", { id: id, width: 7, height: 7, patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)" }, defs);
+    el("rect", { width: 7, height: 7, fill: "#F1F2EE" }, p);
+    el("line", { x1: 0, y1: 0, x2: 0, y2: 7, stroke: "#8A939A", "stroke-width": 1.6 }, p);
     return "url(#" + id + ")";
   }
   function pointSvg(svg, evt) {
@@ -1334,6 +1358,8 @@ details.a-toi .formule{border-color:var(--vert); margin:8px 0}
     var svg = $("svg", root), AX = 150, AY = 240, K = 2.2, F = 100, TF = 35;
     var sU = $('[data-in="u"]', root), sV = $('[data-in="v"]', root), defi = false;
     var mkF = fleche(svg, "fl-co-f", "#1B7A43"), mkU = fleche(svg, "fl-co-u", "#1F5FA8"), mkV = fleche(svg, "fl-co-v", "#B42318");
+    el("ellipse", { cx: 236, cy: 186, rx: 205, ry: 118, fill: "#F4F5F2", stroke: "#1C2530", "stroke-width": 2 }, svg);
+    el("text", { x: 80, y: 142, "class": "g-lab-s" }, svg, "solide");
     var du = el("line", { stroke: "#1F5FA8", "stroke-dasharray": "6 5" }, svg), dv = el("line", { stroke: "#B42318", "stroke-dasharray": "6 5" }, svg);
     var para = el("path", { fill: "rgba(242,183,5,.12)", stroke: "#9AA2A8", "stroke-dasharray": "4 4" }, svg);
     var vU = el("line", { stroke: "#1F5FA8", "stroke-width": 4, "marker-end": mkU }, svg), vV = el("line", { stroke: "#B42318", "stroke-width": 4, "marker-end": mkV }, svg);
@@ -1418,53 +1444,110 @@ details.a-toi .formule{border-color:var(--vert); margin:8px 0}
     rendu();
   });
 
-  // ===================== charge linéique uniforme : R = q × L au milieu =====================
+  // ===================== charge linéique uniforme : cylindre couché sur un plan, q le long de AB ou sa résultante R =====================
   $$('[data-widget="lineique"]').forEach(function (root) {
-    var svg = $("svg", root), sQ = $('[data-in="q"]', root), sL = $('[data-in="L"]', root), X0 = 40, Y0 = 150, K = 200;
-    var mk = fleche(svg, "fl-li", "#1F5FA8"), mkR = fleche(svg, "fl-li-r", "#B42318");
-    var poutre = el("rect", { y: Y0 - 26, height: 26, fill: "#D7DDE2", stroke: "#1C2530", "stroke-width": 2 }, svg);
-    el("rect", { x: 10, y: Y0 + 1, width: 500, height: 10, fill: "#CFC8A6" }, svg);
-    var g = el("g", {}, svg), rR = el("line", { stroke: "#B42318", "stroke-width": 6, "marker-end": mkR }, svg);
-    var tR = el("text", { "class": "g-lab", fill: "#B42318" }, svg, "R"), tL = el("text", { "class": "g-lab-s", "text-anchor": "middle" }, svg);
+    var svg = $("svg", root), sQ = $('[data-in="q"]', root), sL = $('[data-in="L"]', root), X0 = 44, Y0 = 136, K = 180, D = 84, vue = "q";
+    var mkQ = fleche(svg, "fl-li", "#1F5FA8"), mkR = fleche(svg, "fl-li-r", "#B42318"), mkK = fleche(svg, "fl-li-k", "#1C2530");
+    el("rect", { x: 8, y: Y0, width: 504, height: 14, fill: hachures(svg, "hh-li") }, svg);
+    el("line", { x1: 8, y1: Y0, x2: 512, y2: Y0, stroke: "#1C2530", "stroke-width": 2.2 }, svg);
+    el("text", { x: 14, y: Y0 + 34, "class": "g-lab" }, svg, "0");
+    var corps = el("path", { fill: "#E1E7EC", stroke: "#1C2530", "stroke-width": 2.2 }, svg);
+    var bout = el("ellipse", { cx: X0, cy: Y0 - D / 2, rx: 12, ry: D / 2, fill: "#C9D3DB", stroke: "#1C2530", "stroke-width": 2.2 }, svg);
+    var t1 = el("text", { y: Y0 - D + 22, "class": "g-lab" }, svg, "1");
+    var ab = el("line", { y1: Y0, y2: Y0, stroke: "#1F5FA8", "stroke-width": 4.5 }, svg);
+    var tA = el("text", { y: Y0 - 6, "class": "g-lab", "text-anchor": "end" }, svg, "A"), tB = el("text", { y: Y0 - 6, "class": "g-lab" }, svg, "B");
+    var gq = el("g", {}, svg), tq = el("text", { "class": "g-lab-s", fill: "#1F5FA8", "font-weight": "700" }, svg);
+    var rR = el("line", { stroke: "#B42318", "stroke-width": 6, "marker-end": mkR }, svg), tR = el("text", { "class": "g-lab", fill: "#B42318" }, svg);
+    var gP = el("path", { stroke: "#1C2530", "stroke-width": 2, fill: "none" }, svg), tG = el("text", { "class": "g-lab" }, svg, "G");
+    var rP = el("line", { stroke: "#1C2530", "stroke-width": 4, "marker-end": mkK }, svg), tP = el("text", { "class": "g-lab" }, svg, "P");
+    var cote = el("line", { y1: 238, y2: 238, stroke: "#1C2530", "stroke-width": 1.3, "marker-start": mkK, "marker-end": mkK }, svg);
+    var tL = el("text", { y: 232, "class": "g-lab-s", "text-anchor": "middle" }, svg);
     function rendu() {
-      var q = +sQ.value, L = +sL.value, w = L * K, h = 12 + q / 5000 * 50, R = q * L;
-      attr(poutre, { x: X0, width: w });
-      while (g.firstChild) g.removeChild(g.firstChild);
-      var n = Math.max(2, Math.round(L * 10));
-      for (var i = 0; i <= n; i++) el("line", { x1: X0 + w * i / n, y1: Y0 + 50 + h, x2: X0 + w * i / n, y2: Y0 + 14, stroke: "#1F5FA8", "stroke-width": 2, "marker-end": mk }, g);
-      el("line", { x1: X0, y1: Y0 + 50 + h, x2: X0 + w, y2: Y0 + 50 + h, stroke: "#1F5FA8", "stroke-width": 2 }, g);
-      var lr = 20 + Math.min(120, R / 40);
-      attr(rR, { x1: X0 + w / 2, y1: Y0 - 30, x2: X0 + w / 2, y2: Y0 - 30 - lr });
-      attr(tR, { x: X0 + w / 2 + 8, y: Y0 - 30 - lr / 2 }); attr(tL, { x: X0 + w / 2, y: Y0 + 72 + h }); tL.textContent = "L = " + fr(L, 2) + " m";
+      var q = +sQ.value, L = +sL.value, w = L * K, R = q * L, xm = X0 + w / 2, h = 12 + q / 5000 * 40, lr = 14 + 24 * Math.sqrt(R / 10000);
+      attr(corps, { d: "M" + X0 + " " + (Y0 - D) + "H" + (X0 + w) + "A12 " + D / 2 + " 0 0 1 " + (X0 + w) + " " + Y0 + "H" + X0 + "Z" });
+      attr(t1, { x: xm + 14 }); attr(ab, { x1: X0, x2: X0 + w });
+      attr(tA, { x: X0 - 14 }); attr(tB, { x: X0 + w + 16 });
+      while (gq.firstChild) gq.removeChild(gq.firstChild);
+      var nb = Math.max(2, Math.round(w / 18));
+      for (var i = 0; i <= nb; i++) el("line", { x1: X0 + w * i / nb, y1: Y0 + 16 + h, x2: X0 + w * i / nb, y2: Y0 + 2, stroke: "#1F5FA8", "stroke-width": 2, "marker-end": mkQ }, gq);
+      el("line", { x1: X0, y1: Y0 + 16 + h, x2: X0 + w, y2: Y0 + 16 + h, stroke: "#1F5FA8", "stroke-width": 2 }, gq);
+      attr(tq, { x: X0 + w + 10, y: Y0 + 20 + h }); tq.textContent = "q = " + fr(q, 0) + " N/m";
+      attr(rR, { x1: xm, y1: Y0 + 18 + lr, x2: xm, y2: Y0 + 2 }); attr(tR, { x: xm + 10, y: Y0 + 22 + lr / 2 }); tR.textContent = "R = " + fr(R, 0) + " N";
+      var yg = Y0 - D / 2;
+      attr(gP, { d: "M" + (xm - 5) + " " + (yg - 5) + "l10 10m0 -10l-10 10" }); attr(tG, { x: xm - 22, y: yg - 6 });
+      attr(rP, { x1: xm, y1: yg, x2: xm, y2: yg + lr }); attr(tP, { x: xm + 8, y: yg + lr - 2 });
+      var vq = vue === "q";
+      [gq, tq].forEach(function (e) { e.setAttribute("visibility", vq ? "visible" : "hidden"); });
+      [rR, tR].forEach(function (e) { e.setAttribute("visibility", vq ? "hidden" : "visible"); });
+      attr(cote, { x1: X0, x2: X0 + w }); attr(tL, { x: xm }); tL.textContent = "L = AB = " + fr(L, 2) + " m";
       $('[data-o="q"]', root).textContent = fr(q, 0) + " N/m"; $('[data-o="L"]', root).textContent = fr(L, 2) + " m";
-      $('[data-o="R"]', root).innerHTML = "R = q × L = " + fr(q, 0) + " × " + fr(L, 2) + " = <b>" + fr(R, 0) + " N</b>, au milieu de la longueur L";
+      $('[data-o="R"]', root).innerHTML = "R = q × L = " + fr(q, 0) + " × " + fr(L, 2) + " = <b>" + fr(R, 0) + " N</b>, au milieu de AB" +
+        (vq ? "" : " ; à l'équilibre, R est égale et opposée au poids P.");
     }
+    $$("[data-vue]", root).forEach(function (b) {
+      b.addEventListener("click", function () {
+        vue = b.getAttribute("data-vue");
+        $$("[data-vue]", root).forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+        rendu();
+      });
+    });
     [sQ, sL].forEach(function (x) { x.addEventListener("input", rendu); });
     rendu();
   });
 
-  // ===================== pression sur un piston de vérin : R = p × S =====================
+  // ===================== vérin en coupe : la pression p sur le piston donne R = p × S =====================
   $$('[data-widget="verin"]').forEach(function (root) {
-    var svg = $("svg", root), sP = $('[data-in="p"]', root), sD = $('[data-in="d"]', root), YC = 140, defi = false;
-    var mkP = fleche(svg, "fl-ve-p", "#1F5FA8"), mkR = fleche(svg, "fl-ve-r", "#B42318");
-    var corps = el("rect", { x: 150, width: 300, fill: "#F4F5F2", stroke: "#1C2530", "stroke-width": 3 }, svg);
-    var huile = el("rect", { x: 330, fill: "rgba(178,106,0,.25)" }, svg), piston = el("rect", { x: 300, width: 30, fill: "#9AA2A8", stroke: "#1C2530", "stroke-width": 2 }, svg);
-    var tige = el("rect", { x: 40, y: YC - 10, width: 262, height: 20, fill: "#D7DDE2", stroke: "#1C2530", "stroke-width": 2 }, svg);
-    var g = el("g", {}, svg), rR = el("line", { stroke: "#B42318", "stroke-width": 7, "marker-end": mkR }, svg);
-    var tR = el("text", { "class": "g-lab", fill: "#B42318" }, svg, "R = p × S");
+    var svg = $("svg", root), sP = $('[data-in="p"]', root), sD = $('[data-in="d"]', root), YC = 158, T = 10, XP = 292, defi = false;
+    var mkP = fleche(svg, "fl-ve-p", "#1F5FA8"), mkR = fleche(svg, "fl-ve-r", "#B42318"), mkK = fleche(svg, "fl-ve-k", "#1C2530");
+    var mkH = fleche(svg, "fl-ve-h", "#9A5B00"), hh = hachures(svg, "hh-ve");
+    el("line", { x1: 60, y1: YC, x2: 548, y2: YC, stroke: "#7A848C", "stroke-dasharray": "14 4 2 4" }, svg);
+    var huile = el("rect", { x: XP + 26, width: 470 - XP - 26 }, svg);
+    var gp = el("g", {}, svg);
+    var tige = el("rect", { x: 112, y: YC - 12, width: XP - 112, height: 24, fill: "#D7DDE2", stroke: "#1C2530", "stroke-width": 2 }, svg);
+    el("circle", { cx: 100, cy: YC, r: 17, fill: "#D7DDE2", stroke: "#1C2530", "stroke-width": 2 }, svg);
+    el("circle", { cx: 100, cy: YC, r: 6, fill: "#fff", stroke: "#1C2530", "stroke-width": 1.5 }, svg);
+    var piston = el("rect", { x: XP, width: 26, fill: "#9AA2A8", stroke: "#1C2530", "stroke-width": 2 }, svg);
+    var j1 = el("rect", { x: XP + 9, width: 8, height: 6, fill: "#1C2530" }, svg), j2 = el("rect", { x: XP + 9, width: 8, height: 6, fill: "#1C2530" }, svg);
+    var murs = ["h", "b"].map(function () { return el("rect", { x: 192, width: 278, height: T, fill: hh, stroke: "#1C2530", "stroke-width": 2 }, svg); });
+    var fond = el("rect", { x: 470, width: 16, fill: hh, stroke: "#1C2530", "stroke-width": 2 }, svg);
+    var nez = ["h", "b"].map(function () { return el("rect", { x: 180, width: 12, fill: hh, stroke: "#1C2530", "stroke-width": 2 }, svg); });
+    el("rect", { x: 486, y: YC - 16, width: 18, height: 32, fill: "#D7DDE2", stroke: "#1C2530", "stroke-width": 2 }, svg);
+    el("circle", { cx: 518, cy: YC, r: 17, fill: "#D7DDE2", stroke: "#1C2530", "stroke-width": 2 }, svg);
+    el("circle", { cx: 518, cy: YC, r: 6, fill: "#fff", stroke: "#1C2530", "stroke-width": 1.5 }, svg);
+    var orifA = el("rect", { x: 436, width: 16, height: 22, fill: "#F4F5F2", stroke: "#1C2530", "stroke-width": 2 }, svg);
+    var orifE = el("rect", { x: 208, width: 16, height: 22, fill: "#F4F5F2", stroke: "#1C2530", "stroke-width": 2 }, svg);
+    var flA = el("line", { x1: 444, x2: 444, stroke: "#9A5B00", "stroke-width": 3.5, "marker-end": mkH }, svg);
+    var flE = el("line", { x1: 216, x2: 216, stroke: "#1C2530", "stroke-width": 3.5, "marker-end": mkK }, svg);
+    var tA = el("text", { x: 432, "class": "g-lab-s", "text-anchor": "end", fill: "#9A5B00" }, svg, "admission d'huile");
+    var tE = el("text", { x: 230, "class": "g-lab-s" }, svg, "échappement");
+    var cote = el("line", { x1: 254, x2: 254, stroke: "#1C2530", "stroke-width": 1.3, "marker-start": mkK, "marker-end": mkK }, svg);
+    el("text", { x: 248, y: YC - 22, "class": "g-lab-s", "text-anchor": "end" }, svg, "Ø d");
+    var tp = el("text", { "class": "g-lab", fill: "#1F5FA8" }, svg, "p");
+    var rF = el("line", { y1: YC, y2: YC, stroke: "#B42318", "stroke-width": 6, "marker-end": mkR }, svg);
+    var tF = el("text", { y: YC - 24, "class": "g-lab", fill: "#B42318" }, svg);
+    var lc = el("text", { x: 330, "class": "g-lab-s", "text-anchor": "middle" }, svg, "corps");
+    el("text", { x: 138, y: YC + 40, "class": "g-lab-s", "text-anchor": "middle" }, svg, "tige + piston");
     function rendu() {
-      var p = +sP.value, d = +sD.value, S = Math.PI * Math.pow(d / 10, 2) / 4, R = p * S, hpx = 40 + d * 0.9;
-      attr(corps, { y: YC - hpx / 2 - 6, height: hpx + 12 }); attr(huile, { y: YC - hpx / 2, height: hpx, width: 116 });
-      attr(piston, { y: YC - hpx / 2, height: hpx });
-      while (g.firstChild) g.removeChild(g.firstChild);
-      var n = Math.max(3, Math.round(hpx / 22));
-      for (var i = 0; i < n; i++) {
-        var y = YC - hpx / 2 + hpx * (i + 0.5) / n;
-        if (p > 0) el("line", { x1: 330 + 26 + p / 300 * 70, y1: y, x2: 333, y2: y, stroke: "#1F5FA8", "stroke-width": 2, "marker-end": mkP }, g);
+      var p = +sP.value, d = +sD.value, S = Math.PI * Math.pow(d / 10, 2) / 4, R = p * S, hb = 50 + d * 0.7, yh = YC - hb / 2, yb = YC + hb / 2;
+      attr(huile, { y: yh, height: hb, fill: "rgba(178,106,0," + (0.1 + p / 300 * 0.45).toFixed(2) + ")" });
+      attr(piston, { y: yh, height: hb }); attr(j1, { y: yh }); attr(j2, { y: yb - 6 });
+      attr(murs[0], { y: yh - T }); attr(murs[1], { y: yb });
+      attr(fond, { y: yh - T, height: hb + 2 * T });
+      attr(nez[0], { y: yh - T, height: hb / 2 + T - 12 }); attr(nez[1], { y: YC + 12, height: hb / 2 + T - 12 });
+      attr(orifA, { y: yh - T - 22 }); attr(orifE, { y: yh - T - 22 });
+      attr(flA, { y1: yh - T - 56, y2: yh - T - 26 }); attr(flE, { y1: yh - T - 24, y2: yh - T - 54 });
+      attr(tA, { y: yh - T - 38 }); attr(tE, { y: yh - T - 38 });
+      attr(cote, { y1: yh + 2, y2: yb - 2 }); attr(lc, { y: yb + T + 20 });
+      while (gp.firstChild) gp.removeChild(gp.firstChild);
+      var nb = Math.max(3, Math.round(hb / 20)), lp = 10 + p / 300 * 56;
+      for (var i = 0; i < nb; i++) {
+        var y = yh + hb * (i + 0.5) / nb;
+        if (p > 0) el("line", { x1: XP + 28 + lp, y1: y, x2: XP + 28, y2: y, stroke: "#1F5FA8", "stroke-width": 2, "marker-end": mkP }, gp);
       }
-      var lr = Math.min(130, 10 + R / 80);
-      attr(rR, { x1: 160, y1: YC, x2: 160 - lr, y2: YC, visibility: R > 0 ? "visible" : "hidden" });
-      attr(tR, { x: 20, y: YC - 22 });
+      attr(tp, { x: XP + 38 + lp, y: YC - 8, visibility: p > 0 ? "visible" : "hidden" });
+      var lr = 10 + 52 * Math.sqrt(R / 95000);
+      attr(rF, { x1: 82, x2: 82 - lr, visibility: R > 0 ? "visible" : "hidden" }); attr(tF, { x: Math.max(4, 74 - lr) });
+      tF.textContent = "F = R";
       $('[data-o="p"]', root).textContent = p + " bar"; $('[data-o="d"]', root).textContent = d + " mm";
       $('[data-o="S"]', root).innerHTML = "S = π d² / 4 = π × " + fr(d / 10, 1) + "² / 4 = <b>" + fr(S, 2) + " cm²</b>";
       $('[data-o="R"]', root).innerHTML = "R = p × S = " + p + " × " + fr(S, 2) + " = <b>" + fr(R, 0) + " daN</b> (" + fr(R * 10, 0) + " N), soit environ " + fr(R / 1000, 1) + " t";
@@ -1475,6 +1558,17 @@ details.a-toi .formule{border-color:var(--vert); margin:8px 0}
     }
     [sP, sD].forEach(function (x) { x.addEventListener("input", rendu); });
     rendu();
+  });
+
+  // ===================== schéma : du système réel à son modèle =====================
+  $$('[data-widget="schema"]').forEach(function (root) {
+    var b = $(".schema-go", root), lab = b.textContent;
+    b.addEventListener("click", function () {
+      var on = !root.classList.contains("is-modele");
+      root.classList.toggle("is-modele", on);
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+      b.textContent = on ? "Revoir le réel" : lab;
+    });
   });
 })();
 </script>

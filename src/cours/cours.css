@@ -73,8 +73,24 @@ details.a-toi .formule{border-color:var(--vert); margin:8px 0}
 /* éléments SVG */
 .g-grille line{stroke:#E1E5E2; stroke-width:1}
 .g-axe{stroke:var(--encre); stroke-width:2; fill:none}
-.g-lab{font:600 15px var(--f-texte); fill:var(--encre)}
-.g-lab-s{font:600 12px var(--f-texte); fill:var(--encre-2)}
+.g-lab{font:600 15px var(--f-texte)} .g-lab:not([fill]){fill:var(--encre)}
+.g-lab-s{font:600 12px var(--f-texte)} .g-lab-s:not([fill]){fill:var(--encre-2)}
+/* schémas : du réel au modèle (bouton « Schématiser »), schémas statiques */
+.schema,.fig-svg{margin:18px auto; max-width:760px}
+.fig-svg{max-width:440px}
+.schema svg,.fig-svg svg,.schemas3 svg{display:block; width:100%; height:auto; background:#fff; border:1px solid var(--trait)}
+.schema figcaption,.fig-svg figcaption,.schemas3 figcaption{font-size:.9rem; color:var(--encre-2); margin-top:6px}
+.schema-btns{display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin:8px 0 0}
+.schema .reel-att,.schema .reel-lab,.schema .modele>*{transition:opacity .6s ease}
+.schema .modele>*{opacity:0}
+.schema.is-modele .modele>*{opacity:1}
+.schema.is-modele .modele>:nth-child(n+9){transition-delay:.35s}
+.schema.is-modele .reel-att{opacity:.2}
+.schema.is-modele .reel-lab{opacity:0}
+.schema-zone{overflow-x:auto}
+@media (max-width:600px){ .schema-zone svg{min-width:560px} }
+.schemas3{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:14px; margin:16px 0}
+.schemas3 figure{margin:0}
 .g-pt{cursor:grab; outline:none}
 .g-pt:active{cursor:grabbing}
 .g-pt circle.h{fill:transparent}
@@ -169,6 +185,7 @@ details.a-toi .formule{border-color:var(--vert); margin:8px 0}
 .cours-foot{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:6px 0 0}
 .cours-foot a.btn{display:inline-flex; align-items:center; gap:8px; text-decoration:none}
 @media print{
+  .schema .modele>*{opacity:1!important} .schema .reel-att{opacity:.2!important} .schema .reel-lab{opacity:0!important}
   .lecture,.cours-nav,.cours-foot,.no-print,.simu-choix,.trous-foot,.stepper-foot,.defi,.simu-grid,.quiz-score button{display:none!important}
   body.cours-page{padding:0; background:#fff}
   .stepper li[hidden],.quiz-why[hidden]{display:block!important}

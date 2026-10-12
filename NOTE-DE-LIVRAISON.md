@@ -78,6 +78,9 @@ les figures ont été lues sur un rendu à 300 dpi.
 - Cours 4 : **ajout** de la formule de transport M<sub>B</sub> = M<sub>A</sub> + BA ∧ R et de l'addition de torseurs au
   même point, absentes de la page 9 mais nécessaires aux exercices 11 à 14 ; exemple du couple pur.
 - Simulateurs, défis, exemples résolus et quiz (8, 8, 10 et 7 questions) sont rédigés pour ces cours.
+- Cours 1 : les figures du chapitre (câble, ballon, bille, cylindre, cube, vérin) sont **redessinées en SVG** au lieu
+  d'être reprises du scan ; les deux exemples de schématisation ont un bouton « Schématiser » qui fait apparaître
+  le modèle (repère, droite d'action, vecteurs) sur le système réel.
 - Cours 1 (nouveau) : vecteur-force et schématisation (câble, ballon), composantes (simulateur du parallélogramme),
   coordonnées, poids P = m g (Terre, Lune, Mars, altitude), deux jeux de classement (à distance / de contact ;
   concentrée / linéique / surfacique), charge linéique R = q L, pression R = p S et vérin (R = 7 854 daN à 100 bars

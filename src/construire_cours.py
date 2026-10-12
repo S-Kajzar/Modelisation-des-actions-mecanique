@@ -20,6 +20,7 @@ import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from commun import GABARIT, ROOT, esc, fig, figure, torseur_html  # noqa: E402
+from figures_forces import schema, svg_ballon, svg_cable, svg_cable_coord, svg_contacts  # noqa: E402
 
 COURS = ROOT / "src" / "cours"
 HOUSE = ('<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.3" '
@@ -610,10 +611,6 @@ def jeu(titre, lignes, choix):
     return f'<div class="jeu"><h3>{titre}</h3>{ls}<p class="jeu-s" aria-live="polite"></p></div>'
 
 
-def img_forces(nom, alt, w, cap=""):
-    return figure(fig("cours-forces/" + nom, alt, w, cap))
-
-
 def cours_modelisation():
     s1 = sec(1, "c0-force", "Le vecteur-force",
              "<p>Une <b>force</b> modélise une action mécanique : ce qui peut maintenir un corps en équilibre, créer ou "
@@ -626,14 +623,14 @@ def cours_modelisation():
              '<div class="remarque"><p>Les forces sont aussi appelées <b>glisseurs</b> (voir le cours sur les torseurs) : '
              "on peut faire glisser une force le long de sa droite d'action sans changer son effet sur un solide.</p></div>"
              "<h3>Du réel au modèle : la schématisation</h3>" +
-             img_forces("cable.jpg", "Câble tendu fixé sur une articulation : schématisé par le vecteur-force A2/1 de 1 000 daN, "
-                        "incliné de 30° sous l'axe x", 720,
-                        "L'action du câble 2 sur le support 1 : point d'application A, direction celle du câble, sens de A "
-                        "vers I (le câble tire), intensité 1 000 daN.") +
-             img_forces("ballon.jpg", "Pied frappant un ballon : schématisé par la force T2/1 de 15 N, inclinée de 40° sur la "
-                        "verticale, et le poids P1 de 5 N", 720,
-                        "Au moment du tir : l'action du pied est T<sub>2/1</sub> (15 N, inclinée de 40° sur la verticale, "
-                        "vers l'intérieur du ballon) ; le poids P<sub>1</sub> (5 N) est vertical, vers le bas, appliqué en G.") +
+             "<p>Observe le système réel, repère les quatre caractéristiques de l'action, puis clique sur "
+             "« Schématiser » pour voir le modèle.</p>" +
+             schema(svg_cable(), "<b>Exemple 1</b> : l'action du câble 2 sur le support 1 est schématisée par le "
+                    "vecteur-force " + v("A") + "<sub>2/1</sub> : point d'application A, direction celle du câble, sens de A "
+                    "vers I (le câble tire), intensité 1 000 daN.") +
+             schema(svg_ballon(), "<b>Exemple 2</b> : au moment du tir, l'action du pied 2 sur le ballon 1 est " +
+                    v("T") + "<sub>2/1</sub> : point T, inclinée de 40° sur la verticale, de T vers K, 15 N. Le poids " +
+                    v("P") + "<sub>1</sub> est vertical, vers le bas, appliqué en G, 5 N.") +
              check("Combien vaut l'intensité de l'action du câble sur le support, en newtons ?", 10000, 0.5,
                    "1 000 daN = 10 000 N, car 1 daN = 10 N.", "N"))
     co = ('<svg viewBox="0 0 480 320" role="img" aria-label="Force F appliquée en A et ses composantes U et V selon deux '
@@ -676,7 +673,9 @@ def cours_modelisation():
              a_toi("reprends le câble : A<sub>2/1</sub> = 1 000 daN, incliné de 30° sous l'axe x. Calcule ses coordonnées.",
                    "<p>A<sub>x</sub> = 1 000 × cos 30° = <b>866 daN</b> ; A<sub>y</sub> = −1 000 × sin 30° = <b>−500 daN</b> "
                    "(le câble tire vers le bas). " + v("A") + "<sub>2/1</sub> = 866 " + v("i") + " − 500 " + v("j") + ". "
-                   "Contrôle : tan 30° = 500 / 866 ≈ 0,577 et √(866² + 500²) ≈ 1 000 daN.</p>") +
+                   "Contrôle : tan 30° = 500 / 866 ≈ 0,577 et √(866² + 500²) ≈ 1 000 daN.</p>" +
+                   '<figure class="fig-svg">' + svg_cable_coord() + "<figcaption>Les deux coordonnées de " + v("A") +
+                   "<sub>2/1</sub> : A<sub>x</sub> suivant x, A<sub>y</sub> suivant y.</figcaption></figure>") +
              "<p class=\"small\">Pour t'entraîner davantage : cours 2 (projection d'une force) et exercice 1.3 (les quatre "
              "quadrants).</p>")
     s4 = sec(4, "c0-distance", "Actions à distance : le poids",
@@ -706,24 +705,28 @@ def cours_modelisation():
                   aide="La longueur de P suit son intensité : change d'astre, monte en altitude.") +
              check("Une valise de 23 kg : quel est son poids sur Terre, en N (au dixième) ?", 225.6, 0.06,
                    "P = 23 × 9,81 ≈ 225,6 N.", "N"))
-    li = ('<svg viewBox="0 0 520 290" role="img" aria-label="Solide posé sur un plan : charge linéique uniforme q '
-          'répartie sur la longueur L et sa résultante R au milieu"></svg>')
-    ve = ('<svg viewBox="0 0 480 280" role="img" aria-label="Vérin : l\'huile sous pression p pousse le piston de '
-          'diamètre d ; résultante R = p × S"></svg>')
+    li = ('<svg viewBox="0 0 520 250" role="img" aria-label="Cylindre 1 couché sur le plan 0 : charge linéique uniforme '
+          'q le long du contact AB, ou sa résultante R au milieu de AB, opposée au poids P"></svg>')
+    ve = ('<svg viewBox="0 0 560 300" role="img" aria-label="Vérin en coupe : l\'huile sous pression p, admise derrière le '
+          'piston de diamètre d, le pousse ; la tige transmet la poussée F = R = p × S"></svg>')
     s5 = sec(5, "c0-contact", "Actions de contact : concentrées ou réparties",
              "<p>Les actions de contact se divisent en trois groupes :</p><ul><li>les actions ou charges "
              "<b>concentrées</b> : l'effort s'exerce en un point ou sur une toute petite surface ; il est schématisé par "
              "un vecteur-force (N, daN, kN) ;</li><li>les actions <b>réparties sur une ligne</b> : charge ou pression "
              "linéique q, en N/m ;</li><li>les actions <b>réparties sur une surface</b> : pression superficielle p, en "
-             "Pa (N/m²).</li></ul>" +
+             "Pa (N/m²).</li></ul>" + svg_contacts() +
              jeu("Jeu : concentrée, linéique ou surfacique ?", JEU_CONTACT,
                  [("concentree", "concentrée"), ("lineique", "linéique"), ("surfacique", "surfacique")]) +
              "<h3>Charge linéique uniforme</h3><p>Pour simplifier les calculs, une charge linéique uniforme q, répartie "
              "sur une longueur L, est remplacée par sa <b>résultante</b> R, située au milieu, en général perpendiculaire "
              "au contact :</p>" + formule("R = q × L", "R en N ; q en N/m ; L en m") +
              simu("lineique", "Simulateur : charge répartie sur une ligne", li,
+                  '<div class="simu-choix" role="group" aria-label="Représentation"><button type="button" data-vue="q" '
+                  'aria-pressed="true">Charge répartie q</button><button type="button" data-vue="R" aria-pressed="false">'
+                  'Résultante R</button></div>' +
                   curseur("q", "Charge linéique q", 100, 5000, 100, 1000, "q") + curseur("L", "Longueur L", 0.1, 2, 0.05, 1, "L"),
-                  '<div class="simu-calc"><p data-o="R"></p></div>') +
+                  '<div class="simu-calc"><p data-o="R"></p></div>',
+                  aide="Bascule entre la charge répartie et sa résultante : les deux modèles sont équivalents.") +
              check("Un cylindre de poids 100 N repose sur une ligne de contact de 10 cm. Que vaut la charge linéique q, "
                    "en N/m ?", 1000, 0.5, "q = R / L = 100 / 0,1 = 1 000 N/m.", "N/m") +
              "<h3>Pression de contact sur une surface</h3><p>Sur une surface plane, l'ensemble des pressions est remplacé "
@@ -734,15 +737,15 @@ def cours_modelisation():
              "= 1 N/mm² = 10 bars.</p></div>" +
              check("Un cube de poids 100 N repose sur une base de 10 cm × 10 cm. Quelle pression de contact, en Pa ?", 10000,
                    0.5, "p = R / S = 100 / (0,1 × 0,1) = 100 / 0,01 = 10 000 Pa = 10⁴ Pa.", "Pa") +
-             img_forces("verin.jpg", "Vérin hydraulique : l'huile sous pression p (100 bars) agit sur le piston de diamètre "
-                        "d ; la résultante R = p × S donne la poussée F du vérin", 720,
-                        "Vérin : la pression uniforme de l'huile agit perpendiculairement au piston ; sa résultante R = p × S "
-                        "est portée par l'axe du vérin.") +
+             "<h3>Exemple : le vérin hydraulique</h3><p>L'huile sous pression p, admise derrière le piston, agit "
+             "perpendiculairement à toute sa surface. Sa résultante R = p × S est portée par l'axe du vérin : c'est la "
+             "poussée F transmise par la tige.</p>" +
              simu("verin", "Simulateur : la poussée d'un vérin", ve,
                   curseur("p", "Pression p", 0, 300, 5, 100, "p") + curseur("d", "Diamètre d du piston", 20, 200, 1, 100, "d"),
                   '<div class="simu-calc"><p data-o="S"></p><p data-o="R"></p></div>',
                   defi="<b>Défi :</b> avec 100 bars, quel diamètre faut-il pour pousser 8 tonnes (8 000 daN) ? "
-                       "<span data-o=\"defi\" aria-live=\"polite\"></span>") +
+                       "<span data-o=\"defi\" aria-live=\"polite\"></span>",
+                  aide="Plus la pression est forte, plus l'huile est foncée et les flèches de pression longues.") +
              a_toi("calcule la poussée d'un vérin de diamètre 10 cm alimenté à 100 bars.",
                    "<p>R = p × S = 100 × π × 10² / 4 = 100 × 78,54 = <b>7 854 daN</b> : la « poussée de 8 tonnes » d'un vérin "
                    "courant.</p>"))
