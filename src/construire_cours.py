@@ -326,8 +326,8 @@ def cours_projection():
          nav=[("c1-meca", "La mécanique"), ("c1-coord", "Coordonnées"), ("c1-norme", "Norme"), ("c1-trigo", "Trigonométrie"),
               ("c1-proj", "Projection"), ("c1-quiz", "Quiz")],
          sections=[s1, s2, s3, s4, s5, s6],
-         liens=[("exercice-projections.html", "Exercice 1.2 — Projections d'une force"),
-                ("exercice-quadrants.html", "Exercice 1.3 — Les quatre quadrants")])
+         liens=[("exercice-quadrants.html", "Exercice 1.1 — Les quatre quadrants"),
+                ("exercice-projections.html", "Exercice 1.2 — Projections d'une force")])
 
 
 # =====================================================================================================================
@@ -571,7 +571,7 @@ def cours_couple():
               ("c2-varignon", "Varignon"), ("c2-vecteur", "Vecteur-moment"), ("c2-coord", "Coordonnées et axe"),
               ("c2-couple", "Couple"), ("c2-resultant", "Plusieurs forces"), ("c2-quiz", "Quiz")],
          sections=[s1, s2, s3, s4, s5, s6, s7, s8, s9],
-         liens=[("force-moment.html", "Exercice 1.1 — Force, moment et couple"),
+         liens=[("force-moment.html", "Exercice 1.3 — Force, moment et couple"),
                 ("exercice-couples-moments.html", "Exercice 2.1 — Couples et moments")])
 
 
@@ -676,7 +676,7 @@ def cours_modelisation():
                    "Contrôle : tan 30° = 500 / 866 ≈ 0,577 et √(866² + 500²) ≈ 1 000 daN.</p>" +
                    '<figure class="fig-svg">' + svg_cable_coord() + "<figcaption>Les deux coordonnées de " + v("A") +
                    "<sub>2/1</sub> : A<sub>x</sub> suivant x, A<sub>y</sub> suivant y.</figcaption></figure>") +
-             "<p class=\"small\">Pour t'entraîner davantage : cours 2 (projection d'une force) et exercice 1.3 (les quatre "
+             "<p class=\"small\">Pour t'entraîner davantage : cours 2 (projection d'une force) et exercice 1.1 (les quatre "
              "quadrants).</p>")
     s4 = sec(4, "c0-distance", "Actions à distance : le poids",
              "<p>Les actions mécaniques représentent les efforts exercés sur et entre les solides réels. On les divise en "
@@ -761,8 +761,8 @@ def cours_modelisation():
          nav=[("c0-force", "Le vecteur-force"), ("c0-comp", "Composantes"), ("c0-coord", "Coordonnées"),
               ("c0-distance", "Le poids"), ("c0-contact", "Actions de contact"), ("c0-quiz", "Quiz")],
          sections=[s1, s2, s3, s4, s5, s6],
-         liens=[("exercice-projections.html", "Exercice 1.2 — Projections d'une force"),
-                ("exercice-quadrants.html", "Exercice 1.3 — Les quatre quadrants")])
+         liens=[("exercice-quadrants.html", "Exercice 1.1 — Les quatre quadrants"),
+                ("exercice-projections.html", "Exercice 1.2 — Projections d'une force")])
 
 
 # =====================================================================================================================

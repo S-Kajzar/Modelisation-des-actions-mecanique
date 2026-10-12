@@ -11,11 +11,11 @@ autonome, sans dépendance externe, utilisable hors ligne.
 | `cours-projection.html` | Cours 2 (Niveau 1) — Projection d'une force : carte des disciplines, repère interactif, triangle, simulateur de projection, quiz |
 | `cours-couple-moment.html` | Cours 3 (Niveau 1) — Moments et couples : navette, simulateur de clé, Varignon pas à pas, vecteur-moment, produit vectoriel, simulateur de couple, quiz |
 | `cours-torseur.html` | Cours 4 (Niveau 2) — Torseur d'action mécanique : torseur à explorer, simulateur de transport du moment, exemple pas à pas, quiz |
-| `force-moment.html` | Exercice 1.1 (Niveau 1) — Force, moment et couple : 9 parties, 39 questions, 1 h 20 |
-| `exercice-projections.html` | Exercice 1.2 (Niveau 1) — Projections d'une force : 4 parties, 27 questions, 52 min |
-| `exercice-quadrants.html` | Exercice 1.3 (Niveau 1) — Projections, les quatre quadrants : entraînement à valeurs tirées au hasard, 8 forces, 32 questions, 40 min ; `?graine=N` rejoue un tirage |
-| `exercice-couples-moments.html` | Exercice 2.1 (Niveau 2) — Couples et moments : 5 parties, 20 questions, 58 min |
-| `exercice-torseurs.html` | Exercice 2.2 (Niveau 2) — Torseurs, les bases : 5 parties, 22 questions dont 16 torseurs, 1 h 04 |
+| `exercice-quadrants.html` | Exercice 1.1 (Niveau 1) — Projections, les quatre quadrants : page plein écran sur le modèle de l'exercice « Déplacer un torseur » (dépôt Statique) ; séries de 5, 10, 15 ou 20 questions tirées au hasard (axe de l'angle et quadrants au choix), vecteur F écrit en colonne en fonction de F et α puis en newtons, correction pas à pas, note sur 20 ; `?graine=N` rejoue une série |
+| `exercice-projections.html` | Exercice 1.2 (Niveau 1) — Projections d'une force : 4 parties, 12 questions dont 7 vecteurs en colonne, 52 min |
+| `force-moment.html` | Exercice 1.3 (Niveau 1) — Force, moment et couple : 9 parties, 28 questions dont 4 vecteurs en colonne, 1 h 20 |
+| `exercice-couples-moments.html` | Exercice 2.1 (Niveau 2) — Couples et moments : 5 parties, 17 questions dont 6 vecteurs en colonne, 58 min |
+| `exercice-torseurs.html` | Exercice 2.2 (Niveau 2) — Torseurs, les bases : 5 parties, 20 questions dont 16 torseurs et 4 vecteurs, 1 h 04 |
 
 Les cours 2 à 4 et les exercices 1.2, 2.1 et 2.2 viennent de la séquence « Modélisation des actions mécaniques : force,
 couple, torseur » (pages 1-2, 5-6 et 9 pour les cours ; exercices 1 à 4, 5 à 9 et 10 à 14) ; le cours 1 et les
@@ -29,15 +29,16 @@ pdftoppm -r 300 -png sequence.pdf DOSSIER/h          # seulement si les figures 
 python3 outils/extraire_figures.py DOSSIER           # figures et vignettes (src/images/sequence/, src/images/carte-*.jpg)
 python3 src/construire_force_moment.py               # gabarit + contenu -> src/exercices/force-moment-source.html
 python3 src/construire_exercices_sequence.py         # -> src/exercices/{projections,couples-moments,torseurs}-source.html
-python3 src/construire_exercice_quadrants.py         # -> src/exercices/quadrants-source.html (tirage au chargement)
+python3 src/construire_exercice_quadrants.py         # -> src/exercices/quadrants-source.html (page autonome, séries aléatoires)
 python3 src/construire_cours.py                      # -> src/cours/{modelisation,projection,couple-moment,torseur}-source.html
 python3 src/generer.py                               # écrit index.html et publie toutes les pages
 ```
 
 - `src/gabarit-exercice-interactif.html` : gabarit de référence, commun à tous les exercices (charte, modes, chronomètre,
-  notation pondérée, impression). Son bloc de style d'origine ne change pas ; les extensions sont dans un second bloc
-  `<style>` additif.
-- `src/commun.py` : assemblage d'une page d'exercice sur le gabarit, questions simples et torseurs, unités, correcteurs.
+  notation pondérée, impression). Les extensions sont dans un second bloc `<style>` additif ; seul changement du bloc
+  d'origine : le texte occupe toute la largeur de la page (limites en nombre de caractères retirées).
+- `src/commun.py` : assemblage d'une page d'exercice sur le gabarit, questions simples, vecteurs en colonne et torseurs,
+  unités, correcteurs.
 - `src/construire_force_moment.py`, `src/construire_exercices_sequence.py` : contenu des exercices (parties, questions,
   correcteurs, démarches, méthode).
 - `src/construire_cours.py`, `src/cours/cours.css`, `src/cours/cours.js` : cours interactifs (construction reprise des
@@ -57,10 +58,13 @@ python3 src/generer.py                               # écrit index.html et publ
 - **Correcteur `expr`** (formules littérales) : la saisie (« Fx = −F × sin α », « P = q*a/b »…) est évaluée pour plusieurs
   jeux de valeurs et comparée à l'expression attendue ; toute écriture équivalente est acceptée, une valeur numérique
   isolée ne l'est pas.
-- **Torseurs** : six cases X, Y, Z / L, M, N validées d'un bloc (mécanique « fast-q » du moteur), une coche par case.
-- **Exercice à valeurs tirées au hasard** : `construire_exercice(config_js=…)` insère un script exécuté avant les
-  moteurs, qui peut réécrire `window.__QCFG__` et remplir figures et corrections (exercice 1.3). Le tirage est
-  reproductible : son numéro s'affiche sur la copie et l'adresse `?graine=N` redonne le même sujet.
+- **Vecteurs et torseurs case par case** (notation de l'exercice « Déplacer un torseur ») : un vecteur s'écrit en
+  colonne entre parenthèses, une case par coordonnée (nombre seul ou expression littérale, l'unité à droite) ; un
+  torseur en deux colonnes (X, Y, Z / L, M, N), nom de la case au-dessus, point de réduction à droite. Les cases se
+  valident d'un bloc (mécanique « fast-q » du moteur) ; la valeur attendue s'affiche en vert sous chaque case fausse,
+  après validation en entraînement ou après la remise en examen. Construction : `VQ`, `VI`, `cn` dans `src/commun.py`.
+- **Script avant les moteurs** : `construire_exercice(config_js=…)` insère un script exécuté avant les moteurs, qui peut
+  réécrire `window.__QCFG__` (sujets à valeurs tirées au hasard).
 - Durée conseillée du chronomètre déduite des parties ; bouton « Documents » ouvert sur le premier document disponible.
 
 ## Tester

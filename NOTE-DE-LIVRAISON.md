@@ -68,6 +68,21 @@ les figures ont été lues sur un rendu à 300 dpi.
 - Exercice 12 : Q12.1 et Q12.2 → un torseur par groupe de brins.
 - Exercice 14 : Q14.1 → Fx et Fy.
 
+## Exercice 1.1 et saisie en colonne
+
+- **Exercice 1.1 — Les quatre quadrants** (anciennement 1.3, passé en premier) : refait sur le modèle de l'exercice
+  « Déplacer un torseur » du dépôt Statique. Page plein écran en trois colonnes (données et figure | réponse | correction
+  pas à pas), séries de 5, 10, 15 ou 20 questions tirées parmi les situations cochées (angle mesuré depuis l'axe
+  horizontal ou vertical, quadrants 1 à 4, répartition équilibrée), vecteur F écrit en colonne en fonction de F et α,
+  puis en newtons. Une question n'est réussie que si les quatre cases sont justes à la première vérification ; la
+  correction trace les projections sur la figure ; note sur 20 en fin de série. « Force, moment et couple » devient
+  l'exercice 1.3.
+- **Exercices 1.2, 1.3, 2.1 et 2.2** : les coordonnées d'un même vecteur, demandées jusque-là une par une, se
+  saisissent désormais dans un vecteur en colonne (F, T<sub>1</sub>, P, F<sub>1</sub>, F<sub>2</sub>, R, moments M<sub>O</sub>
+  et M<sub>A</sub>), et les torseurs en deux colonnes avec le nom de chaque case au-dessus. Dans un vecteur, l'unité est
+  donnée à droite : chaque case juste vaut son point (l'unité n'y est plus notée). Les cas a à d de l'exercice 1.2
+  donnent deux vecteurs côte à côte : l'expression littérale, puis les valeurs.
+
 ## Compléments apportés aux cours
 
 - Les cadres à compléter du PDF (norme, rapports trigonométriques, projections, formule du couple, produit vectoriel,

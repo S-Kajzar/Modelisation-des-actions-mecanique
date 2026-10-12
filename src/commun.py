@@ -7,7 +7,11 @@ construire_exercice() l'injecte dans le gabarit sans toucher à son bloc de styl
 Types de questions :
   - question simple (par défaut) : un champ, un bouton « Valider », un correcteur du moteur (num, kw, code…) ;
   - torseur (type="torseur") : six cases X Y Z / L M N validées d'un bloc (mécanique « fast-q » du gabarit),
-    chaque case notée juste ou fausse.
+    chaque case notée juste ou fausse ;
+  - vecteur (type="vecteur") : un ou plusieurs vecteurs écrits en colonne, une case par composante (nombre ou
+    expression littérale), validés d'un bloc comme un torseur.
+Vecteurs et torseurs reprennent la notation de l'exercice « Déplacer un torseur » : colonnes entre parenthèses,
+nom de la case à gauche (vecteur) ou au-dessus (torseur), valeur attendue affichée sous chaque case fausse.
 """
 import base64
 import html
@@ -78,6 +82,31 @@ def expr(expected, vars_, names, require=()):
     if require:
         g["require"] = list(require)
     return g
+
+
+# ---------------------------------------------------------------- vecteurs en colonne (type="vecteur")
+H_VEC = ("Écris le vecteur en colonne : une case par coordonnée, nombre seul avec son signe (zéros compris) ; "
+         "l'unité est indiquée à droite du vecteur.")
+
+
+def VEC(lettre):
+    """Nom de vecteur surmonté d'une flèche (classe .vec du gabarit)."""
+    return f'<span class="vec">{lettre}</span>'
+
+
+def VI(nom, comps, unite="", lit=False):
+    """Un vecteur à compléter : nom affiché, composantes [(étiquette, correcteur, texte attendu)…], unité."""
+    return {"nom": nom, "comps": list(comps), "unite": unite, "lit": lit}
+
+
+def cn(lab, v, tol=0.01, d=2):
+    """Composante numérique d'un vecteur : nombre seul (l'unité est donnée par le vecteur)."""
+    return (lab, num(v, tol), nb(v, d))
+
+
+def VQ(s, e, *items, h=H_VEC, pts=1):
+    """Question « vecteur(s) en colonne » : chaque case vaut pts point(s)."""
+    return {"type": "vecteur", "s": s, "h": h, "e": e, "items": list(items), "pts_case": pts}
 
 
 YES = {"type": "yesno", "value": True}
@@ -187,41 +216,103 @@ def question(pid, n, q, cfg):
         </div>"""
 
 
-def question_torseur(pid, n, q, cfg):
-    """q : s (énoncé), h (consigne), nom (ex. « {T<sub>F</sub>} »), point, vals (6 valeurs X L Y M Z N),
-    tol (tolérance absolue, ou liste de 6), pts_case, e (démarche), att (texte des valeurs attendues, facultatif)."""
-    qid, label = f"q{pid}_{n}", f"Q{pid}.{n}"
-    tols = q["tol"] if isinstance(q["tol"], (list, tuple)) else [q["tol"]] * 6
-    noms = ("X", "L", "Y", "M", "Z", "N")
-    cases = []
-    for k, (c, v, t) in enumerate(zip(noms, q["vals"], tols)):
-        cid = f"{qid}_{c}"
-        cfg[cid] = {"label": f"{label} {c}", "part": str(pid), "pts": q.get("pts_case", 0.5),
-                    "grader": num(v, t, abs_=False)}
-        cases.append(f'<label class="sol"><span class="tq-lab">{c}</span><input type="text" data-q="{cid}" '
-                     f'aria-label="{label}, composante {c}" autocomplete="off" autocapitalize="off" spellcheck="false">'
-                     f'<span class="mark" aria-live="polite"></span></label>')
-    grille = torseur_html(cases, q["point"], q["nom"])
-    attendu = torseur_html([nb(v, q.get("dec", 2)) if not isinstance(v, str) else v for v in q.get("aff", q["vals"])],
-                           q["point"], q["nom"])
+def colonne(cellules, etiquettes=None):
+    """Colonne entre parenthèses arrondies ; une étiquette (x, y, z…) à gauche de chaque ligne si fournie."""
+    lignes = "".join("<tr>" + (f'<td class="vl">{etiquettes[i]}</td>' if etiquettes else "") + f"<td>{c}</td></tr>"
+                     for i, c in enumerate(cellules))
+    return f'<span class="vcol-b"><table>{lignes}</table></span>'
+
+
+def vecteur_col(nom, cellules, etiquettes, unite=""):
+    u = f'<span class="vcol-u">{unite}</span>' if unite else ""
+    return f'<span class="vcol"><span class="vcol-n">{nom} =</span>{colonne(cellules, etiquettes)}{u}</span>'
+
+
+def torseur_col(cells, point, nom=""):
+    """Torseur {X L ; Y M ; Z N} écrit en deux colonnes entre parenthèses ; cells dans l'ordre X, L, Y, M, Z, N."""
+    nom = nom or "{<i>T</i>}"
+    lignes = "".join(f"<tr><td>{cells[2 * i]}</td><td>{cells[2 * i + 1]}</td></tr>" for i in range(3))
+    return (f'<span class="tzv"><span class="tzv-n">{nom}<sub>{point}</sub> =</span><span class="vcol-b"><table>{lignes}'
+            f'</table></span><span class="tzv-r">({point}, x, y, z)</span></span>')
+
+
+def case(cid, aria, attendu, etiquette="", lit=False):
+    """Case de saisie d'un groupe : nom au-dessus (facultatif), valeur attendue affichée si la case est fausse."""
+    lab = f'<span class="cq-lab">{etiquette}</span>' if etiquette else ""
+    extra = 'autocapitalize="off" spellcheck="false"' if lit else 'inputmode="decimal" autocapitalize="off" spellcheck="false"'
+    return (f'<label class="sol{" lit" if lit else ""}">{lab}<input type="text" data-q="{cid}" aria-label="{esc(aria)}" '
+            f'autocomplete="off" {extra}><span class="mark" aria-live="polite"></span><span class="att">→ {attendu}</span></label>')
+
+
+def bloc_groupe(qid, label, q, saisie, attendu, n, bouton, fait):
     return f"""
-        <div class="fast-q torseur-q" id="{qid}">
+        <div class="fast-q cq" id="{qid}">
           <p class="q-stem"><span class="q-num">{label}</span> <strong>{q["s"]}</strong></p>
           <p class="q-hint">{q["h"]}</p>
-          <div class="tq-wrap">{grille}</div>
-          <div class="fast-foot"><button type="button" class="btn btn-fast" data-done="Torseur validé">Valider le torseur</button>
+          <div class="cq-items">{saisie}</div>
+          <div class="fast-foot"><button type="button" class="btn btn-fast" data-done="{fait}">{bouton}</button>
             <span class="q-status" aria-live="polite"></span></div>
           <p class="q-msg" role="alert"></p>
           <div class="q-expl" hidden>
-            <p class="q-expected"><span>Torseur attendu :</span></p>
-            <div class="tq-wrap">{attendu}</div>
+            <p class="q-expected"><span>Réponse attendue :</span></p>
+            <div class="cq-items">{attendu}</div>
             <div class="q-why"><p>{q["e"]}</p></div>
           </div>
         </div>"""
 
 
+def question_torseur(pid, n, q, cfg):
+    """q : s (énoncé), h (consigne), nom (ex. « {T<sub>F</sub>} »), point, vals (6 valeurs X L Y M Z N),
+    tol (tolérance absolue, ou liste de 6), pts_case, e (démarche), aff (textes attendus, facultatif)."""
+    qid, label = f"q{pid}_{n}", f"Q{pid}.{n}"
+    tols = q["tol"] if isinstance(q["tol"], (list, tuple)) else [q["tol"]] * 6
+    noms = ("X", "L", "Y", "M", "Z", "N")
+    textes = [nb(v, q.get("dec", 2)) if not isinstance(v, str) else v for v in q.get("aff", q["vals"])]
+    cases = []
+    for c, v, tl, att in zip(noms, q["vals"], tols, textes):
+        cid = f"{qid}_{c}"
+        cfg[cid] = {"label": f"{label} {c}", "part": str(pid), "pts": q.get("pts_case", 0.5),
+                    "grader": num(v, tl, abs_=False)}
+        cases.append(case(cid, f"{label}, composante {c}", att, c))
+    return bloc_groupe(qid, label, q, torseur_col(cases, q["point"], q["nom"]), torseur_col(textes, q["point"], q["nom"]),
+                       6, "Valider le torseur", "Torseur validé")
+
+
+def question_vecteur(pid, n, q, cfg):
+    """q : s, h, e, items = [Q(nom, unite, comps=[(étiquette, correcteur, texte attendu)…], lit)], pts_case (1 par défaut).
+    Chaque vecteur s'écrit en colonne ; lit=True pour une colonne d'expressions littérales (cases plus larges)."""
+    qid, label = f"q{pid}_{n}", f"Q{pid}.{n}"
+    saisie, attendu, k = [], [], 0
+    for it in q["items"]:
+        cases, textes = [], []
+        for lab, g, att in it["comps"]:
+            k += 1
+            cid = f"{qid}_{k}"
+            cfg[cid] = {"label": f"{label} {lab}", "part": str(pid), "pts": q.get("pts_case", 1), "grader": g}
+            nom_txt = it["nom"].replace("<sub>", "").replace("</sub>", "")
+            cases.append(case(cid, f"{label}, {nom_txt}, composante {lab}", att, lit=it.get("lit", False)))
+            textes.append(att)
+        etiq = [c[0] for c in it["comps"]]
+        saisie.append(vecteur_col(it["nom"], cases, etiq, it.get("unite", "")))
+        attendu.append(vecteur_col(it["nom"], textes, etiq, it.get("unite", "")))
+    return bloc_groupe(qid, label, q, "".join(saisie), "".join(attendu), k,
+                       "Valider le vecteur" if len(q["items"]) == 1 else "Valider les vecteurs", "Vecteur validé")
+
+
+def nb_cases(q):
+    if q.get("type") == "torseur":
+        return 6
+    if q.get("type") == "vecteur":
+        return sum(len(it["comps"]) for it in q["items"])
+    return 0
+
+
 def points_question(q):
-    return q.get("pts_case", 0.5) * 6 if q.get("type") == "torseur" else q.get("pts", 1)
+    if q.get("type") == "torseur":
+        return q.get("pts_case", 0.5) * 6
+    if q.get("type") == "vecteur":
+        return q.get("pts_case", 1) * nb_cases(q)
+    return q.get("pts", 1)
 
 
 # ---------------------------------------------------------------- parties et page
@@ -250,7 +341,8 @@ def partie(pid, p, total, cfg, base=IMAGES):
                 body.append(figure(q["fig"], base))
             if q.get("avant"):
                 body.append(q["avant"])
-            body.append(question_torseur(pid, n, q, cfg) if q.get("type") == "torseur" else question(pid, n, q, cfg))
+            fab = {"torseur": question_torseur, "vecteur": question_vecteur}.get(q.get("type"), question)
+            body.append(fab(pid, n, q, cfg))
     return nq, points, f"""
   <section class="part" id="partie-{pid}" aria-labelledby="t-partie-{pid}">
     <header class="part-head"><div class="part-num" aria-hidden="true">{pid}</div>
@@ -263,6 +355,10 @@ def partie(pid, p, total, cfg, base=IMAGES):
 """
 
 
+CONSIGNE_COLONNE = ("<p><strong>Les vecteurs s'écrivent en colonne</strong>, entre parenthèses, une case par coordonnée "
+                    "(x, y, z) : nombre seul avec son signe, zéros compris ; l'unité est indiquée à droite du vecteur. Les "
+                    "cases se valident d'un bloc, chaque case juste rapporte ses points. Après validation, la valeur "
+                    "attendue s'affiche en vert sous chaque case fausse.</p>")
 CONSIGNE_UNITES = ("<p><strong>Les unités sont notées.</strong> Pour toute question numérique portant une unité, la valeur "
                    "vaut la moitié des points et l'unité l'autre moitié : une valeur juste écrite sans unité, ou avec une "
                    "unité fausse, ne rapporte qu'un demi-point.</p>")

@@ -13,8 +13,8 @@ import pathlib
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from commun import (Q, UNITE, U_DEG, U_M, U_N, U_NM, IMAGES, ROOT, construire_exercice,  # noqa: E402
-                    fig as _fig, kw, num)
+from commun import (Q, UNITE, U_DEG, U_M, U_N, U_NM, CONSIGNE_COLONNE, H_VEC, IMAGES, ROOT, VEC, VI, VQ, cn,  # noqa: E402
+                    construire_exercice, fig as _fig, kw, num)
 
 IMG = IMAGES / "force-moment"
 SORTIE = ROOT / "src" / "exercices" / "force-moment-source.html"
@@ -157,29 +157,20 @@ PARTIE9 = Q(titre="Forces et vecteurs (géométrie)", minutes=22,
                   intro="Attention : ici l'angle α = 69° est mesuré à partir de l'axe vertical (vers le bas), pas de l'axe horizontal. La force est donc presque horizontale (21° sous l'axe x).",
                   fig=fig("f13.png", "Repère (x, y) ; force F dirigée vers le bas et la droite ; angle α mesuré entre l'axe vertical descendant et F", 460),
                   questions=[
-                      Q(s="Calculer la composante F<sub>x</sub> du vecteur F. (en N)", h="Arrondir au centième. " + UNITE,
-                        g=num(37.34, 0.02, U_N), att="F<sub>x</sub> ≈ 37,34 N",
-                        e="α est mesuré depuis la verticale descendante. La projection sur x utilise donc le sinus : <b>F<sub>x</sub> = F·sin(α) = 40 × sin(69°) ≈ 37,34 N</b> (positive, vers la droite)."),
-                      Q(s="Calculer la composante F<sub>y</sub> du vecteur F. (en N)", h="Arrondir au centième. Attention au signe. " + UNITE,
-                        g=num(-14.33, 0.02, U_N), att="F<sub>y</sub> ≈ −14,33 N",
-                        e="F pointe vers le bas : F<sub>y</sub> est négative. <b>F<sub>y</sub> = −F·cos(α) = −40 × cos(69°) ≈ −14,33 N</b>."),
-                      Q(s="Calculer la composante F<sub>z</sub> du vecteur F. (en N)", h=UNITE,
-                        g=num(0, 0.001, U_N), att="F<sub>z</sub> = 0 N",
-                        e="La force est dans le plan (x, y), donc <b>F<sub>z</sub> = 0 N</b>."),
+                      VQ("Écrire le vecteur F dans le repère (x, y, z), composantes arrondies au centième.",
+                         "α est mesuré depuis la verticale descendante : la projection sur x utilise le sinus, celle sur y "
+                         "le cosinus. <b>F<sub>x</sub> = F·sin(α) = 40 × sin(69°) ≈ 37,34 N</b>, positive (vers la droite). "
+                         "F pointe vers le bas : <b>F<sub>y</sub> = −F·cos(α) = −40 × cos(69°) ≈ −14,33 N</b>. La force est "
+                         "dans le plan (x, y) : <b>F<sub>z</sub> = 0</b>.",
+                         VI(VEC("F"), [cn("x", 37.34, 0.02), cn("y", -14.33, 0.02), cn("z", 0, 0.001)], "N")),
                   ]),
                 Q(sub="Cas B — Lecture graphique de la force F",
                   intro="Lire les coordonnées de F directement sur le quadrillage (graduations en N), puis en déduire la norme et l'angle α (mesuré depuis l'axe x).",
                   fig=fig("f14.png", "Repère (x, y) gradué en newtons ; vecteur F tracé depuis l'origine ; angle α entre l'axe x et F", 520),
                   questions=[
-                      Q(s="Relever la coordonnée F<sub>x</sub>. (en N)", h=LECT + UNITE,
-                        g=num(10, 0.5, U_N), att="F<sub>x</sub> = 10 N",
-                        e="L'extrémité du vecteur se lit à x = 10. <b>F<sub>x</sub> = 10 N</b>."),
-                      Q(s="Relever la coordonnée F<sub>y</sub>. (en N)", h=LECT + UNITE,
-                        g=num(6, 0.5, U_N), att="F<sub>y</sub> = 6 N",
-                        e="L'extrémité du vecteur se lit à y = 6. <b>F<sub>y</sub> = 6 N</b>."),
-                      Q(s="Relever la coordonnée F<sub>z</sub>. (en N)", h=LECT + UNITE,
-                        g=num(0, 0.5, U_N), att="F<sub>z</sub> = 0 N",
-                        e="Force dans le plan (x, y) : <b>F<sub>z</sub> = 0 N</b>."),
+                      VQ("Relever les coordonnées du vecteur F.",
+                         "L'extrémité du vecteur se lit à x = 10 et y = 6 ; la force est dans le plan (x, y). <b>F = (10 ; 6 ; 0) N</b>.",
+                         VI(VEC("F"), [cn("x", 10, 0.5, 0), cn("y", 6, 0.5, 0), cn("z", 0, 0.5, 0)], "N"), h=LECT + H_VEC),
                       Q(s="Calculer la norme du vecteur F, sachant que F<sub>x</sub> = 10 N et F<sub>y</sub> = 6 N. (en N)", h="Arrondir au centième. " + UNITE,
                         g=num(11.66, 0.02, U_N), att="F ≈ 11,66 N",
                         e="<b>F = √(F<sub>x</sub>² + F<sub>y</sub>²) = √(10² + 6²) = √136 ≈ 11,66 N</b>."),
@@ -191,30 +182,18 @@ PARTIE9 = Q(titre="Forces et vecteurs (géométrie)", minutes=22,
                   intro="Lire sur le graphique les coordonnées des trois forces, puis calculer la résultante R = P + F₁ + F₂ et sa norme. Graduations en N.",
                   fig=fig("f15.png", "Repère (x, y) gradué en newtons ; poids P vers le bas ; forces F1 vers le haut et la droite, F2 vers le haut et la gauche ; angle α", 560),
                   questions=[
-                      Q(s="Coordonnée P<sub>x</sub> du poids P. (en N)", h=LECT + UNITE,
-                        g=num(0, 0.5, U_N), att="P<sub>x</sub> = 0 N",
-                        e="P est vertical (vers le bas) : <b>P<sub>x</sub> = 0 N</b>."),
-                      Q(s="Coordonnée P<sub>y</sub> du poids P. (en N)", h=LECT + "Attention au signe. " + UNITE,
-                        g=num(-12, 0.5, U_N), att="P<sub>y</sub> = −12 N",
-                        e="P pointe vers le bas jusqu'à −12 : <b>P<sub>y</sub> = −12 N</b>."),
-                      Q(s="Coordonnée F<sub>1x</sub>. (en N)", h=LECT + UNITE,
-                        g=num(10, 0.5, U_N), att="F<sub>1x</sub> = 10 N", e="<b>F<sub>1x</sub> = 10 N</b>."),
-                      Q(s="Coordonnée F<sub>1y</sub>. (en N)", h=LECT + UNITE,
-                        g=num(6, 0.5, U_N), att="F<sub>1y</sub> = 6 N", e="<b>F<sub>1y</sub> = 6 N</b>."),
-                      Q(s="Coordonnée F<sub>2x</sub>. (en N)", h=LECT + "Attention au signe. " + UNITE,
-                        g=num(-10, 0.5, U_N), att="F<sub>2x</sub> = −10 N",
-                        e="F<sub>2</sub> pointe vers la gauche : <b>F<sub>2x</sub> = −10 N</b>."),
-                      Q(s="Coordonnée F<sub>2y</sub>. (en N)", h=LECT + UNITE,
-                        g=num(6, 0.5, U_N), att="F<sub>2y</sub> = 6 N", e="<b>F<sub>2y</sub> = 6 N</b>."),
-                      Q(s="Composante R<sub>x</sub> de la résultante. (en N)", h="Tolérance ± 0,5 N (erreurs de lecture cumulées). " + UNITE,
-                        g=num(0, 0.5, U_N), att="R<sub>x</sub> = 0 N",
-                        e="R<sub>x</sub> = P<sub>x</sub> + F<sub>1x</sub> + F<sub>2x</sub> = 0 + 10 + (−10) = <b>0 N</b>."),
-                      Q(s="Composante R<sub>y</sub> de la résultante. (en N)", h="Tolérance ± 0,5 N (erreurs de lecture cumulées). " + UNITE,
-                        g=num(0, 0.5, U_N), att="R<sub>y</sub> = 0 N",
-                        e="R<sub>y</sub> = P<sub>y</sub> + F<sub>1y</sub> + F<sub>2y</sub> = −12 + 6 + 6 = <b>0 N</b>."),
-                      Q(s="Composante R<sub>z</sub> de la résultante. (en N)", h=UNITE,
-                        g=num(0, 0.001, U_N), att="R<sub>z</sub> = 0 N",
-                        e="Tout est dans le plan (x, y) : <b>R<sub>z</sub> = 0 N</b>."),
+                      VQ("Relever les coordonnées des trois forces P, F<sub>1</sub> et F<sub>2</sub>.",
+                         "P est vertical, vers le bas jusqu'à −12 : <b>P = (0 ; −12) N</b>. <b>F<sub>1</sub> = (10 ; 6) N</b>. "
+                         "F<sub>2</sub> pointe vers la gauche : <b>F<sub>2</sub> = (−10 ; 6) N</b>.",
+                         VI(VEC("P"), [cn("x", 0, 0.5, 0), cn("y", -12, 0.5, 0)], "N"),
+                         VI(VEC("F") + "<sub>1</sub>", [cn("x", 10, 0.5, 0), cn("y", 6, 0.5, 0)], "N"),
+                         VI(VEC("F") + "<sub>2</sub>", [cn("x", -10, 0.5, 0), cn("y", 6, 0.5, 0)], "N"),
+                         h=LECT + "Attention aux signes. " + H_VEC),
+                      VQ("Écrire la résultante R = P + F<sub>1</sub> + F<sub>2</sub> dans le repère (x, y, z).",
+                         "On additionne composante par composante : R<sub>x</sub> = 0 + 10 + (−10) = <b>0</b> ; R<sub>y</sub> = "
+                         "−12 + 6 + 6 = <b>0</b> ; tout est dans le plan (x, y) : R<sub>z</sub> = <b>0</b>. <b>R = (0 ; 0 ; 0) N</b>.",
+                         VI(VEC("R"), [cn("x", 0, 0.5, 0), cn("y", 0, 0.5, 0), cn("z", 0, 0.001, 0)], "N"),
+                         h="Tolérance ± 0,5 N (erreurs de lecture cumulées). " + H_VEC),
                       Q(s="Norme de la résultante R. (en N)", h="Tolérance ± 1 N (erreurs de lecture cumulées). " + UNITE,
                         g=num(0, 1, U_N), att="R = 0 N",
                         e="<b>R = √(0² + 0² + 0²) = 0 N</b>."),
@@ -242,7 +221,7 @@ METHODE = """<h3>Moment d'une force, équilibre et vecteurs</h3>
 
 CONSIGNES = ("<p><strong>Les unités sont notées.</strong> Pour toute question numérique portant une unité, la valeur vaut "
              "la moitié des points et l'unité l'autre moitié : une valeur juste écrite sans unité, ou avec une unité fausse, "
-             "ne rapporte qu'un demi-point. Les coefficients sans unité n'en demandent pas.</p>",)
+             "ne rapporte qu'un demi-point. Les coefficients sans unité n'en demandent pas.</p>", CONSIGNE_COLONNE)
 
 
 def construire():
@@ -250,10 +229,10 @@ def construire():
         titre=TITRE, sous_titre=SOUS_TITRE, parties=PARTIES, sortie=SORTIE, script="construire_force_moment.py",
         description=("Moment d'une force, bras de levier, équilibre, basculement, double levier et composantes d'une "
                      "force : neuf parties à faire en mode entraînement ou en mode examen."),
-        methode_titre="moment d'une force", methode=METHODE, consignes=CONSIGNES, nq_attendu=39,
+        methode_titre="moment d'une force", methode=METHODE, consignes=CONSIGNES, nq_attendu=28,
         hero=Q(f=IMG / "f12.jpg", alt="Coupe-boulon à double levier, avec ses cotes et ses forces",
                cap="Le coupe-boulon : un double levier, étudié dans la partie 8."),
-        facts=[("9 parties", "39 questions courtes"), ("1 h 20", "durée conseillée, qui fixe la pondération"),
+        facts=[("9 parties", "28 questions, dont 4 vecteurs en colonne"), ("1 h 20", "durée conseillée, qui fixe la pondération"),
                ("1 document", "méthode, en mode entraînement"), ("0 tracé", "toutes les réponses se saisissent au clavier")])
 
 

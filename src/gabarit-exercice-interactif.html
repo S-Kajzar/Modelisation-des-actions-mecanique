@@ -443,20 +443,33 @@ body:not(.mode-training) .only-training,body:not(.mode-exam) .only-exam{display:
 .tm-g{display:grid; grid-template-columns:auto auto; gap:4px 18px; align-items:center}
 .tm-c{min-width:3.6em; text-align:right; font-weight:600; font-variant-numeric:tabular-nums}
 .tm-p{font-weight:700; align-self:flex-end; margin-bottom:8px}
-.tq-wrap{overflow-x:auto; padding:2px 0}
-.torseur-q{margin:14px 0 6px; padding:10px 0 12px 14px; border-left:3px solid var(--trait-fin)}
-.torseur-q .tm-c{min-width:0}
-.torseur-q .sol{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
-.torseur-q .tq-lab{font:700 .85rem var(--f-titre); color:var(--encre-2); width:1.1em}
-.torseur-q .sol input{width:8.5em; max-width:34vw; border:1.5px solid var(--encre-2); padding:6px 8px; background:#fff; border-radius:2px; font:inherit; text-align:right}
-.torseur-q .sol input:disabled{background:#F2F3F1; -webkit-text-fill-color:var(--encre)}
-.torseur-q .sol.is-ok input{border:2px solid var(--vert); background:var(--vert-pale)}
-.torseur-q .sol.is-ko input{border:2px solid var(--rouge); background:var(--rouge-pale)}
-.torseur-q .sol{flex-wrap:nowrap}
-.torseur-q .sol .mark{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0)}
-.torseur-q .sol::after{content:""; display:inline-block; width:1em; font-weight:700}
-.torseur-q .sol.is-ok::after{content:"✓"; color:var(--vert)} .torseur-q .sol.is-ko::after{content:"✗"; color:var(--rouge)}
-@media print{ .torseur-q .sol input{width:6em} }
+/* vecteurs en colonne et torseurs case par case (notation de l'exercice « Déplacer un torseur ») :
+   parenthèses arrondies, nom de la case à gauche (vecteur) ou au-dessus (torseur), cases en pointillés,
+   valeur attendue sous chaque case fausse une fois la question validée ou la copie remise */
+.cq{margin:14px 0 6px; padding:10px 0 12px 14px; border-left:3px solid var(--trait-fin)}
+.cq-items{display:flex; flex-wrap:wrap; gap:10px 34px; align-items:center; margin:8px 0; overflow-x:auto; padding:2px 0}
+.vcol{display:inline-flex; align-items:center; gap:.35em; vertical-align:middle; font-variant-numeric:tabular-nums}
+.vcol-n{font-weight:700; white-space:nowrap}
+.vcol-b{display:inline-block; border-left:2px solid currentColor; border-right:2px solid currentColor; border-radius:1.1em / 50%; padding:.2em .6em}
+.vcol-b table{border-collapse:collapse; margin:0} .vcol-b td{padding:.12em .3em; text-align:center; vertical-align:middle; border:0}
+.vcol-b td.vl{font:600 .8rem var(--f-texte); color:var(--encre-2); padding-right:.45em; text-align:right}
+.vcol-u,.tzv-r{color:var(--encre-2); font-size:.9rem; white-space:nowrap}
+.tzv{display:inline-flex; align-items:center; gap:.4em; vertical-align:middle; font-variant-numeric:tabular-nums}
+.tzv-n{font-weight:700; white-space:nowrap}
+.tzv .vcol-b td{padding:.12em .6em}
+.cq .sol{position:relative; display:inline-flex; flex-direction:column; align-items:center; gap:1px; padding-bottom:1.25em; line-height:1.2}
+.cq .cq-lab{font:600 .78rem var(--f-texte); color:var(--encre-2)}
+.cq .sol input{width:7.6em; max-width:34vw; border:1.5px dashed var(--encre-2); padding:5px 6px; background:#fff; border-radius:0; font:600 1rem var(--f-texte); text-align:center}
+.cq .sol.lit input{width:10.5em}
+.cq .sol input:focus{outline:2px solid var(--jaune); outline-offset:1px; border-style:solid}
+.cq .sol input:disabled{background:#F2F3F1; -webkit-text-fill-color:var(--encre)}
+.cq .sol.is-ok input{border:2px solid var(--vert); background:var(--vert-pale)}
+.cq .sol.is-ko input{border:2px solid var(--rouge); background:var(--rouge-pale)}
+.cq .sol .mark{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0)}
+.cq .sol .att{display:none; position:absolute; bottom:0; left:-2em; right:-2em; text-align:center; font:700 .82rem var(--f-texte); color:var(--vert); white-space:nowrap}
+.cq .sol.is-ko .att{display:block}
+.cq .q-expl .cq-items{margin:6px 0 2px}
+@media print{ .cq .sol input{width:6em} .cq .sol.lit input{width:8em} }
 </style>
 </head>
 <body class="no-mode">

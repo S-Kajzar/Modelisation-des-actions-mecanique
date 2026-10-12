@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- Page construite par src/construire_exercice_quadrants.py à partir du gabarit : ne pas modifier à la main. -->
-<title>Projections : les quatre quadrants — exercice interactif</title>
-<meta name="description" content="Entraînement à la projection d'une force sur les axes x et y : huit forces réparties dans les quatre quadrants, angle mesuré depuis l'axe horizontal ou vertical, nouvelles valeurs à chaque tirage.">
+<!-- Page construite par src/construire_exercice_quadrants.py : ne pas modifier à la main. -->
+<title>Projections : les quatre quadrants — entraînement</title>
+<meta name="description" content="Entraînement à valeurs aléatoires (niveau 1) : séries de 5 à 20 questions pour projeter une force sur les axes x et y dans les quatre quadrants, vecteur écrit en colonne, correction pas à pas et note sur 20.">
 <style>:root{
   --beton:#E3E5E0; --papier:#FFFFFF; --encre:#1C2530; --encre-2:#46525C;
   --trait:#A5ADAA; --trait-fin:#D3D8D5;
@@ -443,724 +443,320 @@ body:not(.mode-training) .only-training,body:not(.mode-exam) .only-exam{display:
 .torseur-q .sol.is-ok::after{content:"✓"; color:var(--vert)} .torseur-q .sol.is-ko::after{content:"✗"; color:var(--rouge)}
 @media print{ .torseur-q .sol input{width:6em} }
 </style>
+<style>
+/* ---------- plein écran : barre d'en-tête, puis données | réponse | correction ; la taille du texte suit l'écran ---------- */
+body.ta-page{margin:0; background:var(--fond, #E3E5E0)}
+.ta-page .home-back{display:none}
+#qd{display:flex; flex-direction:column; min-height:calc(100dvh - 20px); padding:8px clamp(6px, 1vw, 16px) 12px;
+  font-size:clamp(14.5px, .3vw + .85vh + 5px, 22px); box-sizing:border-box}
+.ta-top{display:flex; flex-wrap:wrap; align-items:center; gap:6px 16px; background:var(--encre); color:#fff; padding:7px 12px; position:relative}
+.ta-id{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+#qd .ta-id h1{margin:0; font:800 1.2em/1.2 var(--f-titre); color:#fff}
+.ta-home{display:inline-flex; color:var(--jaune)} .ta-home svg{width:22px; height:22px}
+.mc-tag{display:inline-block; font:700 .72em var(--f-titre); background:var(--jaune); color:var(--encre); padding:2px 8px}
+.pastille{display:inline-block; font:700 .72em var(--f-titre); background:var(--vert); color:#fff; padding:2px 8px}
+.ta-prog{display:flex; align-items:center; flex-wrap:wrap; gap:4px 12px; font-size:.88em}
+.ta-prog b{color:var(--jaune); font-family:var(--f-titre)}
+.ta-dots{display:flex; flex-wrap:wrap; gap:3px; max-width:min(46vw, 420px)}
+.ta-dots i{width:.8em; height:.8em; border-radius:50%; background:rgba(255,255,255,.22); display:inline-block}
+.ta-dots i.ok{background:#3FBF6F} .ta-dots i.ko{background:#E5534B} .ta-dots i.on{outline:2px solid var(--jaune); outline-offset:1px}
+.ta-menus{display:flex; gap:6px; margin-left:auto}
+.ta-pd summary{cursor:pointer; list-style:none; border:1.5px solid #fff; padding:4px 10px; font:700 .86em var(--f-titre); white-space:nowrap}
+.ta-pd summary::-webkit-details-marker{display:none}
+.ta-pd[open] summary{background:#fff; color:var(--encre)}
+.ta-cfg summary{border-color:var(--jaune)}
+.ta-pop{position:absolute; right:12px; top:100%; z-index:20; width:min(600px, calc(100vw - 24px)); background:#fff; color:var(--encre);
+  border:2px solid var(--encre); box-shadow:0 8px 24px rgba(0,0,0,.25); padding:8px 14px 12px; font-size:.92em}
+.ta-pop p{margin:6px 0}
+.ta-pop-t{font:700 .95em var(--f-titre); margin:8px 0 4px}
+.ta-chips{display:flex; flex-wrap:wrap; gap:6px}
+.ta-chip input{position:absolute; opacity:0; pointer-events:none}
+.ta-chip span{display:inline-block; border:1.5px solid var(--encre); padding:5px 12px; font:700 .9em var(--f-titre); cursor:pointer; background:#fff}
+.ta-chip input:checked+span{background:var(--encre); color:var(--jaune)}
+.ta-chip input:focus-visible+span{outline:2px solid var(--bleu); outline-offset:2px}
+.ta-cfg-msg{color:var(--rouge); min-height:1.2em}
+.formule{display:flex; flex-wrap:wrap; gap:4px 20px; align-items:center; border:2px solid var(--rouge); background:#fff; padding:6px 12px; margin:6px 0}
+.formule .f-main{font:700 1.02em var(--f-titre); line-height:1.8} .formule .f-units{font-size:.9em; color:var(--encre-2)}
+.qd-signes{border-collapse:collapse; margin:4px 0} .qd-signes th,.qd-signes td{border:1px solid var(--trait-fin); padding:3px 10px; text-align:center}
+.qd-signes th{font:700 .9em var(--f-titre); background:#F4F5F2}
+.ta-grid{flex:1; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.05fr) minmax(0,1fr); gap:clamp(6px, .8vw, 14px); margin-top:8px; align-items:stretch}
+@media (max-width:1100px){ .ta-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr); grid-template-areas:"don rep" "cor rep"; align-items:start}
+  .ta-col-don{grid-area:don} .ta-col-rep{grid-area:rep} .ta-col-cor{grid-area:cor} }
+@media (max-width:700px){ .ta-grid{grid-template-columns:1fr; grid-template-areas:"don" "rep" "cor"} .ta-menus{margin-left:0} #qd{min-height:0} }
+.ta-col{background:#fff; border:1px solid var(--trait-fin); padding:.5em .8em .7em; min-width:0}
+.ta-col h2{display:flex; align-items:center; flex-wrap:wrap; gap:8px; font:800 1.05em var(--f-titre); margin:0 0 .4em}
+.ta-col h2 span{display:inline-grid; place-items:center; width:1.4em; height:1.4em; background:var(--encre); color:var(--jaune); font-size:.85em}
+.ta-type{font:700 .78em var(--f-titre); color:var(--bleu); border:1.5px solid var(--bleu); padding:1px 8px; margin-left:auto; font-style:normal}
+.ta-col h3{font:700 .92em var(--f-titre); margin:.5em 0 .3em}
+.ta-col p{margin:0 0 .4em}
+#qd .vec{line-height:1}
+.ta-svg{display:block; width:100%; height:auto; max-height:56vh; background:#fff; border:1px solid var(--trait-fin)}
+.ta-svg text{font:700 14px var(--f-texte); paint-order:stroke; stroke:#fff; stroke-width:4px; stroke-linejoin:round}
+.ta-svg text.qd-fond{font:800 40px var(--f-titre); stroke:none}
+.ta-conseil{background:var(--jaune-pale); border-left:4px solid var(--jaune); padding:.35em .7em; font-size:.88em}
+.ta-saisie{display:flex; flex-wrap:wrap; gap:.4em 1.6em; align-items:flex-start}
+/* vecteur en colonne, entre parenthèses */
+.vcol{display:inline-flex; align-items:center; gap:.3em; vertical-align:middle}
+.vcol-b{display:inline-block; border-left:2px solid currentColor; border-right:2px solid currentColor; border-radius:1.1em / 50%; padding:.15em .55em}
+.vcol-b table{border-collapse:collapse} .vcol-b td{padding:.05em .2em; text-align:center}
+.vcol-b td.vl{font:600 .75em var(--f-texte); color:var(--encre-2); padding-right:.4em; text-align:right}
+.ta-vecin .vcol-b{padding:.25em .6em}
+.ta-f{position:relative; display:inline-flex; flex-direction:column; align-items:center; gap:2px; line-height:1.25; font-size:.8em;
+  color:var(--encre-2); padding-bottom:1.15em}
+.ta-f input{width:6.4em; border:1.5px dashed var(--encre-2); padding:.25em .3em; background:#fff; font:600 1.15em var(--f-texte); text-align:center}
+.qd-lit .ta-f input{width:8.6em}
+.ta-f input:focus{outline:2px solid var(--jaune); outline-offset:1px; border-style:solid}
+.ta-f.ok input{border:2px solid var(--vert); background:var(--vert-pale)}
+.ta-f.ko input{border:2px solid var(--rouge); background:var(--rouge-pale)}
+.ta-att{position:absolute; bottom:0; left:0; right:0; text-align:center; font:700 .9em var(--f-texte); color:var(--vert); white-space:nowrap}
+.qd-touches{margin:.2em 0 0} .qd-touches button{font:700 .85em var(--f-texte); border:1.5px solid var(--encre-2); background:#fff; padding:.1em .6em; cursor:pointer}
+.qd-touches button:hover{background:var(--jaune-pale)}
+.ta-act{display:flex; flex-wrap:wrap; gap:6px; margin-top:.3em}
+.ta-act .btn{padding:.4em .8em; font-size:.92em}
+.ta-next:not(:disabled){background:var(--vert); border-color:var(--vert)}
+kbd{font:600 .72rem var(--f-texte); border:1px solid currentColor; border-radius:3px; padding:0 4px; opacity:.8}
+.ta-fb{min-height:1.5em; margin:.4em 0 0; font-weight:700}
+.ta-fb.ok{color:var(--vert)} .ta-fb.ko{color:var(--rouge)}
+.ta-corr{border-left:4px solid var(--vert); padding:0 10px; font-size:.92em}
+.ta-corr p{margin:3px 0}
+.ta-corr .eq{line-height:1.8; margin:2px 0 6px}
+.ta-vide{color:var(--encre-2)}
+.ta-grid[hidden],.ta-bilan[hidden]{display:none}
+.ta-bilan{flex:1; background:#fff; border:1px solid var(--trait-fin); margin-top:8px; padding:1em 1.4em}
+.ta-bilan h2{font:800 1.4em var(--f-titre); margin:0 0 .3em}
+.ta-note{font:800 2.6em var(--f-titre); color:var(--bleu); margin:.1em 0}
+.ta-note small{font-size:.45em; color:var(--encre-2)} .ta-et{font-size:.55em; color:var(--jaune)}
+.ta-bil-l{display:grid; grid-template-columns:repeat(auto-fill, minmax(13em, 1fr)); gap:4px 14px; padding:0; list-style:none; margin:.6em 0 1em}
+.ta-bil-l li{border-left:4px solid var(--trait-fin); padding:2px 8px}
+.ta-bil-l li.ok{border-color:var(--vert)} .ta-bil-l li.ko{border-color:var(--rouge)}
+.ta-foot{margin-top:10px; color:var(--encre-2)}
+.ta-foot p{margin:4px 0}
+@media (max-width:700px){ #qd .ta-id h1{font-size:1.05em} .ta-dots{max-width:100%} .ta-menus{flex-wrap:wrap} .ta-pd summary{white-space:normal} .ta-f input{width:5.6em} .qd-lit .ta-f input{width:7.4em} }
+@media print{ .ta-top{background:#fff; color:var(--encre); border:2px solid var(--encre)} #qd .ta-id h1{color:var(--encre)} .ta-menus,.ta-act{display:none} }
+</style>
 <style>/* lien de retour vers l'accueil du dépôt */
 .retour-accueil{display:inline-flex; align-items:center; gap:8px; text-decoration:none; margin:0 0 14px}
 .retour-accueil svg{width:18px; height:18px; flex:0 0 auto}
 </style>
 </head>
-<body class="no-mode">
-
-<!-- RAIL DES DOCUMENTS : la méthode est une aide du mode entraînement (classe training-only) -->
-<nav class="rail" aria-label="Méthode">
-  <button type="button" class="tab dt meth training-only" data-doc="METH" aria-selected="false" title="Méthode (mode entraînement uniquement)">Méthode</button>
-</nav>
-
-<aside id="docpanel" aria-label="Documents du sujet" aria-hidden="true">
-  <div class="dp-head">
-    <h3 id="dp-title">Documents</h3>
-    <button type="button" id="dp-out" aria-label="Réduire">−</button><span id="dp-zoom" class="small">100 %</span>
-    <button type="button" id="dp-in" aria-label="Agrandir">+</button>
-    <button type="button" id="dp-fit">Ajuster</button>
-    <button type="button" id="dp-close">Fermer</button>
+<body class="ta-page">
+<div class="ta-app" id="qd">
+<header class="ta-top">
+  <div class="ta-id"><a class="ta-home no-print" href="index.html" title="Retour à l'accueil" aria-label="Retour à l'accueil"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 9.8V20h4.5v-5.5h4V20h4.5V9.8"/></svg></a>
+    <span class="mc-tag">Exercice 1.1</span><span class="pastille">Niveau 1</span>
+    <h1>Projections : les quatre quadrants</h1></div>
+  <div class="ta-prog" aria-live="polite"><span>Question <b id="qd-k">1</b> / <b id="qd-N">10</b></span>
+    <span class="ta-dots" id="qd-dots" aria-hidden="true"></span><span>Réussies <b id="qd-ok">0</b></span></div>
+  <div class="ta-menus">
+    <details class="ta-pd ta-cfg" id="qd-cfg"><summary>Série : <span id="qd-cfg-sum">10 questions</span></summary><div class="ta-pop">
+      <p class="ta-pop-t">Angle α mesuré depuis l'axe</p><div class="ta-chips"><label class="ta-chip"><input type="checkbox" name="qd-ref" value="h" checked><span>horizontal (x ou x')</span></label><label class="ta-chip"><input type="checkbox" name="qd-ref" value="v" checked><span>vertical (y ou y')</span></label></div>
+      <p class="ta-pop-t">Quadrants <span class="small">(questions tirées au hasard parmi les cases cochées)</span></p>
+      <div class="ta-chips"><label class="ta-chip"><input type="checkbox" name="qd-q" value="1" checked><span>Quadrant 1</span></label><label class="ta-chip"><input type="checkbox" name="qd-q" value="2" checked><span>Quadrant 2</span></label><label class="ta-chip"><input type="checkbox" name="qd-q" value="3" checked><span>Quadrant 3</span></label><label class="ta-chip"><input type="checkbox" name="qd-q" value="4" checked><span>Quadrant 4</span></label></div>
+      <p class="ta-pop-t">Nombre de questions</p><div class="ta-chips"><label class="ta-chip"><input type="radio" name="qd-n" value="5"><span>5</span></label><label class="ta-chip"><input type="radio" name="qd-n" value="10" checked><span>10</span></label><label class="ta-chip"><input type="radio" name="qd-n" value="15"><span>15</span></label><label class="ta-chip"><input type="radio" name="qd-n" value="20"><span>20</span></label></div>
+      <p class="ta-cfg-msg small" id="qd-cfg-msg"></p>
+      <button type="button" class="btn" id="qd-go">Lancer la série</button></div></details>
+    <details class="ta-pd"><summary>Rappel</summary><div class="ta-pop"><p><b>1. L'axe de l'angle α</b> : sur cet axe, la projection est le côté <b>adjacent</b> → F cos α ; sur l'autre axe, c'est le côté <b>opposé</b> → F sin α.</p><div class="formule"><span class="f-main">α depuis l'axe horizontal : <span class="vec">F</span> = ( ± F cos α ; ± F sin α )</span><span class="f-units">α depuis l'axe vertical : <span class="vec">F</span> = ( ± F sin α ; ± F cos α )</span></div><p><b>2. Le signe</b> se lit sur la flèche : vers la droite F<sub>x</sub> &gt; 0, vers la gauche F<sub>x</sub> &lt; 0 ; vers le haut F<sub>y</sub> &gt; 0, vers le bas F<sub>y</sub> &lt; 0.</p><table class="qd-signes"><tr><th>Quadrant</th><td>1</td><td>2</td><td>3</td><td>4</td></tr><tr><th>(F<sub>x</sub> ; F<sub>y</sub>)</th><td>(+ ; +)</td><td>(− ; +)</td><td>(− ; −)</td><td>(+ ; −)</td></tr></table><p><b>3. Vérifie</b> : F<sub>x</sub>² + F<sub>y</sub>² = F².</p></div></details>
   </div>
-  <div class="dp-tabs" role="tablist" aria-label="Choisir un document">
-    <button type="button" class="training-only" data-doc="METH" aria-selected="false">Méthode</button>
-  </div>
-  <div class="dp-body">
-    <section class="doc training-only" id="doc-METH" data-title="Méthode : projeter dans les quatre quadrants" data-kind="Rappel de méthode · mode entraînement">
-      <div class="doc-text"><h3>Projeter une force dans les quatre quadrants</h3>
-<ol>
-<li><b>Repère l'axe de l'angle</b> α : horizontal (x ou x') ou vertical (y ou y') ?</li>
-<li><b>Choisis la fonction</b> : sur l'axe de l'angle, la projection est le côté <b>adjacent</b> → F × cos α ; sur l'autre axe, c'est le côté <b>opposé</b> → F × sin α.</li>
-<li><b>Choisis le signe</b> d'après le sens de la flèche : vers la droite F<sub>x</sub> &gt; 0, vers la gauche F<sub>x</sub> &lt; 0 ; vers le haut F<sub>y</sub> &gt; 0, vers le bas F<sub>y</sub> &lt; 0.</li>
-<li><b>Signes par quadrant</b> (F<sub>x</sub> ; F<sub>y</sub>) : quadrant 1 (+ ; +), quadrant 2 (− ; +), quadrant 3 (− ; −), quadrant 4 (+ ; −).</li>
-<li><b>Vérifie</b> : F<sub>x</sub>² + F<sub>y</sub>² = F², et la plus grande coordonnée est sur l'axe dont la force est la plus proche.</li>
-</ol></div>
-    </section>
-  </div>
-</aside>
-
-<!-- PAGE D'ACCUEIL -->
-<section id="home" aria-labelledby="home-title">
-  <div class="home-inner"><p class="home-back no-print"><a class="btn ghost retour-accueil" href="index.html"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 9.8V20h4.5v-5.5h4V20h4.5V9.8"/></svg> Accueil : Modélisation des actions mécaniques</a></p>
-    <header class="home-head">
-      <h1 id="home-title">Projections : les quatre quadrants</h1>
-      <p class="home-sub">S'entraîner à projeter une force sur x et y dans les quatre quadrants : huit forces, l'angle mesuré tantôt depuis l'axe horizontal, tantôt depuis l'axe vertical. Intensités et angles changent à chaque chargement : recommence autant de fois que tu veux.</p>
-    </header>
-    <figure class="home-hero">
-      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5MDAiIGhlaWdodD0iNDgwIiB2aWV3Qm94PSIwIDAgOTAwIDQ4MCI+CjxyZWN0IHdpZHRoPSI5MDAiIGhlaWdodD0iNDgwIiBmaWxsPSIjZmZmIi8+CjxkZWZzPjxtYXJrZXIgaWQ9ImEiIHZpZXdCb3g9IjAgMCAxMCAxMCIgcmVmWD0iOC41IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iMTIiIG1hcmtlckhlaWdodD0iMTIiIG1hcmtlclVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgb3JpZW50PSJhdXRvIj48cGF0aCBkPSJNMCAwIDEwIDUgMCAxMHoiIGZpbGw9IiMxQzI1MzAiLz48L21hcmtlcj4KPG1hcmtlciBpZD0iZjAiIHZpZXdCb3g9IjAgMCAxMCAxMCIgcmVmWD0iOC41IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iMTgiIG1hcmtlckhlaWdodD0iMTgiIG1hcmtlclVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgb3JpZW50PSJhdXRvIj48cGF0aCBkPSJNMCAwIDEwIDUgMCAxMHoiIGZpbGw9IiMxQjdBNDMiLz48L21hcmtlcj4KPG1hcmtlciBpZD0iZjEiIHZpZXdCb3g9IjAgMCAxMCAxMCIgcmVmWD0iOC41IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iMTgiIG1hcmtlckhlaWdodD0iMTgiIG1hcmtlclVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgb3JpZW50PSJhdXRvIj48cGF0aCBkPSJNMCAwIDEwIDUgMCAxMHoiIGZpbGw9IiMxRjVGQTgiLz48L21hcmtlcj4KPG1hcmtlciBpZD0iZjIiIHZpZXdCb3g9IjAgMCAxMCAxMCIgcmVmWD0iOC41IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iMTgiIG1hcmtlckhlaWdodD0iMTgiIG1hcmtlclVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgb3JpZW50PSJhdXRvIj48cGF0aCBkPSJNMCAwIDEwIDUgMCAxMHoiIGZpbGw9IiNCNDIzMTgiLz48L21hcmtlcj4KPG1hcmtlciBpZD0iZjMiIHZpZXdCb3g9IjAgMCAxMCAxMCIgcmVmWD0iOC41IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iMTgiIG1hcmtlckhlaWdodD0iMTgiIG1hcmtlclVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgb3JpZW50PSJhdXRvIj48cGF0aCBkPSJNMCAwIDEwIDUgMCAxMHoiIGZpbGw9IiNCMjZBMDAiLz48L21hcmtlcj4KPC9kZWZzPgo8bGluZSB4MT0iNDUwLjAiIHkxPSIyNDguMCIgeDI9Ijg4MiIgeTI9IjI0OC4wIiBzdHJva2U9IiMxQzI1MzAiIHN0cm9rZS13aWR0aD0iMi41IiBtYXJrZXItZW5kPSJ1cmwoI2EpIi8+CjxsaW5lIHgxPSI0NTAuMCIgeTE9IjI0OC4wIiB4Mj0iMTgiIHkyPSIyNDguMCIgc3Ryb2tlPSIjMUMyNTMwIiBzdHJva2Utd2lkdGg9IjIuNSIgbWFya2VyLWVuZD0idXJsKCNhKSIvPgo8bGluZSB4MT0iNDUwLjAiIHkxPSIyNDguMCIgeDI9IjQ1MC4wIiB5Mj0iMTQiIHN0cm9rZT0iIzFDMjUzMCIgc3Ryb2tlLXdpZHRoPSIyLjUiIG1hcmtlci1lbmQ9InVybCgjYSkiLz4KPGxpbmUgeDE9IjQ1MC4wIiB5MT0iMjQ4LjAiIHgyPSI0NTAuMCIgeTI9IjQ2NiIgc3Ryb2tlPSIjMUMyNTMwIiBzdHJva2Utd2lkdGg9IjIuNSIgbWFya2VyLWVuZD0idXJsKCNhKSIvPgo8dGV4dCB4PSI4NzAiIHk9IjI3Mi4wIiBmb250LXNpemU9IjIwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSI3MDAiPng8L3RleHQ+Cjx0ZXh0IHg9IjE0IiB5PSIyNzIuMCIgZm9udC1zaXplPSIyMCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iNzAwIj54JzwvdGV4dD4KPHRleHQgeD0iNDYwLjAiIHk9IjI4IiBmb250LXNpemU9IjIwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSI3MDAiPnk8L3RleHQ+Cjx0ZXh0IHg9IjQ2MC4wIiB5PSI0NjQiIGZvbnQtc2l6ZT0iMjAiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9IjcwMCI+eSc8L3RleHQ+CjxsaW5lIHgxPSI0NTAuMCIgeTE9IjI0OC4wIiB4Mj0iNTkxLjUiIHkyPSIxNDguOSIgc3Ryb2tlPSIjMUI3QTQzIiBzdHJva2Utd2lkdGg9IjUiIG1hcmtlci1lbmQ9InVybCgjZjApIi8+CjxwYXRoIGQ9Ik01MTIuMiAyNDguMCBBNjIuMiA2Mi4yIDAgMCAwIDUwMS4wIDIxMi4zIiBmaWxsPSJub25lIiBzdHJva2U9IiMxQjdBNDMiIHN0cm9rZS13aWR0aD0iMi41Ii8+CjxwYXRoIGQ9Ik01OTEuNSAxNDguOSBMNTkxLjUgMjQ4LjAgTTU5MS41IDE0OC45IEw0NTAuMCAxNDguOSIgc3Ryb2tlPSIjMUI3QTQzIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWRhc2hhcnJheT0iNSA0IiBmaWxsPSJub25lIiBvcGFjaXR5PSIuNyIvPgo8bGluZSB4MT0iNDUwLjAiIHkxPSIyNDguMCIgeDI9IjM1MC45IiB5Mj0iMTA2LjUiIHN0cm9rZT0iIzFGNUZBOCIgc3Ryb2tlLXdpZHRoPSI1IiBtYXJrZXItZW5kPSJ1cmwoI2YxKSIvPgo8cGF0aCBkPSJNMzg3LjggMjQ4LjAgQTYyLjIgNjIuMiAwIDAgMSA0MTQuMyAxOTcuMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUY1RkE4IiBzdHJva2Utd2lkdGg9IjIuNSIvPgo8cGF0aCBkPSJNMzUwLjkgMTA2LjUgTDM1MC45IDI0OC4wIE0zNTAuOSAxMDYuNSBMNDUwLjAgMTA2LjUiIHN0cm9rZT0iIzFGNUZBOCIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1kYXNoYXJyYXk9IjUgNCIgZmlsbD0ibm9uZSIgb3BhY2l0eT0iLjciLz4KPGxpbmUgeDE9IjQ1MC4wIiB5MT0iMjQ4LjAiIHgyPSIzMDAuNCIgeTI9IjMzNC40IiBzdHJva2U9IiNCNDIzMTgiIHN0cm9rZS13aWR0aD0iNSIgbWFya2VyLWVuZD0idXJsKCNmMikiLz4KPHBhdGggZD0iTTM4Ny44IDI0OC4wIEE2Mi4yIDYyLjIgMCAwIDAgMzk2LjEgMjc5LjEiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI0I0MjMxOCIgc3Ryb2tlLXdpZHRoPSIyLjUiLz4KPHBhdGggZD0iTTMwMC40IDMzNC40IEwzMDAuNCAyNDguMCBNMzAwLjQgMzM0LjQgTDQ1MC4wIDMzNC40IiBzdHJva2U9IiNCNDIzMTgiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtZGFzaGFycmF5PSI1IDQiIGZpbGw9Im5vbmUiIG9wYWNpdHk9Ii43Ii8+CjxsaW5lIHgxPSI0NTAuMCIgeTE9IjI0OC4wIiB4Mj0iNTYxLjEiIHkyPSIzODAuNCIgc3Ryb2tlPSIjQjI2QTAwIiBzdHJva2Utd2lkdGg9IjUiIG1hcmtlci1lbmQ9InVybCgjZjMpIi8+CjxwYXRoIGQ9Ik00NTAuMCAzMTAuMiBBNjIuMiA2Mi4yIDAgMCAwIDQ5MC4wIDI5NS43IiBmaWxsPSJub25lIiBzdHJva2U9IiNCMjZBMDAiIHN0cm9rZS13aWR0aD0iMi41Ii8+CjxwYXRoIGQ9Ik01NjEuMSAzODAuNCBMNTYxLjEgMjQ4LjAgTTU2MS4xIDM4MC40IEw0NTAuMCAzODAuNCIgc3Ryb2tlPSIjQjI2QTAwIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWRhc2hhcnJheT0iNSA0IiBmaWxsPSJub25lIiBvcGFjaXR5PSIuNyIvPgo8dGV4dCB4PSI3MDIiIHk9Ijk2IiBmb250LXNpemU9IjM0IiBmaWxsPSIjQzVDQkM4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSI3MDAiPlExPC90ZXh0Pgo8dGV4dCB4PSIxOTgiIHk9Ijk2IiBmb250LXNpemU9IjM0IiBmaWxsPSIjQzVDQkM4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSI3MDAiPlEyPC90ZXh0Pgo8dGV4dCB4PSIxOTgiIHk9IjQxMyIgZm9udC1zaXplPSIzNCIgZmlsbD0iI0M1Q0JDOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iNzAwIj5RMzwvdGV4dD4KPHRleHQgeD0iNzAyIiB5PSI0MTMiIGZvbnQtc2l6ZT0iMzQiIGZpbGw9IiNDNUNCQzgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9IjcwMCI+UTQ8L3RleHQ+Cjwvc3ZnPg==" alt="Repère x, y avec une force dans chacun des quatre quadrants et ses projections" width="900" height="480">
-      <figcaption>Une force par quadrant : chaque quadrant a ses signes, chaque axe de référence sa fonction.</figcaption>
-    </figure>
-    <div class="home-facts">
-      <div><b>4 quadrants</b><span>8 forces, 32 questions</span></div>
-      <div><b>40 min</b><span>durée conseillée, qui fixe la pondération</span></div>
-      <div><b>1 document</b><span>méthode, en mode entraînement</span></div>
-      <div><b>∞ tirages</b><span>nouvelles valeurs à chaque chargement</span></div>
+</header>
+<main class="ta-grid" id="qd-grid">
+  <section class="ta-col ta-col-don" aria-labelledby="qd-h-don"><h2 id="qd-h-don"><span>1</span> Données <em class="ta-type" id="qd-type"></em></h2>
+    <p id="qd-txt"></p>
+    <svg class="ta-svg" id="qd-svg" viewBox="0 0 360 320" role="img" aria-label="Repère, force F et angle α"></svg></section>
+  <section class="ta-col ta-col-rep" aria-labelledby="qd-h-rep"><h2 id="qd-h-rep"><span>2</span> Ta réponse</h2>
+    <p class="ta-conseil"><b>Conseil :</b> repère d'abord l'axe de l'angle α (cos sur cet axe, sin sur l'autre), puis les
+    signes d'après le sens de la flèche. Calculatrice en degrés.</p>
+    <div class="ta-saisie">
+      <div class="ta-bloc"><h3>Le vecteur <span class="vec">F</span> en fonction de F et de α</h3><div class="ta-vecin qd-lit" id="qd-lit"></div>
+        <p class="qd-touches no-print"><span class="small">Insérer :</span> <button type="button" data-ins="α">α</button>
+        <button type="button" data-ins="cos ">cos</button><button type="button" data-ins="sin ">sin</button>
+        <button type="button" data-ins="−">−</button></p></div>
+      <div class="ta-bloc"><h3>Le vecteur <span class="vec">F</span> en newtons</h3><div class="ta-vecin" id="qd-num"></div></div>
     </div>
-    <h2 class="home-choose">Choisis ton mode de travail</h2>
-    <div class="modes">
-      <article class="mode-card">
-        <div class="mc-head"><span class="mc-tag">Mode 1</span><h3>Mode entraînement</h3></div>
-        <p class="mc-lead">Pour apprendre en avançant, question par question.</p>
-        <ul><li>Chaque question se valide isolément ; la démarche corrigée s'affiche aussitôt.</li>
-          <li>La note pondérée s'actualise en continu dans le bandeau.</li>
-          <li>Une fiche de méthode est consultable à tout moment, sans contrainte de temps.</li></ul>
-        <button type="button" class="btn btn-mode" data-mode="training">Commencer l'entraînement</button>
-      </article>
-      <article class="mode-card exam">
-        <div class="mc-head"><span class="mc-tag">Mode 2</span><h3>Mode examen</h3></div>
-        <p class="mc-lead">Pour se placer en conditions de contrôle.</p>
-        <ul><li>Aucune correction, aucune note et <b>aucun accès à la méthode</b> pendant la composition ; les réponses restent modifiables.</li>
-          <li>Le chronomètre tourne, à comparer à la durée conseillée.</li>
-          <li>En fin de sujet, le bouton « J'ai fini, je fais corriger ma copie » dévoile d'un coup les corrections, les notes par partie et la note globale.</li></ul>
-        <button type="button" class="btn btn-mode" data-mode="exam">Composer en mode examen</button>
-      </article>
-    </div>
-    <p class="home-note small">Le mode se choisit une seule fois : pour en changer, recharge la page. Rien n'est enregistré sur l'ordinateur.</p>
-  </div>
-</section>
-
-<main class="page"><p class="home-back no-print"><a class="btn ghost retour-accueil" href="index.html"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 9.8V20h4.5v-5.5h4V20h4.5V9.8"/></svg> Accueil : Modélisation des actions mécaniques</a></p>
-  <section class="print-only print-summary">
-    <p>Élève : <span class="print-nom"></span> | Copie imprimée le <span class="print-date"></span></p>
-    <p>Mode : <span class="print-mode"></span> | Temps de rédaction : <strong class="print-time"></strong> (durée conseillée : 40 min)</p>
-    <p class="print-note-line">Note finale pondérée : <strong class="final-note"></strong></p>
-    <p class="print-nograde">Copie non corrigée : les corrections et la note n'apparaissent qu'après la remise de la copie en mode examen.</p>
-  </section>
-
-  <header class="cartouche">
-    <div class="title">
-      <h1>Projections : les quatre quadrants</h1>
-      <p>32 questions notées sur 8 forces (2 par quadrant), réparties en 4 parties. Tirage n° <b data-graine></b>.</p></div>
-    <div class="nom"><label for="nom-eleve">Nom et prénom</label><input id="nom-eleve" type="text" autocomplete="name"></div>
-  </header>
-
-  <div class="consignes">
-    <p class="only-training"><strong>Mode entraînement.</strong> Réponds dans chaque champ puis clique sur « Valider » : une réponse validée est définitive et sa correction s'affiche aussitôt. La fiche « Méthode » (onglet sur le bord droit) rappelle les outils utiles.</p>
-    <p class="only-exam"><strong>Mode examen.</strong> Compose tout le sujet sans correction, sans note et sans accès à la méthode : tes réponses restent modifiables jusqu'au bout. Le bouton « J'ai fini, je fais corriger ma copie », en fin de sujet, dévoile d'un coup les corrections, les notes par partie et la note globale.</p>
-    <p><strong>Valeurs tirées au hasard</strong> : intensités et angles changent à chaque chargement. Tirage n° <b data-graine></b> ; pour refaire exactement le même sujet, garde le lien <a class="lien-graine" href="?">de ce tirage</a>. Pour un nouveau sujet : <a href="?">nouveau tirage</a>.</p><p><strong>Les unités sont notées</strong> : la valeur vaut la moitié des points, l'unité l'autre moitié. <strong>Les expressions littérales</strong> s'écrivent avec F et α, par exemple <code>-F*sin(α)</code> ; toute écriture équivalente est acceptée.</p>
-    <p><strong>Barème pondéré par la durée conseillée</strong> : chaque partie est notée sur 20, puis pèse au prorata de son temps. Le récapitulatif de fin de sujet donne le détail partie par partie.</p>
-  </div>
-
-  <section class="part" id="partie-1" aria-labelledby="t-partie-1">
-    <header class="part-head"><div class="part-num" aria-hidden="true">1</div>
-      <div><h2 id="t-partie-1"><span class="sr-only">Partie 1 : </span>Quadrant 1 — en haut à droite</h2>
-        <div class="duree">Durée conseillée : 10 min · Barème : 8 points, soit 25,0 % de la note</div></div></header>
-    <div class="part-body">
-      <p>Les deux forces de cette partie pointent <b>en haut à droite</b> du repère (x, y). Pour chacune, la figure donne son intensité et l'angle α qu'elle fait avec l'un des axes : repère bien lequel.</p><p class="only-training small">Besoin d'un rappel ? <button type="button" class="doc-chip training-only" data-doc="METH" aria-pressed="false">Méthode</button></p><h3 class="sub-head">Force F<sub>1</sub></h3><figure class="q-fig quad-fig" style="max-width:340px" data-vec="1"><svg viewBox="0 0 320 300" role="img" style="display:block;width:100%;height:auto;background:#fff;border:1px solid #D3D8D5"></svg><figcaption></figcaption></figure>
-        <div class="q" id="q1_1" data-q="q1_1">
-          <p class="q-stem"><span class="q-num">Q1.1</span> <strong>Exprime F<sub>1x</sub> en fonction de F<sub>1</sub> et de α.</strong></p>
-          <p class="q-hint" id="h-q1_1">Expression littérale avec F et α (écris F, α ou alpha), <code>*</code> pour multiplier, <code>sin(…)</code> ou <code>cos(…)</code>. Le signe compte.</p>
-          <div class="q-row">
-            <input type="text" class="q-input" id="in-q1_1" aria-label="Réponse Q1.1" aria-describedby="h-q1_1" autocomplete="off" autocapitalize="off" spellcheck="false">
-            <button type="button" class="btn btn-validate">Valider</button>
-            <span class="q-status" aria-live="polite"></span>
-            <span class="print-only pstat">Non validée : comptée fausse</span>
-          </div>
-          <p class="q-msg" role="alert"></p>
-          <div class="q-expl" hidden>
-            <p class="q-unit-msg" hidden></p>
-            <p class="q-expected"><span>Réponse attendue :</span> …</p>
-            <div class="q-why"><p>…</p></div>
-          </div>
-        </div>
-        <div class="q" id="q1_2" data-q="q1_2">
-          <p class="q-stem"><span class="q-num">Q1.2</span> <strong>Exprime F<sub>1y</sub> en fonction de F<sub>1</sub> et de α.</strong></p>
-          <p class="q-hint" id="h-q1_2">Expression littérale avec F et α (écris F, α ou alpha), <code>*</code> pour multiplier, <code>sin(…)</code> ou <code>cos(…)</code>. Le signe compte.</p>
-          <div class="q-row">
-            <input type="text" class="q-input" id="in-q1_2" aria-label="Réponse Q1.2" aria-describedby="h-q1_2" autocomplete="off" autocapitalize="off" spellcheck="false">
-            <button type="button" class="btn btn-validate">Valider</button>
-            <span class="q-status" aria-live="polite"></span>
-            <span class="print-only pstat">Non validée : comptée fausse</span>
-          </div>
-          <p class="q-msg" role="alert"></p>
-          <div class="q-expl" hidden>
-            <p class="q-unit-msg" hidden></p>
-            <p class="q-expected"><span>Réponse attendue :</span> …</p>
-            <div class="q-why"><p>…</p></div>
-          </div>
-        </div>
-        <div class="q" id="q1_3" data-q="q1_3">
-          <p class="q-stem"><span class="q-num">Q1.3</span> <strong>Calcule F<sub>1x</sub>.</strong></p>
-          <p class="q-hint" id="h-q1_3">Arrondir au centième. Saisis la valeur <strong>avec son unité</strong> : l'unité vaut la moitié des points de la question.</p>
-          <div class="q-row">
-            <input type="text" class="q-input" id="in-q1_3" aria-label="Réponse Q1.3" aria-describedby="h-q1_3" autocomplete="off" autocapitalize="off" spellcheck="false">
-            <button type="button" class="btn btn-validate">Valider</button>
-            <span class="q-status" aria-live="polite"></span>
-            <span class="print-only pstat">Non validée : comptée fausse</span>
-          </div>
-          <p class="q-msg" role="alert"></p>
-          <div class="q-expl" hidden>
-            <p class="q-unit-msg" hidden></p>
-            <p class="q-expected"><span>Réponse attendue :</span> …</p>
-            <div class="q-why"><p>…</p></div>
-          </div>
-        </div>
-        <div class="q" id="q1_4" data-q="q1_4">
-          <p class="q-stem"><span class="q-num">Q1.4</span> <strong>Calcule F<sub>1y</sub>.</strong></p>
-          <p class="q-hint" id="h-q1_4">Arrondir au centième. Saisis la valeur <strong>avec son unité</strong> : l'unité vaut la moitié des points de la question.</p>
-          <div class="q-row">
-            <input type="text" class="q-input" id="in-q1_4" aria-label="Réponse Q1.4" aria-describedby="h-q1_4" autocomplete="off" autocapitalize="off" spellcheck="false">
-            <button type="button" class="btn btn-validate">Valider</button>
-            <span class="q-status" aria-live="polite"></span>
-            <span class="print-only pstat">Non validée : comptée fausse</span>
-          </div>
-          <p class="q-msg" role="alert"></p>
-          <div class="q-expl" hidden>
-            <p class="q-unit-msg" hidden></p>
-            <p class="q-expected"><span>Réponse attendue :</span> …</p>
-            <div class="q-why"><p>…</p></div>
-          </div>
-        </div><h3 class="sub-head">Force F<sub>2</sub></h3><figure class="q-fig quad-fig" style="max-width:340px" data-vec="2"><svg viewBox="0 0 320 300" role="img" style="display:block;width:100%;height:auto;background:#fff;border:1px solid #D3D8D5"></svg><figcaption></figcaption></figure>
-        <div class="q" id="q1_5" data-q="q1_5">
-          <p class="q-stem"><span class="q-num">Q1.5</span> <strong>Exprime F<sub>2x</sub> en fonction de F<sub>2</sub> et de α.</strong></p>
-          <p class="q-hint" id="h-q1_5">Expression littérale avec F et α (écris F, α ou alpha), <code>*</code> pour multiplier, <code>sin(…)</code> ou <code>cos(…)</code>. Le signe compte.</p>
-          <div class="q-row">
-            <input type="text" class="q-input" id="in-q1_5" aria-label="Réponse Q1.5" aria-describedby="h-q1_5" autocomplete="off" autocapitalize="off" spellcheck="false">
-            <button type="button" class="btn btn-validate">Valider</button>
-            <span class="q-status" aria-live="polite"></span>
-            <span class="print-only pstat">Non validée : comptée fausse</span>
-          </div>
-          <p class="q-msg" role="alert"></p>
-          <div class="q-expl" hidden>
-            <p class="q-unit-msg" hidden></p>
-            <p class="q-expected"><span>Réponse attendue :</span> …</p>
-            <div class="q-why"><p>…</p></div>
-          </div>
-        </div>
-        <div class="q" id="q1_6" data-q="q1_6">
-          <p class="q-stem"><span class="q-num">Q1.6</span> <strong>Exprime F<sub>2y</sub> en fonction de F<sub>2</sub> et de α.</strong></p>
-          <p class="q-hint" id="h-q1_6">Expression littérale avec F et α (écris F, α ou alpha), <code>*</code> pour multiplier, <code>sin(…)</code> ou <code>cos(…)</code>. Le signe compte.</p>
-          <div class="q-row">
-            <input type="text" class="q-input" id="in-q1_6" aria-label="Réponse Q1.6" aria-describedby="h-q1_6" autocomplete="off" autocapitalize="off" spellcheck="false">
-            <button type="button" class="btn btn-validate">Valider</button>
-            <span class="q-status" aria-live="polite"></span>
-            <span class="print-only pstat">Non validée : comptée fausse</span>
-          </div>
-          <p class="q-msg" role="alert"></p>
-          <div class="q-expl" hidden>
-            <p class="q-unit-msg" hidden></p>
-            <p class="q-expected"><span>Réponse attendue :</span> …</p>
-            <div class="q-why"><p>…</p></div>
-          </div>
-        </div>
-        <div class="q" id="q1_7" data-q="q1_7">
-          <p class="q-stem"><span class="q-num">Q1.7</span> <strong>Calcule F<sub>2x</sub>.</strong></p>
-          <p class="q-hint" id="h-q1_7">Arrondir au centième. Saisis la valeur <strong>avec son unité</strong> : l'unité vaut la moitié des points de la question.</p>
-          <div class="q-row">
-            <input type="text" class="q-input" id="in-q1_7" aria-label="Réponse Q1.7" aria-describedby="h-q1_7" autocomplete="off" autocapitalize="off" spellcheck="false">
-            <button type="button" class="btn btn-validate">Valider</button>
-            <span class="q-status" aria-live="polite"></span>
-            <span class="print-only pstat">Non validée : comptée fausse</span>
-          </div>
-          <p class="q-msg" role="alert"></p>
-          <div class="q-expl" hidden>
-            <p class="q-unit-msg" hidden></p>
-            <p class="q-expected"><span>Réponse attendue :</span> …</p>
-            <div class="q-why"><p>…</p></div>
-          </div>
-        </div>
-        <div class="q" id="q1_8" data-q="q1_8">
-          <p class="q-stem"><span class="q-num">Q1.8</span> <strong>Calcule F<sub>2y</sub>.</strong></p>
-          <p class="q-hint" id="h-q1_8">Arrondir au centième. Saisis la valeur <strong>avec son unité</strong> : l'unité vaut la moitié des points de la question.</p>
-          <div class="q-row">
-            <input type="text" class="q-input" id="in-q1_8" aria-label="Réponse Q1.8" aria-describedby="h-q1_8" autocomplete="off" autocapitalize="off" spellcheck="false">
-            <button type="button" class="btn btn-validate">Valider</button>
-            <span class="q-status" aria-live="polite"></span>
-            <span class="print-only pstat">Non validée : comptée fausse</span>
-          </div>
-          <p class="q-msg" role="alert"></p>
-          <div class="q-expl" hidden>
-            <p class="q-unit-msg" hidden></p>
-            <p class="q-expected"><span>Réponse attendue :</span> …</p>
-            <div class="q-why"><p>…</p></div>
-          </div>
-        </div>
-    </div>
-  </section>
-
-  <section class="part" id="partie-2" aria-labelledby="t-partie-2">
-    <header class="part-head"><div class="part-num" aria-hidden="true">2</div>
-      <div><h2 id="t-partie-2"><span class="sr-only">Partie 2 : </span>Quadrant 2 — en haut à gauche</h2>
-        <div class="duree">Durée conseillée : 10 min · Barème : 8 points, soit 25,0 % de la note</div></div></header>
-    <div class="part-body">
-      <p>Les deux forces de cette partie pointent <b>en haut à gauche</b> du repère (x, y). Pour chacune, la figure donne son intensité et l'angle α qu'elle fait avec l'un des axes : repère bien lequel.</p><p class="only-training small">Besoin d'un rappel ? <button type="button" class="doc-chip training-only" data-doc="METH" aria-pressed="false">Méthode</button></p><h3 class="sub-head">Force F<sub>3</sub></h3><figure class="q-fig quad-fig" style="max-width:340px" data-vec="3"><svg viewBox="0 0 320 300" role="img" style="display:block;width:100%;height:auto;background:#fff;border:1px solid #D3D8D5"></svg><figcaption></figcaption></figure>
-        <div class="q" id="q2_1" data-q="q2_1">
-          <p class="q-stem"><span class="q-num">Q2.1</span> <strong>Exprime F<sub>3x</sub> en fonction de F<sub>3</sub> et de α.</strong></p>
-          <p class="q-hint" id="h-q2_1">Expression littérale avec F et α (écris F, α ou alpha), <code>*</code> pour multiplier, <code>sin(…)</code> ou <code>cos(…)</code>. Le signe compte.</p>
-          <div class="q-row">
-            <input type="text" class="q-input" id="in-q2_1" aria-label="Réponse Q2.1" aria-describedby="h-q2_1" autocomplete="off" autocapitalize="off" spellcheck="false">
-            <button type="button" class="btn btn-validate">Valider</button>
-            <span class="q-status" aria-live="polite"></span>
-            <span class="print-only pstat">Non validée : comptée fausse</span>
-          </div>
-          <p class="q-msg" role="alert"></p>
-          <div class="q-expl" hidden>
-            <p class="q-unit-msg" hidden></p>
-            <p class="q-expected"><span>Réponse attendue :</span> …</p>
-            <div class="q-why"><p>…</p></div>
-          </div>
-        </div>
-        <div class="q" id="q2_2" data-q="q2_2">
-          <p class="q-stem"><span class="q-num">Q2.2</span> <strong>Exprime F<sub>3y</sub> en fonction de F<sub>3</sub> et de α.</strong></p>
-          <p class="q-hint" id="h-q2_2">Expression littérale avec F et α (écris F, α ou alpha), <code>*</code> pour multiplier, <code>sin(…)</code> ou <code>cos(…)</code>. Le signe compte.</p>
-          <div class="q-row">
-            <input type="text" class="q-input" id="in-q2_2" aria-label="Réponse Q2.2" aria-describedby="h-q2_2" autocomplete="off" autocapitalize="off" spellcheck="false">
-            <button type="button" class="btn btn-validate">Valider</button>
-            <span class="q-status" aria-live="polite"></span>
-            <span class="print-only pstat">Non validée : comptée fausse</span>
-          </div>
-          <p class="q-msg" role="alert"></p>
-          <div class="q-expl" hidden>
-            <p class="q-unit-msg" hidden></p>
-            <p class="q-expected"><span>Réponse attendue :</span> …</p>
-            <div class="q-why"><p>…</p></div>
-          </div>
-        </div>
-        <div class="q" id="q2_3" data-q="q2_3">
-          <p class="q-stem"><span class="q-num">Q2.3</span> <strong>Calcule F<sub>3x</sub>.</strong></p>
-          <p class="q-hint" id="h-q2_3">Arrondir au centième. Saisis la valeur <strong>avec son unité</strong> : l'unité vaut la moitié des points de la question.</p>
-          <div class="q-row">
-            <input type="text" class="q-input" id="in-q2_3" aria-label="Réponse Q2.3" aria-describedby="h-q2_3" autocomplete="off" autocapitalize="off" spellcheck="false">
-            <button type="button" class="btn btn-validate">Valider</button>
-            <span class="q-status" aria-live="polite"></span>
-            <span class="print-only pstat">Non validée : comptée fausse</span>
-          </div>
-          <p class="q-msg" role="alert"></p>
-          <div class="q-expl" hidden>
-            <p class="q-unit-msg" hidden></p>
-            <p class="q-expected"><span>Réponse attendue :</span> …</p>
-            <div class="q-why"><p>…</p></div>
-          </div>
-        </div>
-        <div class="q" id="q2_4" data-q="q2_4">
-          <p class="q-stem"><span class="q-num">Q2.4</span> <strong>Calcule F<sub>3y</sub>.</strong></p>
-          <p class="q-hint" id="h-q2_4">Arrondir au centième. Saisis la valeur <strong>avec son unité</strong> : l'unité vaut la moitié des points de la question.</p>
-          <div class="q-row">
-            <input type="text" class="q-input" id="in-q2_4" aria-label="Réponse Q2.4" aria-describedby="h-q2_4" autocomplete="off" autocapitalize="off" spellcheck="false">
-            <button type="button" class="btn btn-validate">Valider</button>
-            <span class="q-status" aria-live="polite"></span>
-            <span class="print-only pstat">Non validée : comptée fausse</span>
-          </div>
-          <p class="q-msg" role="alert"></p>
-          <div class="q-expl" hidden>
-            <p class="q-unit-msg" hidden></p>
-            <p class="q-expected"><span>Réponse attendue :</span> …</p>
-            <div class="q-why"><p>…</p></div>
-          </div>
-        </div><h3 class="sub-head">Force F<sub>4</sub></h3><figure class="q-fig quad-fig" style="max-width:340px" data-vec="4"><svg viewBox="0 0 320 300" role="img" style="display:block;width:100%;height:auto;background:#fff;border:1px solid #D3D8D5"></svg><figcaption></figcaption></figure>
-        <div class="q" id="q2_5" data-q="q2_5">
-          <p class="q-stem"><span class="q-num">Q2.5</span> <strong>Exprime F<sub>4x</sub> en fonction de F<sub>4</sub> et de α.</strong></p>
-          <p class="q-hint" id="h-q2_5">Expression littérale avec F et α (écris F, α ou alpha), <code>*</code> pour multiplier, <code>sin(…)</code> ou <code>cos(…)</code>. Le signe compte.</p>
-          <div class="q-row">
-            <input type="text" class="q-input" id="in-q2_5" aria-label="Réponse Q2.5" aria-describedby="h-q2_5" autocomplete="off" autocapitalize="off" spellcheck="false">
-            <button type="button" class="btn btn-validate">Valider</button>
-            <span class="q-status" aria-live="polite"></span>
-            <span class="print-only pstat">Non validée : comptée fausse</span>
-          </div>
-          <p class="q-msg" role="alert"></p>
-          <div class="q-expl" hidden>
-            <p class="q-unit-msg" hidden></p>
-            <p class="q-expected"><span>Réponse attendue :</span> …</p>
-            <div class="q-why"><p>…</p></div>
-          </div>
-        </div>
-        <div class="q" id="q2_6" data-q="q2_6">
-          <p class="q-stem"><span class="q-num">Q2.6</span> <strong>Exprime F<sub>4y</sub> en fonction de F<sub>4</sub> et de α.</strong></p>
-          <p class="q-hint" id="h-q2_6">Expression littérale avec F et α (écris F, α ou alpha), <code>*</code> pour multiplier, <code>sin(…)</code> ou <code>cos(…)</code>. Le signe compte.</p>
-          <div class="q-row">
-            <input type="text" class="q-input" id="in-q2_6" aria-label="Réponse Q2.6" aria-describedby="h-q2_6" autocomplete="off" autocapitalize="off" spellcheck="false">
-            <button type="button" class="btn btn-validate">Valider</button>
-            <span class="q-status" aria-live="polite"></span>
-            <span class="print-only pstat">Non validée : comptée fausse</span>
-          </div>
-          <p class="q-msg" role="alert"></p>
-          <div class="q-expl" hidden>
-            <p class="q-unit-msg" hidden></p>
-            <p class="q-expected"><span>Réponse attendue :</span> …</p>
-            <div class="q-why"><p>…</p></div>
-          </div>
-        </div>
-        <div class="q" id="q2_7" data-q="q2_7">
-          <p class="q-stem"><span class="q-num">Q2.7</span> <strong>Calcule F<sub>4x</sub>.</strong></p>
-          <p class="q-hint" id="h-q2_7">Arrondir au centième. Saisis la valeur <strong>avec son unité</strong> : l'unité vaut la moitié des points de la question.</p>
-          <div class="q-row">
-            <input type="text" class="q-input" id="in-q2_7" aria-label="Réponse Q2.7" aria-describedby="h-q2_7" autocomplete="off" autocapitalize="off" spellcheck="false">
-            <button type="button" class="btn btn-validate">Valider</button>
-            <span class="q-status" aria-live="polite"></span>
-            <span class="print-only pstat">Non validée : comptée fausse</span>
-          </div>
-          <p class="q-msg" role="alert"></p>
-          <div class="q-expl" hidden>
-            <p class="q-unit-msg" hidden></p>
-            <p class="q-expected"><span>Réponse attendue :</span> …</p>
-            <div class="q-why"><p>…</p></div>
-          </div>
-        </div>
-        <div class="q" id="q2_8" data-q="q2_8">
-          <p class="q-stem"><span class="q-num">Q2.8</span> <strong>Calcule F<sub>4y</sub>.</strong></p>
-          <p class="q-hint" id="h-q2_8">Arrondir au centième. Saisis la valeur <strong>avec son unité</strong> : l'unité vaut la moitié des points de la question.</p>
-          <div class="q-row">
-            <input type="text" class="q-input" id="in-q2_8" aria-label="Réponse Q2.8" aria-describedby="h-q2_8" autocomplete="off" autocapitalize="off" spellcheck="false">
-            <button type="button" class="btn btn-validate">Valider</button>
-            <span class="q-status" aria-live="polite"></span>
-            <span class="print-only pstat">Non validée : comptée fausse</span>
-          </div>
-          <p class="q-msg" role="alert"></p>
-          <div class="q-expl" hidden>
-            <p class="q-unit-msg" hidden></p>
-            <p class="q-expected"><span>Réponse attendue :</span> …</p>
-            <div class="q-why"><p>…</p></div>
-          </div>
-        </div>
-    </div>
-  </section>
-
-  <section class="part" id="partie-3" aria-labelledby="t-partie-3">
-    <header class="part-head"><div class="part-num" aria-hidden="true">3</div>
-      <div><h2 id="t-partie-3"><span class="sr-only">Partie 3 : </span>Quadrant 3 — en bas à gauche</h2>
-        <div class="duree">Durée conseillée : 10 min · Barème : 8 points, soit 25,0 % de la note</div></div></header>
-    <div class="part-body">
-      <p>Les deux forces de cette partie pointent <b>en bas à gauche</b> du repère (x, y). Pour chacune, la figure donne son intensité et l'angle α qu'elle fait avec l'un des axes : repère bien lequel.</p><p class="only-training small">Besoin d'un rappel ? <button type="button" class="doc-chip training-only" data-doc="METH" aria-pressed="false">Méthode</button></p><h3 class="sub-head">Force F<sub>5</sub></h3><figure class="q-fig quad-fig" style="max-width:340px" data-vec="5"><svg viewBox="0 0 320 300" role="img" style="display:block;width:100%;height:auto;background:#fff;border:1px solid #D3D8D5"></svg><figcaption></figcaption></figure>
-        <div class="q" id="q3_1" data-q="q3_1">
-          <p class="q-stem"><span class="q-num">Q3.1</span> <strong>Exprime F<sub>5x</sub> en fonction de F<sub>5</sub> et de α.</strong></p>
-          <p class="q-hint" id="h-q3_1">Expression littérale avec F et α (écris F, α ou alpha), <code>*</code> pour multiplier, <code>sin(…)</code> ou <code>cos(…)</code>. Le signe compte.</p>
-          <div class="q-row">
-            <input type="text" class="q-input" id="in-q3_1" aria-label="Réponse Q3.1" aria-describedby="h-q3_1" autocomplete="off" autocapitalize="off" spellcheck="false">
-            <button type="button" class="btn btn-validate">Valider</button>
-            <span class="q-status" aria-live="polite"></span>
-            <span class="print-only pstat">Non validée : comptée fausse</span>
-          </div>
-          <p class="q-msg" role="alert"></p>
-          <div class="q-expl" hidden>
-            <p class="q-unit-msg" hidden></p>
-            <p class="q-expected"><span>Réponse attendue :</span> …</p>
-            <div class="q-why"><p>…</p></div>
-          </div>
-        </div>
-        <div class="q" id="q3_2" data-q="q3_2">
-          <p class="q-stem"><span class="q-num">Q3.2</span> <strong>Exprime F<sub>5y</sub> en fonction de F<sub>5</sub> et de α.</strong></p>
-          <p class="q-hint" id="h-q3_2">Expression littérale avec F et α (écris F, α ou alpha), <code>*</code> pour multiplier, <code>sin(…)</code> ou <code>cos(…)</code>. Le signe compte.</p>
-          <div class="q-row">
-            <input type="text" class="q-input" id="in-q3_2" aria-label="Réponse Q3.2" aria-describedby="h-q3_2" autocomplete="off" autocapitalize="off" spellcheck="false">
-            <button type="button" class="btn btn-validate">Valider</button>
-            <span class="q-status" aria-live="polite"></span>
-            <span class="print-only pstat">Non validée : comptée fausse</span>
-          </div>
-          <p class="q-msg" role="alert"></p>
-          <div class="q-expl" hidden>
-            <p class="q-unit-msg" hidden></p>
-            <p class="q-expected"><span>Réponse attendue :</span> …</p>
-            <div class="q-why"><p>…</p></div>
-          </div>
-        </div>
-        <div class="q" id="q3_3" data-q="q3_3">
-          <p class="q-stem"><span class="q-num">Q3.3</span> <strong>Calcule F<sub>5x</sub>.</strong></p>
-          <p class="q-hint" id="h-q3_3">Arrondir au centième. Saisis la valeur <strong>avec son unité</strong> : l'unité vaut la moitié des points de la question.</p>
-          <div class="q-row">
-            <input type="text" class="q-input" id="in-q3_3" aria-label="Réponse Q3.3" aria-describedby="h-q3_3" autocomplete="off" autocapitalize="off" spellcheck="false">
-            <button type="button" class="btn btn-validate">Valider</button>
-            <span class="q-status" aria-live="polite"></span>
-            <span class="print-only pstat">Non validée : comptée fausse</span>
-          </div>
-          <p class="q-msg" role="alert"></p>
-          <div class="q-expl" hidden>
-            <p class="q-unit-msg" hidden></p>
-            <p class="q-expected"><span>Réponse attendue :</span> …</p>
-            <div class="q-why"><p>…</p></div>
-          </div>
-        </div>
-        <div class="q" id="q3_4" data-q="q3_4">
-          <p class="q-stem"><span class="q-num">Q3.4</span> <strong>Calcule F<sub>5y</sub>.</strong></p>
-          <p class="q-hint" id="h-q3_4">Arrondir au centième. Saisis la valeur <strong>avec son unité</strong> : l'unité vaut la moitié des points de la question.</p>
-          <div class="q-row">
-            <input type="text" class="q-input" id="in-q3_4" aria-label="Réponse Q3.4" aria-describedby="h-q3_4" autocomplete="off" autocapitalize="off" spellcheck="false">
-            <button type="button" class="btn btn-validate">Valider</button>
-            <span class="q-status" aria-live="polite"></span>
-            <span class="print-only pstat">Non validée : comptée fausse</span>
-          </div>
-          <p class="q-msg" role="alert"></p>
-          <div class="q-expl" hidden>
-            <p class="q-unit-msg" hidden></p>
-            <p class="q-expected"><span>Réponse attendue :</span> …</p>
-            <div class="q-why"><p>…</p></div>
-          </div>
-        </div><h3 class="sub-head">Force F<sub>6</sub></h3><figure class="q-fig quad-fig" style="max-width:340px" data-vec="6"><svg viewBox="0 0 320 300" role="img" style="display:block;width:100%;height:auto;background:#fff;border:1px solid #D3D8D5"></svg><figcaption></figcaption></figure>
-        <div class="q" id="q3_5" data-q="q3_5">
-          <p class="q-stem"><span class="q-num">Q3.5</span> <strong>Exprime F<sub>6x</sub> en fonction de F<sub>6</sub> et de α.</strong></p>
-          <p class="q-hint" id="h-q3_5">Expression littérale avec F et α (écris F, α ou alpha), <code>*</code> pour multiplier, <code>sin(…)</code> ou <code>cos(…)</code>. Le signe compte.</p>
-          <div class="q-row">
-            <input type="text" class="q-input" id="in-q3_5" aria-label="Réponse Q3.5" aria-describedby="h-q3_5" autocomplete="off" autocapitalize="off" spellcheck="false">
-            <button type="button" class="btn btn-validate">Valider</button>
-            <span class="q-status" aria-live="polite"></span>
-            <span class="print-only pstat">Non validée : comptée fausse</span>
-          </div>
-          <p class="q-msg" role="alert"></p>
-          <div class="q-expl" hidden>
-            <p class="q-unit-msg" hidden></p>
-            <p class="q-expected"><span>Réponse attendue :</span> …</p>
-            <div class="q-why"><p>…</p></div>
-          </div>
-        </div>
-        <div class="q" id="q3_6" data-q="q3_6">
-          <p class="q-stem"><span class="q-num">Q3.6</span> <strong>Exprime F<sub>6y</sub> en fonction de F<sub>6</sub> et de α.</strong></p>
-          <p class="q-hint" id="h-q3_6">Expression littérale avec F et α (écris F, α ou alpha), <code>*</code> pour multiplier, <code>sin(…)</code> ou <code>cos(…)</code>. Le signe compte.</p>
-          <div class="q-row">
-            <input type="text" class="q-input" id="in-q3_6" aria-label="Réponse Q3.6" aria-describedby="h-q3_6" autocomplete="off" autocapitalize="off" spellcheck="false">
-            <button type="button" class="btn btn-validate">Valider</button>
-            <span class="q-status" aria-live="polite"></span>
-            <span class="print-only pstat">Non validée : comptée fausse</span>
-          </div>
-          <p class="q-msg" role="alert"></p>
-          <div class="q-expl" hidden>
-            <p class="q-unit-msg" hidden></p>
-            <p class="q-expected"><span>Réponse attendue :</span> …</p>
-            <div class="q-why"><p>…</p></div>
-          </div>
-        </div>
-        <div class="q" id="q3_7" data-q="q3_7">
-          <p class="q-stem"><span class="q-num">Q3.7</span> <strong>Calcule F<sub>6x</sub>.</strong></p>
-          <p class="q-hint" id="h-q3_7">Arrondir au centième. Saisis la valeur <strong>avec son unité</strong> : l'unité vaut la moitié des points de la question.</p>
-          <div class="q-row">
-            <input type="text" class="q-input" id="in-q3_7" aria-label="Réponse Q3.7" aria-describedby="h-q3_7" autocomplete="off" autocapitalize="off" spellcheck="false">
-            <button type="button" class="btn btn-validate">Valider</button>
-            <span class="q-status" aria-live="polite"></span>
-            <span class="print-only pstat">Non validée : comptée fausse</span>
-          </div>
-          <p class="q-msg" role="alert"></p>
-          <div class="q-expl" hidden>
-            <p class="q-unit-msg" hidden></p>
-            <p class="q-expected"><span>Réponse attendue :</span> …</p>
-            <div class="q-why"><p>…</p></div>
-          </div>
-        </div>
-        <div class="q" id="q3_8" data-q="q3_8">
-          <p class="q-stem"><span class="q-num">Q3.8</span> <strong>Calcule F<sub>6y</sub>.</strong></p>
-          <p class="q-hint" id="h-q3_8">Arrondir au centième. Saisis la valeur <strong>avec son unité</strong> : l'unité vaut la moitié des points de la question.</p>
-          <div class="q-row">
-            <input type="text" class="q-input" id="in-q3_8" aria-label="Réponse Q3.8" aria-describedby="h-q3_8" autocomplete="off" autocapitalize="off" spellcheck="false">
-            <button type="button" class="btn btn-validate">Valider</button>
-            <span class="q-status" aria-live="polite"></span>
-            <span class="print-only pstat">Non validée : comptée fausse</span>
-          </div>
-          <p class="q-msg" role="alert"></p>
-          <div class="q-expl" hidden>
-            <p class="q-unit-msg" hidden></p>
-            <p class="q-expected"><span>Réponse attendue :</span> …</p>
-            <div class="q-why"><p>…</p></div>
-          </div>
-        </div>
-    </div>
-  </section>
-
-  <section class="part" id="partie-4" aria-labelledby="t-partie-4">
-    <header class="part-head"><div class="part-num" aria-hidden="true">4</div>
-      <div><h2 id="t-partie-4"><span class="sr-only">Partie 4 : </span>Quadrant 4 — en bas à droite</h2>
-        <div class="duree">Durée conseillée : 10 min · Barème : 8 points, soit 25,0 % de la note</div></div></header>
-    <div class="part-body">
-      <p>Les deux forces de cette partie pointent <b>en bas à droite</b> du repère (x, y). Pour chacune, la figure donne son intensité et l'angle α qu'elle fait avec l'un des axes : repère bien lequel.</p><p class="only-training small">Besoin d'un rappel ? <button type="button" class="doc-chip training-only" data-doc="METH" aria-pressed="false">Méthode</button></p><h3 class="sub-head">Force F<sub>7</sub></h3><figure class="q-fig quad-fig" style="max-width:340px" data-vec="7"><svg viewBox="0 0 320 300" role="img" style="display:block;width:100%;height:auto;background:#fff;border:1px solid #D3D8D5"></svg><figcaption></figcaption></figure>
-        <div class="q" id="q4_1" data-q="q4_1">
-          <p class="q-stem"><span class="q-num">Q4.1</span> <strong>Exprime F<sub>7x</sub> en fonction de F<sub>7</sub> et de α.</strong></p>
-          <p class="q-hint" id="h-q4_1">Expression littérale avec F et α (écris F, α ou alpha), <code>*</code> pour multiplier, <code>sin(…)</code> ou <code>cos(…)</code>. Le signe compte.</p>
-          <div class="q-row">
-            <input type="text" class="q-input" id="in-q4_1" aria-label="Réponse Q4.1" aria-describedby="h-q4_1" autocomplete="off" autocapitalize="off" spellcheck="false">
-            <button type="button" class="btn btn-validate">Valider</button>
-            <span class="q-status" aria-live="polite"></span>
-            <span class="print-only pstat">Non validée : comptée fausse</span>
-          </div>
-          <p class="q-msg" role="alert"></p>
-          <div class="q-expl" hidden>
-            <p class="q-unit-msg" hidden></p>
-            <p class="q-expected"><span>Réponse attendue :</span> …</p>
-            <div class="q-why"><p>…</p></div>
-          </div>
-        </div>
-        <div class="q" id="q4_2" data-q="q4_2">
-          <p class="q-stem"><span class="q-num">Q4.2</span> <strong>Exprime F<sub>7y</sub> en fonction de F<sub>7</sub> et de α.</strong></p>
-          <p class="q-hint" id="h-q4_2">Expression littérale avec F et α (écris F, α ou alpha), <code>*</code> pour multiplier, <code>sin(…)</code> ou <code>cos(…)</code>. Le signe compte.</p>
-          <div class="q-row">
-            <input type="text" class="q-input" id="in-q4_2" aria-label="Réponse Q4.2" aria-describedby="h-q4_2" autocomplete="off" autocapitalize="off" spellcheck="false">
-            <button type="button" class="btn btn-validate">Valider</button>
-            <span class="q-status" aria-live="polite"></span>
-            <span class="print-only pstat">Non validée : comptée fausse</span>
-          </div>
-          <p class="q-msg" role="alert"></p>
-          <div class="q-expl" hidden>
-            <p class="q-unit-msg" hidden></p>
-            <p class="q-expected"><span>Réponse attendue :</span> …</p>
-            <div class="q-why"><p>…</p></div>
-          </div>
-        </div>
-        <div class="q" id="q4_3" data-q="q4_3">
-          <p class="q-stem"><span class="q-num">Q4.3</span> <strong>Calcule F<sub>7x</sub>.</strong></p>
-          <p class="q-hint" id="h-q4_3">Arrondir au centième. Saisis la valeur <strong>avec son unité</strong> : l'unité vaut la moitié des points de la question.</p>
-          <div class="q-row">
-            <input type="text" class="q-input" id="in-q4_3" aria-label="Réponse Q4.3" aria-describedby="h-q4_3" autocomplete="off" autocapitalize="off" spellcheck="false">
-            <button type="button" class="btn btn-validate">Valider</button>
-            <span class="q-status" aria-live="polite"></span>
-            <span class="print-only pstat">Non validée : comptée fausse</span>
-          </div>
-          <p class="q-msg" role="alert"></p>
-          <div class="q-expl" hidden>
-            <p class="q-unit-msg" hidden></p>
-            <p class="q-expected"><span>Réponse attendue :</span> …</p>
-            <div class="q-why"><p>…</p></div>
-          </div>
-        </div>
-        <div class="q" id="q4_4" data-q="q4_4">
-          <p class="q-stem"><span class="q-num">Q4.4</span> <strong>Calcule F<sub>7y</sub>.</strong></p>
-          <p class="q-hint" id="h-q4_4">Arrondir au centième. Saisis la valeur <strong>avec son unité</strong> : l'unité vaut la moitié des points de la question.</p>
-          <div class="q-row">
-            <input type="text" class="q-input" id="in-q4_4" aria-label="Réponse Q4.4" aria-describedby="h-q4_4" autocomplete="off" autocapitalize="off" spellcheck="false">
-            <button type="button" class="btn btn-validate">Valider</button>
-            <span class="q-status" aria-live="polite"></span>
-            <span class="print-only pstat">Non validée : comptée fausse</span>
-          </div>
-          <p class="q-msg" role="alert"></p>
-          <div class="q-expl" hidden>
-            <p class="q-unit-msg" hidden></p>
-            <p class="q-expected"><span>Réponse attendue :</span> …</p>
-            <div class="q-why"><p>…</p></div>
-          </div>
-        </div><h3 class="sub-head">Force F<sub>8</sub></h3><figure class="q-fig quad-fig" style="max-width:340px" data-vec="8"><svg viewBox="0 0 320 300" role="img" style="display:block;width:100%;height:auto;background:#fff;border:1px solid #D3D8D5"></svg><figcaption></figcaption></figure>
-        <div class="q" id="q4_5" data-q="q4_5">
-          <p class="q-stem"><span class="q-num">Q4.5</span> <strong>Exprime F<sub>8x</sub> en fonction de F<sub>8</sub> et de α.</strong></p>
-          <p class="q-hint" id="h-q4_5">Expression littérale avec F et α (écris F, α ou alpha), <code>*</code> pour multiplier, <code>sin(…)</code> ou <code>cos(…)</code>. Le signe compte.</p>
-          <div class="q-row">
-            <input type="text" class="q-input" id="in-q4_5" aria-label="Réponse Q4.5" aria-describedby="h-q4_5" autocomplete="off" autocapitalize="off" spellcheck="false">
-            <button type="button" class="btn btn-validate">Valider</button>
-            <span class="q-status" aria-live="polite"></span>
-            <span class="print-only pstat">Non validée : comptée fausse</span>
-          </div>
-          <p class="q-msg" role="alert"></p>
-          <div class="q-expl" hidden>
-            <p class="q-unit-msg" hidden></p>
-            <p class="q-expected"><span>Réponse attendue :</span> …</p>
-            <div class="q-why"><p>…</p></div>
-          </div>
-        </div>
-        <div class="q" id="q4_6" data-q="q4_6">
-          <p class="q-stem"><span class="q-num">Q4.6</span> <strong>Exprime F<sub>8y</sub> en fonction de F<sub>8</sub> et de α.</strong></p>
-          <p class="q-hint" id="h-q4_6">Expression littérale avec F et α (écris F, α ou alpha), <code>*</code> pour multiplier, <code>sin(…)</code> ou <code>cos(…)</code>. Le signe compte.</p>
-          <div class="q-row">
-            <input type="text" class="q-input" id="in-q4_6" aria-label="Réponse Q4.6" aria-describedby="h-q4_6" autocomplete="off" autocapitalize="off" spellcheck="false">
-            <button type="button" class="btn btn-validate">Valider</button>
-            <span class="q-status" aria-live="polite"></span>
-            <span class="print-only pstat">Non validée : comptée fausse</span>
-          </div>
-          <p class="q-msg" role="alert"></p>
-          <div class="q-expl" hidden>
-            <p class="q-unit-msg" hidden></p>
-            <p class="q-expected"><span>Réponse attendue :</span> …</p>
-            <div class="q-why"><p>…</p></div>
-          </div>
-        </div>
-        <div class="q" id="q4_7" data-q="q4_7">
-          <p class="q-stem"><span class="q-num">Q4.7</span> <strong>Calcule F<sub>8x</sub>.</strong></p>
-          <p class="q-hint" id="h-q4_7">Arrondir au centième. Saisis la valeur <strong>avec son unité</strong> : l'unité vaut la moitié des points de la question.</p>
-          <div class="q-row">
-            <input type="text" class="q-input" id="in-q4_7" aria-label="Réponse Q4.7" aria-describedby="h-q4_7" autocomplete="off" autocapitalize="off" spellcheck="false">
-            <button type="button" class="btn btn-validate">Valider</button>
-            <span class="q-status" aria-live="polite"></span>
-            <span class="print-only pstat">Non validée : comptée fausse</span>
-          </div>
-          <p class="q-msg" role="alert"></p>
-          <div class="q-expl" hidden>
-            <p class="q-unit-msg" hidden></p>
-            <p class="q-expected"><span>Réponse attendue :</span> …</p>
-            <div class="q-why"><p>…</p></div>
-          </div>
-        </div>
-        <div class="q" id="q4_8" data-q="q4_8">
-          <p class="q-stem"><span class="q-num">Q4.8</span> <strong>Calcule F<sub>8y</sub>.</strong></p>
-          <p class="q-hint" id="h-q4_8">Arrondir au centième. Saisis la valeur <strong>avec son unité</strong> : l'unité vaut la moitié des points de la question.</p>
-          <div class="q-row">
-            <input type="text" class="q-input" id="in-q4_8" aria-label="Réponse Q4.8" aria-describedby="h-q4_8" autocomplete="off" autocapitalize="off" spellcheck="false">
-            <button type="button" class="btn btn-validate">Valider</button>
-            <span class="q-status" aria-live="polite"></span>
-            <span class="print-only pstat">Non validée : comptée fausse</span>
-          </div>
-          <p class="q-msg" role="alert"></p>
-          <div class="q-expl" hidden>
-            <p class="q-unit-msg" hidden></p>
-            <p class="q-expected"><span>Réponse attendue :</span> …</p>
-            <div class="q-why"><p>…</p></div>
-          </div>
-        </div>
-    </div>
-  </section>
-
-  <section class="recap" id="recap" aria-labelledby="t-recap">
-    <header class="recap-head"><h2 id="t-recap">Récapitulatif et note finale</h2>
-      <p class="small">Les questions non validées comptent comme fausses. Chaque partie est ramenée sur 20, puis pondérée par sa durée conseillée.</p></header>
-    <div id="exam-submit-wrap">
-      <p class="es-lead">Ta copie n'est pas encore corrigée : aucune réponse n'est verrouillée, tu peux encore revenir sur les questions.</p>
-      <button type="button" class="btn btn-exam" id="exam-submit">J'ai fini, je fais corriger ma copie</button>
-      <p class="es-warn" id="exam-warn" role="alert"></p>
-    </div>
-    <div id="recap-graded">
-      <div class="recap-wrap">
-        <table class="t recap-table">
-          <thead><tr><th>Partie</th><th>Durée</th><th>Poids</th><th>Points</th><th>Note /20</th><th>Contribution</th></tr></thead>
-          <tbody id="recap-body"></tbody>
-          <tfoot><tr><th colspan="4">Note globale pondérée</th><th class="final-note"></th><th></th></tr></tfoot>
-        </table>
-      </div>
-      <p class="final-detail small"></p>
-    </div>
-    <div class="recap-foot" id="recap-foot"><button type="button" class="btn btn-print">Imprimer ma copie</button>
-      <span class="small no-print">L'impression reprend tes réponses, les corrections et ce récapitulatif.</span></div>
-  </section>
+    <div class="ta-act"><button type="button" class="btn" id="qd-check" title="Touche Entrée">Vérifier</button>
+      <button type="button" class="btn ghost" id="qd-sol" title="La question compte alors comme manquée">Correction</button>
+      <button type="button" class="btn ta-next" id="qd-next" disabled>Question suivante ▶</button></div>
+    <p class="ta-fb" id="qd-fb" aria-live="polite"></p></section>
+  <section class="ta-col ta-col-cor" id="qd-col-cor" aria-labelledby="qd-h-cor"><h2 id="qd-h-cor"><span>3</span> Correction</h2>
+    <p class="ta-vide small" id="qd-vide">La correction pas à pas s'affiche ici dès que ta réponse est juste, ou avec le
+    bouton « Correction » (la question compte alors comme manquée). Les projections apparaissent aussi sur la figure.</p>
+    <div class="ta-corr" id="qd-corr" hidden></div></section>
 </main>
-
-<footer class="banner" aria-label="Suivi de la composition">
-  <div class="score-block"><div class="lab">Note provisoire</div><div class="score" id="score-val">–<small>/20</small></div></div>
-  <div class="exam-block"><div class="lab">Mode examen</div><div class="exam-state">Note masquée</div></div>
-  <div class="timer-block"><div class="lab">Temps</div><div class="timer" id="timer-val">0:00:00</div></div>
-  <div class="count" id="score-count" aria-live="polite"></div>
-  <div class="spacer"></div>
-  <button type="button" class="btn-docs training-only" id="btn-docs">Documents</button>
-</footer>
-
-<!-- CONFIGURATION DU SUJET : la seule partie à réécrire pour un nouvel exercice -->
-<script>window.__PARTS__ = [{"num": "1", "title": "Quadrant 1 — en haut à droite", "minutes": 10, "duration": "10 min", "points": 8}, {"num": "2", "title": "Quadrant 2 — en haut à gauche", "minutes": 10, "duration": "10 min", "points": 8}, {"num": "3", "title": "Quadrant 3 — en bas à gauche", "minutes": 10, "duration": "10 min", "points": 8}, {"num": "4", "title": "Quadrant 4 — en bas à droite", "minutes": 10, "duration": "10 min", "points": 8}];
-window.__QCFG__ = {"q1_1": {"label": "Q1.1", "part": "1", "pts": 1, "grader": {"type": "expr", "expected": "f", "vars": {"f": [1, 2, 3]}, "names": {"f": "f"}}}, "q1_2": {"label": "Q1.2", "part": "1", "pts": 1, "grader": {"type": "expr", "expected": "f", "vars": {"f": [1, 2, 3]}, "names": {"f": "f"}}}, "q1_3": {"label": "Q1.3", "part": "1", "pts": 1, "grader": {"type": "num", "value": 0, "absTol": 0.01, "unit": {"label": "N", "accept": ["n", "newton", "newtons"]}}}, "q1_4": {"label": "Q1.4", "part": "1", "pts": 1, "grader": {"type": "num", "value": 0, "absTol": 0.01, "unit": {"label": "N", "accept": ["n", "newton", "newtons"]}}}, "q1_5": {"label": "Q1.5", "part": "1", "pts": 1, "grader": {"type": "expr", "expected": "f", "vars": {"f": [1, 2, 3]}, "names": {"f": "f"}}}, "q1_6": {"label": "Q1.6", "part": "1", "pts": 1, "grader": {"type": "expr", "expected": "f", "vars": {"f": [1, 2, 3]}, "names": {"f": "f"}}}, "q1_7": {"label": "Q1.7", "part": "1", "pts": 1, "grader": {"type": "num", "value": 0, "absTol": 0.01, "unit": {"label": "N", "accept": ["n", "newton", "newtons"]}}}, "q1_8": {"label": "Q1.8", "part": "1", "pts": 1, "grader": {"type": "num", "value": 0, "absTol": 0.01, "unit": {"label": "N", "accept": ["n", "newton", "newtons"]}}}, "q2_1": {"label": "Q2.1", "part": "2", "pts": 1, "grader": {"type": "expr", "expected": "f", "vars": {"f": [1, 2, 3]}, "names": {"f": "f"}}}, "q2_2": {"label": "Q2.2", "part": "2", "pts": 1, "grader": {"type": "expr", "expected": "f", "vars": {"f": [1, 2, 3]}, "names": {"f": "f"}}}, "q2_3": {"label": "Q2.3", "part": "2", "pts": 1, "grader": {"type": "num", "value": 0, "absTol": 0.01, "unit": {"label": "N", "accept": ["n", "newton", "newtons"]}}}, "q2_4": {"label": "Q2.4", "part": "2", "pts": 1, "grader": {"type": "num", "value": 0, "absTol": 0.01, "unit": {"label": "N", "accept": ["n", "newton", "newtons"]}}}, "q2_5": {"label": "Q2.5", "part": "2", "pts": 1, "grader": {"type": "expr", "expected": "f", "vars": {"f": [1, 2, 3]}, "names": {"f": "f"}}}, "q2_6": {"label": "Q2.6", "part": "2", "pts": 1, "grader": {"type": "expr", "expected": "f", "vars": {"f": [1, 2, 3]}, "names": {"f": "f"}}}, "q2_7": {"label": "Q2.7", "part": "2", "pts": 1, "grader": {"type": "num", "value": 0, "absTol": 0.01, "unit": {"label": "N", "accept": ["n", "newton", "newtons"]}}}, "q2_8": {"label": "Q2.8", "part": "2", "pts": 1, "grader": {"type": "num", "value": 0, "absTol": 0.01, "unit": {"label": "N", "accept": ["n", "newton", "newtons"]}}}, "q3_1": {"label": "Q3.1", "part": "3", "pts": 1, "grader": {"type": "expr", "expected": "f", "vars": {"f": [1, 2, 3]}, "names": {"f": "f"}}}, "q3_2": {"label": "Q3.2", "part": "3", "pts": 1, "grader": {"type": "expr", "expected": "f", "vars": {"f": [1, 2, 3]}, "names": {"f": "f"}}}, "q3_3": {"label": "Q3.3", "part": "3", "pts": 1, "grader": {"type": "num", "value": 0, "absTol": 0.01, "unit": {"label": "N", "accept": ["n", "newton", "newtons"]}}}, "q3_4": {"label": "Q3.4", "part": "3", "pts": 1, "grader": {"type": "num", "value": 0, "absTol": 0.01, "unit": {"label": "N", "accept": ["n", "newton", "newtons"]}}}, "q3_5": {"label": "Q3.5", "part": "3", "pts": 1, "grader": {"type": "expr", "expected": "f", "vars": {"f": [1, 2, 3]}, "names": {"f": "f"}}}, "q3_6": {"label": "Q3.6", "part": "3", "pts": 1, "grader": {"type": "expr", "expected": "f", "vars": {"f": [1, 2, 3]}, "names": {"f": "f"}}}, "q3_7": {"label": "Q3.7", "part": "3", "pts": 1, "grader": {"type": "num", "value": 0, "absTol": 0.01, "unit": {"label": "N", "accept": ["n", "newton", "newtons"]}}}, "q3_8": {"label": "Q3.8", "part": "3", "pts": 1, "grader": {"type": "num", "value": 0, "absTol": 0.01, "unit": {"label": "N", "accept": ["n", "newton", "newtons"]}}}, "q4_1": {"label": "Q4.1", "part": "4", "pts": 1, "grader": {"type": "expr", "expected": "f", "vars": {"f": [1, 2, 3]}, "names": {"f": "f"}}}, "q4_2": {"label": "Q4.2", "part": "4", "pts": 1, "grader": {"type": "expr", "expected": "f", "vars": {"f": [1, 2, 3]}, "names": {"f": "f"}}}, "q4_3": {"label": "Q4.3", "part": "4", "pts": 1, "grader": {"type": "num", "value": 0, "absTol": 0.01, "unit": {"label": "N", "accept": ["n", "newton", "newtons"]}}}, "q4_4": {"label": "Q4.4", "part": "4", "pts": 1, "grader": {"type": "num", "value": 0, "absTol": 0.01, "unit": {"label": "N", "accept": ["n", "newton", "newtons"]}}}, "q4_5": {"label": "Q4.5", "part": "4", "pts": 1, "grader": {"type": "expr", "expected": "f", "vars": {"f": [1, 2, 3]}, "names": {"f": "f"}}}, "q4_6": {"label": "Q4.6", "part": "4", "pts": 1, "grader": {"type": "expr", "expected": "f", "vars": {"f": [1, 2, 3]}, "names": {"f": "f"}}}, "q4_7": {"label": "Q4.7", "part": "4", "pts": 1, "grader": {"type": "num", "value": 0, "absTol": 0.01, "unit": {"label": "N", "accept": ["n", "newton", "newtons"]}}}, "q4_8": {"label": "Q4.8", "part": "4", "pts": 1, "grader": {"type": "num", "value": 0, "absTol": 0.01, "unit": {"label": "N", "accept": ["n", "newton", "newtons"]}}}};
-window.__SKCFG__ = {};
+<section class="ta-bilan" id="qd-bilan" hidden aria-live="polite"></section>
+<footer class="ta-foot small"><p>Saisie : expressions avec F et α (ou <code>a</code>), <code>cos</code>, <code>sin</code>,
+le signe − ; le signe × est facultatif (<code>-F sin α</code>, <code>-F*sin(a)</code>…), toute écriture équivalente est acceptée.
+Nombres décimaux avec une virgule ou un point, signe compris, arrondis au centième ; tolérance ± 0,1 % (au moins 0,05 N).
+<kbd>Tab</kbd> passe à la case suivante, <kbd>Entrée</kbd> vérifie, puis passe à la question suivante. Une question n'est
+réussie que si les quatre cases sont justes à la première vérification ; la note sur 20 est donnée en fin de série.</p>
+<p class="no-print"><a href="cours-projection.html">Cours 2 — Projection d'une force</a> · <a href="exercice-projections.html">Exercice 1.2</a>
+· <a href="index.html">Accueil</a></p></footer>
+</div>
+<script>
 (function () {
   "use strict";
-  // ---- tirage reproductible : ?graine=N rejoue le même sujet
-  var m = /[?&]graine=(\d+)/.exec(location.search);
-  var graine = m ? +m[1] : 10000 + Math.floor(Math.random() * 90000);
-  var s = graine >>> 0;
-  function hasard() {                                     // mulberry32
-    s = (s + 0x6D2B79F5) | 0;
-    var t = Math.imul(s ^ (s >>> 15), 1 | s);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  var root = document.getElementById("qd"), NS = "http://www.w3.org/2000/svg", RAD = Math.PI / 180;
+  function q(s) { return root.querySelector(s); }
+  function qa(s) { return Array.prototype.slice.call(root.querySelectorAll(s)); }
+  // ---------- tirages : suite reproductible si l'adresse porte ?graine=N (ou ?seed=N)
+  var m = /[?&](?:graine|seed)=(\d+)/.exec(location.search), graine = m ? +m[1] : null;
+  var rnd = Math.random;
+  if (graine !== null) {
+    var s = graine >>> 0;
+    rnd = function () {   // mulberry32
+      s = (s + 0x6D2B79F5) | 0;
+      var t = Math.imul(s ^ (s >>> 15), 1 | s);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
   }
-  function entier(a, b) { return a + Math.floor(hasard() * (b - a + 1)); }
+  function ent(a, b) { return a + Math.floor(rnd() * (b - a + 1)); }
   function fr(x, d) {
-    if (Math.abs(x) < 0.5 * Math.pow(10, -d)) x = 0;
-    return x.toLocaleString("fr-FR", { minimumFractionDigits: d, maximumFractionDigits: d }).replace("-", "−");
+    if (Math.abs(x) < 1e-9) x = 0;
+    return x.toLocaleString("fr-FR", { minimumFractionDigits: d || 0, maximumFractionDigits: d === undefined ? 3 : d }).replace("-", "−");
   }
-  // ---- huit situations : quadrant, axe de l'angle et son orientation (en degrés, sens trigonométrique)
-  // h : angle mesuré depuis l'axe horizontal ; dir : sens de rotation de l'axe de référence vers F
-  var AXES = { x: 0, y: 90, "x'": 180, "y'": 270 };
-  var SITU = [[1, "x", 1], [1, "y", -1], [2, "x'", -1], [2, "y", 1], [3, "x'", 1], [3, "y'", -1], [4, "x", -1], [4, "y'", 1]];
-  var forces = [];
-  for (var q = 0; q < 4; q++) {
-    var paire = [SITU[2 * q], SITU[2 * q + 1]];
-    if (hasard() < 0.5) paire.reverse();                  // l'axe horizontal n'est pas toujours le premier
-    var a1 = 0, a2 = 0;
-    while (a1 === 45 || a1 === 0) a1 = entier(10, 80);
-    while (a2 === 45 || a2 === 0 || Math.abs(a2 - a1) < 8) a2 = entier(10, 80);
-    [a1, a2].forEach(function (a, i) {
-      var sit = paire[i], ref = sit[1], th = AXES[ref] + sit[2] * a;
-      forces.push({ q: sit[0], ref: ref, h: ref.charAt(0) === "x", a: a, F: 10 * entier(10, 99), th: th });
+  function par(x, d) { return x < 0 ? "(" + fr(x, d) + ")" : fr(x, d); }
+
+  var REF = { h: "horizontal", v: "vertical" };
+  var cur = null, essai = 0, interagi = false, reussi = false;
+  var serie = { refs: ["h", "v"], quads: [1, 2, 3, 4], N: 10, liste: [], k: 0, res: [] };
+
+  function melange(t) { for (var i = t.length - 1; i > 0; i--) { var j = Math.floor(rnd() * (i + 1)), x = t[i]; t[i] = t[j]; t[j] = x; } return t; }
+  function lancer(refs, quads, N) {
+    var combis = [];
+    quads.forEach(function (qd) { refs.forEach(function (r) { combis.push([qd, r]); }); });
+    serie = { refs: refs.slice(), quads: quads.slice(), N: N, liste: [], k: 0, res: [] };
+    melange(combis);
+    for (var i = 0; i < N; i++) serie.liste.push(combis[i % combis.length]);   // répartition équilibrée, puis ordre au hasard
+    melange(serie.liste);
+    q("#qd-N").textContent = N;
+    q("#qd-cfg-sum").textContent = N + " questions · " + (refs.length === 2 ? "α depuis x ou y" : "α depuis " + (refs[0] === "h" ? "x" : "y")) +
+      " · " + (quads.length === 4 ? "4 quadrants" : "Q" + quads.join(", Q"));
+    q("#qd-bilan").hidden = true; q("#qd-grid").hidden = false;
+    poser();
+  }
+
+  // ---------- une situation : quadrant, axe de l'angle, angle et intensité tirés au hasard
+  function tirage(qd, ref) {
+    var a; do { a = ent(10, 80); } while (a === 45);
+    var F = 10 * ent(10, 99), th;
+    if (ref === "h") th = { 1: a, 2: 180 - a, 3: 180 + a, 4: 360 - a }[qd];
+    else th = { 1: 90 - a, 2: 90 + a, 3: 270 - a, 4: 270 + a }[qd];
+    var sx = qd === 1 || qd === 4 ? 1 : -1, sy = qd <= 2 ? 1 : -1;
+    var tx = ref === "h" ? "cos" : "sin", ty = ref === "h" ? "sin" : "cos";
+    var axe = ref === "h" ? (sx > 0 ? "x" : "x'") : (sy > 0 ? "y" : "y'");
+    var Fx = Math.round(sx * F * (tx === "cos" ? Math.cos(a * RAD) : Math.sin(a * RAD)) * 100) / 100;
+    var Fy = Math.round(sy * F * (ty === "cos" ? Math.cos(a * RAD) : Math.sin(a * RAD)) * 100) / 100;
+    return { q: qd, ref: ref, axe: axe, a: a, F: F, th: th, sx: sx, sy: sy, tx: tx, ty: ty, Fx: Fx, Fy: Fy };
+  }
+
+  // ---------- expressions littérales : analyse (F, α, cos, sin, tan, nombres, + − × / ^, parenthèses, produit implicite)
+  function analyser(txt) {
+    var s = String(txt).toLowerCase().replace(/[\s  ]/g, "").replace(/[−–]/g, "-").replace(/[×·]/g, "*")
+      .replace(/,/g, ".").replace(/°/g, "");
+    if (!s) return null;
+    var t = [], i = 0, NOMS = ["alpha", "cos", "sin", "tan", "α", "f", "a"];
+    while (i < s.length) {
+      var c = s.charAt(i), mm = /^(\d+\.?\d*|\.\d+)/.exec(s.slice(i));
+      if (mm) { t.push({ k: "n", v: parseFloat(mm[1]) }); i += mm[1].length; continue; }
+      if ("+-*/^()".indexOf(c) >= 0) { t.push({ k: c }); i++; continue; }
+      var nom = null;
+      for (var j = 0; j < NOMS.length; j++) if (s.substr(i, NOMS[j].length) === NOMS[j]) { nom = NOMS[j]; break; }
+      if (!nom) return null;
+      t.push(/^(cos|sin|tan)$/.test(nom) ? { k: "fn", v: nom } : { k: "v", v: nom === "f" ? "F" : "a" });
+      i += nom.length;
+    }
+    var p = 0;
+    function pk() { return t[p]; }
+    function atomeSuit() { var x = t[p]; return x && (x.k === "n" || x.k === "v" || x.k === "fn" || x.k === "("); }
+    function somme() {
+      var f = produit();
+      while (pk() && (pk().k === "+" || pk().k === "-")) {
+        var op = t[p++].k, a = f, b = produit();
+        f = op === "+" ? function (e) { return a(e) + b(e); } : function (e) { return a(e) - b(e); };
+      }
+      return f;
+    }
+    function produit() {
+      var f = facteur();
+      while (pk() && (pk().k === "*" || pk().k === "/" || atomeSuit())) {
+        var op = pk().k === "/" ? "/" : "*";
+        if (pk().k === "*" || pk().k === "/") p++;
+        var a = f, b = facteur();
+        f = op === "*" ? function (e) { return a(e) * b(e); } : function (e) { return a(e) / b(e); };
+      }
+      return f;
+    }
+    function facteur() {
+      if (pk() && pk().k === "-") { p++; var g = facteur(); return function (e) { return -g(e); }; }
+      if (pk() && pk().k === "+") { p++; return facteur(); }
+      var b = atome();
+      if (pk() && pk().k === "^") { p++; var ex = facteur(), bb = b; return function (e) { return Math.pow(bb(e), ex(e)); }; }
+      return b;
+    }
+    function atome() {
+      var x = t[p++];
+      if (!x) throw 0;
+      if (x.k === "n") return function () { return x.v; };
+      if (x.k === "v") return function (e) { return e[x.v]; };
+      if (x.k === "(") { var f = somme(); if (!pk() || pk().k !== ")") throw 0; p++; return f; }
+      if (x.k === "fn") {
+        var arg = pk() && pk().k === "-" ? facteur() : atome(), fn = Math[x.v];
+        return function (e) { return fn(arg(e) * RAD); };
+      }
+      throw 0;
+    }
+    try { var f = somme(); if (p !== t.length) return null; return f; } catch (e) { return null; }
+  }
+  function litOk(txt, attendu) {    // attendu : fonction (F, a) ; juste si égal pour trois jeux de valeurs
+    var f = analyser(txt);
+    if (!f) return false;
+    var jeux = [{ F: cur.F, a: cur.a }, { F: 650, a: 17 }, { F: 1300, a: 58 }];
+    return jeux.every(function (e) {
+      var v = f(e), w = attendu(e);
+      return isFinite(v) && Math.abs(v - w) <= 1e-6 * Math.max(1, Math.abs(w));
     });
   }
-  // ---- figures
-  var NS = "http://www.w3.org/2000/svg";
+  function trig(n, a) { return n === "cos" ? Math.cos(a * RAD) : Math.sin(a * RAD); }
+  function litX(e) { return cur.sx * e.F * trig(cur.tx, e.a); }
+  function litY(e) { return cur.sy * e.F * trig(cur.ty, e.a); }
+  function litTxt(sg, fn) { return (sg < 0 ? "−" : "") + "F " + fn + " α"; }
+
+  // ---------- affichage
+  function col(vals, labels) {     // vecteur en colonne, entre parenthèses
+    return '<span class="vcol"><span class="vcol-b"><table>' + vals.map(function (v, i) {
+      return "<tr>" + (labels ? '<td class="vl">' + labels[i] + "</td>" : "") + "<td>" + v + "</td></tr>"; }).join("") + "</table></span></span>";
+  }
+  function champ(id, lab, lit) {
+    return '<label class="ta-f" data-k="' + id + '"><input type="text" ' + (lit ? 'autocapitalize="off" spellcheck="false"' : 'inputmode="decimal"') +
+      ' autocomplete="off" aria-label="' + lab + '"></label>';
+  }
+  function points() {
+    q("#qd-dots").innerHTML = serie.liste.map(function (c, i) {
+      var r = serie.res[i];
+      return '<i class="' + (r === true ? "ok" : r === false ? "ko" : "") + (i === serie.k ? " on" : "") + '" title="Question ' + (i + 1) +
+        " : quadrant " + c[0] + ", α depuis l'axe " + REF[c[1]] + '"></i>';
+    }).join("");
+    q("#qd-ok").textContent = serie.res.filter(function (r) { return r === true; }).length;
+  }
+  function poser() {
+    var c = serie.liste[serie.k];
+    cur = tirage(c[0], c[1]); essai = 0; reussi = false;
+    q("#qd-type").textContent = "Quadrant " + cur.q + " · α depuis l'axe " + REF[cur.ref];
+    q("#qd-next").disabled = true;
+    q("#qd-next").textContent = serie.k === serie.N - 1 ? "Voir ma note ▶" : "Question suivante ▶";
+    q("#qd-txt").innerHTML = "La force <span class=\"vec\">F</span>, d'intensité <b>F = " + fr(cur.F) + " N</b>, pointe dans le <b>quadrant " +
+      cur.q + "</b>. Elle fait l'angle <b>α = " + cur.a + "°</b> avec l'axe <b>" + cur.axe + "</b> (" + REF[cur.ref] +
+      "). Écris le vecteur <span class=\"vec\">F</span> dans le repère (O, x, y) : d'abord en fonction de F et de α, puis en newtons.";
+    q("#qd-lit").innerHTML = '<span class="vec">F</span> = ' + col([champ("lx", "F, composante x, expression", true), champ("ly", "F, composante y, expression", true)], ["x", "y"]);
+    q("#qd-num").innerHTML = '<span class="vec">F</span> = ' + col([champ("nx", "F, composante x, en newtons"), champ("ny", "F, composante y, en newtons")], ["x", "y"]) + " N";
+    q("#qd-corr").hidden = true; q("#qd-vide").hidden = false; q("#qd-fb").textContent = ""; q("#qd-fb").className = "ta-fb";
+    figure(false);
+    q("#qd-k").textContent = serie.k + 1;
+    points();
+    var grid = q(".ta-grid");
+    if (interagi && grid.getBoundingClientRect().top < 0) grid.scrollIntoView({ block: "start", behavior: "smooth" });
+    var first = q(".ta-f input");
+    if (first && (interagi || matchMedia("(min-width: 701px)").matches)) first.focus({ preventScroll: true });
+  }
   function el(tag, at, par, txt) {
     var e = document.createElementNS(NS, tag);
     for (var k in at) e.setAttribute(k, at[k]);
@@ -1168,1238 +764,174 @@ window.__SKCFG__ = {};
     par.appendChild(e);
     return e;
   }
-  var R = Math.PI / 180;
-  function dessiner(svg, f, k) {
-    var ox = 160, oy = 150, L = 112, id = "flq" + k;
-    var defs = el("defs", {}, svg), mk = el("marker", { id: id, viewBox: "0 0 10 10", refX: "8.5", refY: "5",
-      markerWidth: "11", markerHeight: "11", markerUnits: "userSpaceOnUse", orient: "auto" }, defs);
-    el("path", { d: "M0 0 10 5 0 10z", fill: "#1C2530" }, mk);
-    var mkF = el("marker", { id: id + "f", viewBox: "0 0 10 10", refX: "8.5", refY: "5", markerWidth: "15",
-      markerHeight: "15", markerUnits: "userSpaceOnUse", orient: "auto" }, defs);
-    el("path", { d: "M0 0 10 5 0 10z", fill: "#1B7A43" }, mkF);
-    var pos = { 1: [250, 40], 2: [70, 40], 3: [70, 268], 4: [250, 268] };
-    el("text", { x: pos[f.q][0], y: pos[f.q][1], "font-size": "13", fill: "#9AA2A8", "text-anchor": "middle",
-      "font-family": "system-ui, sans-serif" }, svg, "quadrant " + f.q);
-    var ax = { stroke: "#1C2530", "stroke-width": "2", "marker-end": "url(#" + id + ")" };
-    el("line", Object.assign({ x1: ox, y1: oy, x2: 300, y2: oy }, ax), svg);
-    el("line", Object.assign({ x1: ox, y1: oy, x2: 20, y2: oy }, ax), svg);
-    el("line", Object.assign({ x1: ox, y1: oy, x2: ox, y2: 16 }, ax), svg);
-    el("line", Object.assign({ x1: ox, y1: oy, x2: ox, y2: 284 }, ax), svg);
-    var lab = { "font-size": "16", "font-weight": "700", fill: "#1C2530", "font-family": "system-ui, sans-serif" };
-    el("text", Object.assign({ x: 300, y: oy + 22 }, lab), svg, "x");
-    el("text", Object.assign({ x: 10, y: oy + 22 }, lab), svg, "x'");
-    el("text", Object.assign({ x: ox + 10, y: 22 }, lab), svg, "y");
-    el("text", Object.assign({ x: ox + 10, y: 292 }, lab), svg, "y'");
-    el("text", Object.assign({ x: ox - 18, y: oy + 20 }, lab), svg, "O");
-    var tx = ox + L * Math.cos(f.th * R), ty = oy - L * Math.sin(f.th * R);
-    el("line", { x1: ox, y1: oy, x2: tx, y2: ty, stroke: "#1B7A43", "stroke-width": "4", "marker-end": "url(#" + id + "f)" }, svg);
-    var a0 = AXES[f.ref], r = 46, x0 = ox + r * Math.cos(a0 * R), y0 = oy - r * Math.sin(a0 * R);
-    var x1 = ox + r * Math.cos(f.th * R), y1 = oy - r * Math.sin(f.th * R), sweep = f.th > a0 ? 0 : 1;
-    el("path", { d: "M" + x0 + " " + y0 + " A" + r + " " + r + " 0 0 " + sweep + " " + x1 + " " + y1,
-      fill: "none", stroke: "#B26A00", "stroke-width": "2.5" }, svg);
-    var am = (a0 + f.th) / 2, lx = ox + 72 * Math.cos(am * R), ly = oy - 72 * Math.sin(am * R);
-    el("text", Object.assign({ x: lx, y: ly + 5, "text-anchor": "middle", fill: "#B26A00" }, lab), svg, "α = " + f.a + "°");
-    var fx = ox + (L + 26) * Math.cos(f.th * R), fy = oy - (L + 26) * Math.sin(f.th * R);
-    el("text", Object.assign({ x: fx, y: fy + 5, "text-anchor": "middle", fill: "#1B7A43" }, lab), svg, "F" + k);
-    svg.setAttribute("aria-label", "Force F" + k + " de " + f.F + " N dans le quadrant " + f.q + ", à " + f.a +
-      "° de l'axe " + f.ref);
+  function figure(proj) {
+    var svg = q("#qd-svg"), ox = 180, oy = 160, L = 118;
+    svg.innerHTML = "";
+    var defs = el("defs", {}, svg);
+    [["k", "#1C2530", 11], ["f", "#1B7A43", 15], ["x", "#B42318", 13], ["y", "#1F5FA8", 13]].forEach(function (d) {
+      var mk = el("marker", { id: "qd-m" + d[0], viewBox: "0 0 10 10", refX: "8.5", refY: "5", markerWidth: d[2], markerHeight: d[2],
+        markerUnits: "userSpaceOnUse", orient: "auto" }, defs);
+      el("path", { d: "M0 0 10 5 0 10z", fill: d[1] }, mk);
+    });
+    var coin = { 1: [300, 56], 2: [60, 56], 3: [60, 290], 4: [300, 290] }[cur.q];
+    el("text", { x: coin[0], y: coin[1], fill: "#E4E7E5", "text-anchor": "middle", "class": "qd-fond" }, svg, "Q" + cur.q);
+    var ax = { stroke: "#1C2530", "stroke-width": 2, "marker-end": "url(#qd-mk)" };
+    [[344, oy], [16, oy], [ox, 14], [ox, 306]].forEach(function (p) { el("line", Object.assign({ x1: ox, y1: oy, x2: p[0], y2: p[1] }, ax), svg); });
+    el("text", { x: 340, y: oy + 22 }, svg, "x"); el("text", { x: 12, y: oy + 22 }, svg, "x'");
+    el("text", { x: ox + 10, y: 22 }, svg, "y"); el("text", { x: ox + 10, y: 312 }, svg, "y'");
+    el("text", { x: ox - 18, y: oy + 20 }, svg, "O");
+    var tx = ox + L * Math.cos(cur.th * RAD), ty = oy - L * Math.sin(cur.th * RAD);
+    if (proj) {
+      el("line", { x1: tx, y1: ty, x2: tx, y2: oy, stroke: "#7A848C", "stroke-width": 1.4, "stroke-dasharray": "5 4" }, svg);
+      el("line", { x1: tx, y1: ty, x2: ox, y2: ty, stroke: "#7A848C", "stroke-width": 1.4, "stroke-dasharray": "5 4" }, svg);
+      el("line", { x1: ox, y1: oy, x2: tx, y2: oy, stroke: "#B42318", "stroke-width": 5, "marker-end": "url(#qd-mx)" }, svg);
+      el("line", { x1: ox, y1: oy, x2: ox, y2: ty, stroke: "#1F5FA8", "stroke-width": 5, "marker-end": "url(#qd-my)" }, svg);
+      el("text", { x: (ox + tx) / 2, y: oy + (cur.sy > 0 ? 22 : -10), fill: "#B42318", "text-anchor": "middle" }, svg, "Fx");
+      el("text", { x: ox + (cur.sx > 0 ? -12 : 12), y: (oy + ty) / 2 + 5, fill: "#1F5FA8", "text-anchor": cur.sx > 0 ? "end" : "start" }, svg, "Fy");
+    }
+    el("line", { x1: ox, y1: oy, x2: tx, y2: ty, stroke: "#1B7A43", "stroke-width": 4, "marker-end": "url(#qd-mf)" }, svg);
+    var a0 = { x: 0, "x'": 180, y: 90, "y'": 270 }[cur.axe], r = 46;
+    var d1 = cur.th - a0; if (d1 > 180) d1 -= 360; if (d1 < -180) d1 += 360;
+    var x0 = ox + r * Math.cos(a0 * RAD), y0 = oy - r * Math.sin(a0 * RAD), x1 = ox + r * Math.cos(cur.th * RAD), y1 = oy - r * Math.sin(cur.th * RAD);
+    el("path", { d: "M" + x0 + " " + y0 + " A" + r + " " + r + " 0 0 " + (d1 > 0 ? 0 : 1) + " " + x1 + " " + y1, fill: "none", stroke: "#B26A00", "stroke-width": 2.5 }, svg);
+    var am = (a0 + d1 / 2) * RAD, lr = 64 + 14 * Math.abs(Math.sin(2 * am)), lx = ox + lr * Math.cos(am), ly = oy - lr * Math.sin(am);
+    el("text", { x: lx, y: ly + 5, fill: "#B26A00", "text-anchor": "middle" }, svg, "α = " + cur.a + "°");
+    var fx = Math.max(30, Math.min(330, ox + (L + 30) * Math.cos(cur.th * RAD))), fy = Math.max(18, Math.min(308, oy - (L + 24) * Math.sin(cur.th * RAD)));
+    el("text", { x: fx, y: fy + 5, fill: "#1B7A43", "text-anchor": "middle" }, svg, "F = " + fr(cur.F) + " N");
+    svg.setAttribute("aria-label", "Force F de " + cur.F + " N dans le quadrant " + cur.q + ", à " + cur.a + "° de l'axe " + cur.axe);
   }
-  // ---- corrections et correcteurs
-  var NOMS = { f: "f", "α": "alpha", alpha: "alpha", a: "alpha" };
-  function essais(f) { var t = [17, 58, 71].filter(function (x) { return x !== f.a; }).slice(0, 2); return [f.a].concat(t); }
-  forces.forEach(function (f, i) {
-    var k = i + 1, p = Math.floor(i / 2) + 1, n0 = (i % 2) * 4;
-    var Fx = f.F * Math.cos(f.th * R), Fy = f.F * Math.sin(f.th * R);
-    var sx = Fx > 0 ? 1 : -1, sy = Fy > 0 ? 1 : -1;
-    var trigX = f.h ? "cos" : "sin", trigY = f.h ? "sin" : "cos";
-    var fig = document.querySelector('figure[data-vec="' + k + '"]');
-    dessiner(fig.querySelector("svg"), f, k);
-    fig.querySelector("figcaption").innerHTML = "F<sub>" + k + "</sub> = " + f.F + " N ; α = " + f.a + "°, mesuré depuis l'axe " +
-      (f.h ? "horizontal " : "vertical ") + f.ref + ".";
-    var Fk = "F<sub>" + k + "</sub>", nomX = "F<sub>" + k + "x</sub>", nomY = "F<sub>" + k + "y</sub>";
-    var axe = "L'angle α = " + f.a + "° est mesuré depuis l'axe " + (f.h ? "horizontal " : "vertical ") + f.ref +
-      " : sur cet axe, la projection est le côté adjacent (cos α) ; sur l'autre axe, c'est le côté opposé (sin α). ";
-    var signes = "F" + k + " pointe vers la " + (sx > 0 ? "droite" : "gauche") + " et vers le " + (sy > 0 ? "haut" : "bas") +
-      " (quadrant " + f.q + ") : " + nomX + (sx > 0 ? " &gt; 0" : " &lt; 0") + " et " + nomY + (sy > 0 ? " &gt; 0. " : " &lt; 0. ");
-    function litt(sg, trig) { return (sg < 0 ? "−" : "") + Fk + " × " + trig + " α"; }
-    var vx = Math.round(Fx * 100) / 100, vy = Math.round(Fy * 100) / 100;
-    var Q = [
-      { g: { type: "expr", expected: (sx < 0 ? "-" : "") + "f*" + trigX + "(alpha)", vars: { f: [f.F, 650, 1300], alpha: essais(f) }, names: NOMS },
-        att: nomX + " = " + litt(sx, trigX), e: axe + signes + "D'où <b>" + nomX + " = " + litt(sx, trigX) + "</b>." },
-      { g: { type: "expr", expected: (sy < 0 ? "-" : "") + "f*" + trigY + "(alpha)", vars: { f: [f.F, 650, 1300], alpha: essais(f) }, names: NOMS },
-        att: nomY + " = " + litt(sy, trigY), e: axe + signes + "D'où <b>" + nomY + " = " + litt(sy, trigY) + "</b>." },
-      { g: { type: "num", value: vx, absTol: 0.01, unit: { label: "N", accept: ["n", "newton", "newtons"] } },
-        att: nomX + " ≈ " + fr(vx, 2) + " N",
-        e: nomX + " = " + (sx < 0 ? "−" : "") + f.F + " × " + trigX + "(" + f.a + "°) ≈ <b>" + fr(vx, 2) + " N</b>." },
-      { g: { type: "num", value: vy, absTol: 0.01, unit: { label: "N", accept: ["n", "newton", "newtons"] } },
-        att: nomY + " ≈ " + fr(vy, 2) + " N",
-        e: nomY + " = " + (sy < 0 ? "−" : "") + f.F + " × " + trigY + "(" + f.a + "°) ≈ <b>" + fr(vy, 2) + " N</b>. " +
-           "Vérification : √(" + fr(vx, 2) + "² + " + fr(vy, 2) + "²) ≈ " + fr(Math.hypot(vx, vy), 2) + " N ≈ " + Fk + "." }
-    ];
-    Q.forEach(function (x, j) {
-      var id = "q" + p + "_" + (n0 + j + 1), root = document.getElementById(id);
-      window.__QCFG__[id].grader = x.g;
-      root.querySelector(".q-expected").innerHTML = "<span>Réponse attendue :</span> " + x.att;
-      root.querySelector(".q-why").innerHTML = "<p>" + x.e + "</p>";
+
+  // ---------- correction
+  function lire(inp) {
+    var s = String(inp.value).replace(/[\s  ]/g, "").replace(/[−–]/g, "-").replace(",", ".").replace(/n$/i, "");
+    if (!/^[+-]?(\d+\.?\d*|\.\d+)$/.test(s)) return null;
+    return parseFloat(s);
+  }
+  function juste(k, inp) {
+    if (k === "lx") return litOk(inp.value, litX);
+    if (k === "ly") return litOk(inp.value, litY);
+    var v = lire(inp), a = k === "nx" ? cur.Fx : cur.Fy;
+    return v !== null && Math.abs(v - a) <= Math.max(0.05, Math.abs(a) * 0.001) + 1e-9;
+  }
+  function attendu(k) {
+    return { lx: litTxt(cur.sx, cur.tx), ly: litTxt(cur.sy, cur.ty), nx: fr(cur.Fx, 2), ny: fr(cur.Fy, 2) }[k];
+  }
+  function verifier() {
+    var bons = 0, tous = qa(".ta-f");
+    tous.forEach(function (f) {
+      var ok = juste(f.getAttribute("data-k"), f.querySelector("input"));
+      f.classList.toggle("ok", ok); f.classList.toggle("ko", !ok); if (ok) bons++;
+    });
+    essai++;
+    var fb = q("#qd-fb"), tout = bons === tous.length;
+    fb.className = "ta-fb " + (tout ? "ok" : "ko");
+    fb.textContent = tout ? "✔ Tout est juste ! Entrée : " + (serie.k === serie.N - 1 ? "voir ta note." : "question suivante.") :
+      "✘ " + (tous.length - bons) + " case" + (tous.length - bons > 1 ? "s" : "") + " à revoir (en rouge) : corrige et vérifie à nouveau, ou demande la correction.";
+    reussi = tout;
+    if (!tout) { var ko = q(".ta-f.ko input"); if (ko) ko.focus({ preventScroll: true }); }
+    if (essai === 1) compter(tout);
+    if (tout) corriger();
+  }
+  function compter(ok) { serie.res[serie.k] = ok; q("#qd-next").disabled = false; points(); }
+  function suivante() {
+    if (q("#qd-next").disabled) return;
+    if (serie.k < serie.N - 1) { serie.k++; poser(); } else bilan();
+  }
+  function bilan() {
+    var ok = serie.res.filter(function (r) { return r === true; }).length, N = serie.N;
+    var note = Math.round(ok / N * 40) / 2, et = note >= 18 ? "★★★" : note >= 14 ? "★★☆" : note >= 10 ? "★☆☆" : "☆☆☆";
+    function compte(test) {
+      var idx = serie.liste.map(function (c, i) { return test(c) ? i : -1; }).filter(function (i) { return i >= 0; });
+      return idx.filter(function (i) { return serie.res[i]; }).length + " / " + idx.length;
+    }
+    var detail = serie.quads.map(function (qd) { return "quadrant " + qd + " : " + compte(function (c) { return c[0] === qd; }); })
+      .concat(serie.refs.map(function (r) { return "α depuis l'axe " + REF[r] + " : " + compte(function (c) { return c[1] === r; }); })).join(" · ");
+    q("#qd-bilan").innerHTML = "<h2>Série terminée</h2>" +
+      '<p class="ta-note" id="qd-note">' + fr(note, 1) + " <small>/ 20</small> <span class=\"ta-et\">" + et + "</span></p>" +
+      "<p>" + ok + " question" + (ok > 1 ? "s" : "") + " réussie" + (ok > 1 ? "s" : "") + " du premier coup sur " + N + ". " + detail + ".</p>" +
+      '<ol class="ta-bil-l">' + serie.liste.map(function (c, i) {
+        return '<li class="' + (serie.res[i] ? "ok" : "ko") + '">' + (serie.res[i] ? "✔ " : "✘ ") + "Q" + (i + 1) + " · quadrant " + c[0] +
+          ", α / " + (c[1] === "h" ? "horizontale" : "verticale") + "</li>"; }).join("") + "</ol>" +
+      '<div class="ta-act"><button type="button" class="btn" id="qd-encore">Nouvelle série (mêmes réglages)</button>' +
+      '<button type="button" class="btn ghost" id="qd-regl">Changer les réglages</button></div>';
+    q("#qd-grid").hidden = true; q("#qd-bilan").hidden = false;
+    q("#qd-encore").addEventListener("click", function () { lancer(serie.refs, serie.quads, serie.N); });
+    q("#qd-regl").addEventListener("click", function (e) { e.stopPropagation(); q("#qd-cfg").open = true; });
+    q("#qd-encore").focus({ preventScroll: true });
+    q("#qd-bilan").scrollIntoView({ block: "nearest" });
+  }
+  function corriger() {
+    var c = cur, hz = c.ref === "h";
+    var h = "<p><b>1. Les signes</b> : F pointe vers la " + (c.sx > 0 ? "droite" : "gauche") + " et vers le " + (c.sy > 0 ? "haut" : "bas") +
+      " (quadrant " + c.q + ") : F<sub>x</sub> " + (c.sx > 0 ? "&gt;" : "&lt;") + " 0 et F<sub>y</sub> " + (c.sy > 0 ? "&gt;" : "&lt;") + " 0.</p>";
+    h += "<p><b>2. Les fonctions</b> : α = " + c.a + "° est mesuré depuis l'axe " + c.axe + " (" + REF[c.ref] + "). Sur cet axe, la projection " +
+      "est le côté adjacent (cos α) ; sur l'autre axe, le côté opposé (sin α) : F<sub>x</sub> s'écrit avec <b>" + c.tx + "</b>, F<sub>y</sub> avec <b>" +
+      c.ty + "</b>.</p>";
+    h += '<p><b>3. En fonction de F et de α</b> :</p><div class="eq"><span class="vec">F</span> = <b>' + col([litTxt(c.sx, c.tx), litTxt(c.sy, c.ty)], ["x", "y"]) + "</b></div>";
+    h += '<p><b>4. En newtons</b> :</p><div class="eq"><span class="vec">F</span> = ' +
+      col([(c.sx < 0 ? "−" : "") + fr(c.F) + " × " + c.tx + " " + c.a + "°", (c.sy < 0 ? "−" : "") + fr(c.F) + " × " + c.ty + " " + c.a + "°"]) +
+      " = <b>" + col([fr(c.Fx, 2), fr(c.Fy, 2)], ["x", "y"]) + "</b> N</div>";
+    h += "<p><b>5. Vérification</b> : √(" + par(c.Fx, 2) + "² + " + par(c.Fy, 2) + "²) ≈ " + fr(Math.hypot(c.Fx, c.Fy), 1) + " N = F. ✔</p>";
+    if (!hz) h += '<p class="small">Angle mesuré depuis un axe vertical : sinus et cosinus s\'échangent par rapport au cas habituel.</p>';
+    q("#qd-corr").innerHTML = h; q("#qd-corr").hidden = false; q("#qd-vide").hidden = true;
+    figure(true);
+    qa(".ta-f").forEach(function (f) {      // valeur attendue sous chaque case fausse ou vide
+      if (f.classList.contains("ok")) return;
+      if (!f.classList.contains("ko")) f.classList.add("ko");
+      var att = f.querySelector(".ta-att") || f.appendChild(document.createElement("span"));
+      att.className = "ta-att"; att.textContent = "→ " + attendu(f.getAttribute("data-k"));
+    });
+    var cc = q("#qd-col-cor"), r = cc.getBoundingClientRect();
+    if (interagi && r.top > innerHeight - 80) cc.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }
+
+  // ---------- événements
+  var dernier = null;
+  root.addEventListener("focusin", function (e) { if (e.target.closest(".qd-lit .ta-f")) dernier = e.target; });
+  qa("[data-ins]").forEach(function (b) {
+    b.addEventListener("mousedown", function (e) { e.preventDefault(); });
+    b.addEventListener("click", function () {
+      var inp = dernier || q(".qd-lit input"); if (!inp || inp.disabled) return;
+      var a = inp.selectionStart == null ? inp.value.length : inp.selectionStart, z = inp.selectionEnd == null ? a : inp.selectionEnd;
+      var ins = b.getAttribute("data-ins");
+      inp.value = inp.value.slice(0, a) + ins + inp.value.slice(z);
+      inp.focus(); inp.setSelectionRange(a + ins.length, a + ins.length);
     });
   });
-  Array.prototype.forEach.call(document.querySelectorAll("[data-graine]"), function (e) { e.textContent = graine; });
-  Array.prototype.forEach.call(document.querySelectorAll("a.lien-graine"), function (a) { a.href = "?graine=" + graine; });
-  window.__tirage__ = { graine: graine, forces: forces };
-})();</script>
-<script>/*GRADING-START*/
-var Grading = (function () {
-  "use strict";
-
-  function stripAccents(s) {
-    return String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-      .replace(/œ/g, "oe").replace(/Œ/g, "oe").replace(/æ/g, "ae").replace(/Æ/g, "ae");
-  }
-  function norm(s) {
-    return stripAccents(String(s == null ? "" : s).toLowerCase())
-      .replace(/[\u2019\u2018'`´]/g, " ").replace(/\s+/g, " ").trim();
-  }
-  function tokens(s) {
-    return norm(s).split(/[^a-z0-9]+/).filter(Boolean);
-  }
-  function compact(s) {
-    return norm(s).replace(/[^a-z0-9]/g, "");
-  }
-
-  // Distance de Damerau-Levenshtein (alignement optimal) : une inversion de deux lettres compte pour 1
-  function lev(a, b) {
-    if (a === b) return 0;
-    var m = a.length, n = b.length, i, j;
-    if (!m) return n;
-    if (!n) return m;
-    var d = [];
-    for (i = 0; i <= m; i++) { d[i] = [i]; }
-    for (j = 0; j <= n; j++) d[0][j] = j;
-    for (i = 1; i <= m; i++) {
-      for (j = 1; j <= n; j++) {
-        var c = a.charAt(i - 1) === b.charAt(j - 1) ? 0 : 1;
-        var v = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + c);
-        if (i > 1 && j > 1 && a.charAt(i - 1) === b.charAt(j - 2) && a.charAt(i - 2) === b.charAt(j - 1))
-          v = Math.min(v, d[i - 2][j - 2] + 1);
-        d[i][j] = v;
-      }
-    }
-    return d[m][n];
-  }
-  // Seuil adapté à la longueur du mot attendu : pas de tolérance sur les mots courts
-  function fuzzyEq(tok, word) {
-    if (tok === word) return true;
-    var L = word.length;
-    var thr = L <= 4 ? 0 : (L <= 8 ? 1 : 2);
-    if (thr === 0) return false;
-    if (Math.abs(tok.length - L) > thr) return false;
-    return lev(tok, word) <= thr;
-  }
-
-  // ---------- Nombres (locale FR) ----------
-  // Sépare la valeur numérique du reste de la saisie (qui porte l'unité)
-  function splitNum(raw) {
-    if (raw == null) return null;
-    var s = String(raw);
-    var cut = Math.max(s.lastIndexOf("="), s.lastIndexOf(":"));
-    if (cut >= 0) s = s.slice(cut + 1);
-    s = s.replace(/[\u2212\u2012\u2013\u2014\u2010\u2011]/g, "-")
-         .replace(/[\u00a0\u202f\u2009\u2007]/g, " ");
-    s = s.replace(/(\d) (?=\d{3}(?:\D|$))/g, "$1");
-    s = s.replace(/-\s+(?=\d)/g, "-");
-    s = s.replace(/,/g, ".");
-    s = s.replace(/\s*[x\u00d7*\u00b7]?\s*10\s*\^\s*\(?\s*([-+]?\d+)\s*\)?/gi, "e$1");
-    var m = s.match(/-?\d+(?:\.\d+)?(?:e[-+]?\d+)?|-?\.\d+/i);
-    if (!m) return null;
-    var txt = m[0];
-    if (/^-?e/i.test(txt)) return null;
-    var v = parseFloat(txt);
-    if (!isFinite(v)) return null;
-    return { value: v, rest: s.slice(m.index + txt.length) };
-  }
-  function parseNum(raw) {
-    var sp = splitNum(raw);
-    return sp ? sp.value : null;
-  }
-
-  // ---------- Unités ----------
-  var SUP = { "\u00b9": "1", "\u00b2": "2", "\u00b3": "3", "\u2070": "0", "\u2074": "4",
-              "\u2075": "5", "\u2076": "6", "\u2077": "7", "\u2078": "8", "\u2079": "9" };
-  function normUnit(raw) {
-    var s = stripAccents(String(raw == null ? "" : raw).toLowerCase());
-    s = s.replace(/[\u207b\u2212\u2013\u2014\u2010\u2011]/g, "-");
-    s = s.replace(/[\u00b9\u00b2\u00b3\u2070\u2074-\u2079]/g, function (c) { return SUP[c] || ""; });
-    s = s.replace(/\^/g, "");
-    s = s.replace(/[.\u00b7\u2219\u22c5*\u00d7_,;:()\[\]'"\u2019`]/g, " ");
-    s = s.replace(/\s+/g, " ").trim();
-    return s;
-  }
-  // Mots parasites fréquents autour d'une unité (« 84,8 kg au total »)
-  var UNIT_STOP = ["environ","soit","au","aux","du","de","des","la","le","les","un","une","en","par","sur","et",
-                   "total","totale","valeur","absolue","arrondi","arrondie","donc","ainsi","pres","peu","dans","cas","je","trouve"];
-  // 'ok' : unité attendue reconnue | 'missing' : aucune unité saisie | 'wrong' : autre unité
-  function unitCheck(rest, unit) {
-    var s = normUnit(rest);
-    if (!s || !/[a-z\u00b0]/.test(s)) return "missing";
-    var chunks = s.split(" ").filter(function (t) {
-      return t && UNIT_STOP.indexOf(t) < 0 && /[a-z\u00b0]/.test(t);
-    });
-    if (!chunks.length) return "missing";
-    // Une unité composée (« N.m », « m s-1 ») doit être jugée en entier, jamais sur un seul de ses morceaux
-    var forms = [chunks.join("")];
-    if (chunks.length === 1) forms.push(chunks[0]);
-    for (var i = 0; i < unit.accept.length; i++)
-      if (forms.indexOf(unit.accept[i]) >= 0) return "ok";
-    return "wrong";
-  }
-
-  function nearValue(x, g) {
-    var v = g.value;
-    if (g.abs) { x = Math.abs(x); v = Math.abs(v); }
-    var tol = Math.max(g.absTol || 0, (g.relTol || 0) * Math.abs(v));
-    return Math.abs(x - v) <= tol + 1e-12;
-  }
-  function gradeNum(ans, g) {
-    var sp = splitNum(ans);
-    if (!sp) return { ok: false, score: 0, invalid: "Aucune valeur numérique reconnue : saisis un nombre (ex. 12,5)." };
-    var cands = [g].concat(g.variants || []), best = null;
-    for (var i = 0; i < cands.length; i++) {
-      var c = cands[i];
-      if (!nearValue(sp.value, c)) continue;
-      var u = c.unit || (c === g ? g.unit : null);
-      if (!u) return { ok: true, score: 1 };
-      var r = unitCheck(sp.rest, u);
-      if (r === "ok") return { ok: true, score: 1, unit: "ok" };
-      // Une variante n'est retenue que si son unité est explicitement écrite
-      // (« 91 125 000 » sans unité ne peut pas valoir « 91,13 millions de tours »)
-      if (c.strictUnit) continue;
-      if (!best) best = { ok: true, score: 0.5, unit: r, unitLabel: u.label };
-    }
-    return best || { ok: false, score: 0 };
-  }
-
-  function tokenMatches(toks, word) {
-    for (var i = 0; i < toks.length; i++) if (fuzzyEq(toks[i], word)) return true;
-    return false;
-  }
-  function gradeKw(ans, g) {
-    var toks = tokens(ans);
-    if (!toks.length) return { ok: false, invalid: "Réponse vide." };
-    var f = g.forbid || [];
-    for (var k = 0; k < f.length; k++) if (tokenMatches(toks, f[k])) return { ok: false };
-    for (var p = 0; p < g.any.length; p++) {
-      var pattern = g.any[p], all = true;
-      for (var q = 0; q < pattern.length && all; q++) {
-        var alts = pattern[q], hit = false;
-        for (var r = 0; r < alts.length && !hit; r++) hit = tokenMatches(toks, alts[r]);
-        all = hit;
-      }
-      if (all) return { ok: true };
-    }
-    return { ok: false };
-  }
-
-  function gradeCode(ans, g) {
-    var c = compact(ans);
-    if (!c) return { ok: false, invalid: "Réponse vide." };
-    var rawNoSpace = norm(ans).replace(/\s+/g, "");
-    var rj = g.rejectRaw || [];
-    for (var i = 0; i < rj.length; i++) if (new RegExp(rj[i], "i").test(rawNoSpace)) return { ok: false };
-    var rc = g.rejectContains || [];
-    for (i = 0; i < rc.length; i++) if (c.indexOf(rc[i]) >= 0) return { ok: false };
-    var eq = g.equals || [];
-    for (i = 0; i < eq.length; i++) if (c === eq[i]) return { ok: true };
-    var ct = g.contains || [];
-    for (i = 0; i < ct.length; i++) if (c.indexOf(ct[i]) >= 0) return { ok: true };
-    return { ok: false };
-  }
-
-  function gradeIntSet(ans, g) {
-    var m = String(ans).match(/\d+/g);
-    if (!m) return { ok: false, invalid: "Aucun numéro reconnu." };
-    var set = {}, n = 0, i;
-    for (i = 0; i < m.length; i++) { if (!set[+m[i]]) { set[+m[i]] = 1; n++; } }
-    if (n !== g.value.length) return { ok: false };
-    for (i = 0; i < g.value.length; i++) if (!set[g.value[i]]) return { ok: false };
-    return { ok: true };
-  }
-
-  function yesNo(ans) {
-    var n = norm(ans).replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
-    if (!n) return null;
-    var first = n.split(" ")[0];
-    if (["oui", "o", "yes", "ok", "vrai"].indexOf(first) >= 0) return true;
-    if (["non", "n", "no", "faux"].indexOf(first) >= 0) return false;
-    var neg = ["ne convient pas", "insuffisant", "pas suffisant", "sous dimensionne", "trop faible", "ne suffit pas", "incapable", "pas capable", "pas adapte", "n est pas"];
-    for (var i = 0; i < neg.length; i++) if (n.indexOf(neg[i]) >= 0) return false;
-    var pos = ["convient", "suffisant", "suffit", "bien dimensionne", "surdimensionne", "adapte", "capable", "correct"];
-    for (i = 0; i < pos.length; i++) if (n.indexOf(pos[i]) >= 0) return true;
-    return null;
-  }
-  function gradeYesNo(ans, g) {
-    var v = yesNo(ans);
-    if (v === null) return { ok: false, invalid: "Commence ta réponse par « oui » ou « non »." };
-    return { ok: v === g.value };
-  }
-
-  // ---------- Composition des vitesses (relation de Chasles) ----------
-  function termSolids(term, solids) {
-    var toks = norm(term).split(/[^a-z0-9]+/).filter(Boolean), out = [];
-    for (var i = 0; i < toks.length; i++) {
-      var t = toks[i], cands = [t];
-      if (/^v[ab]?[a-z]{2,}$/.test(t)) cands.push(t.replace(/^v[ab]?/, ""));
-      var found = null;
-      for (var key in solids) {
-        if (!Object.prototype.hasOwnProperty.call(solids, key)) continue;
-        var syn = solids[key];
-        for (var s = 0; s < syn.length && !found; s++)
-          for (var c = 0; c < cands.length && !found; c++)
-            if (fuzzyEq(cands[c], syn[s])) found = key;
-        if (found) break;
-      }
-      if (found && out[out.length - 1] !== found) out.push(found);
-    }
-    return out;
-  }
-  function gradeChasles(ans, g) {
-    var s = String(ans);
-    if (!s.trim()) return { ok: false, invalid: "Réponse vide." };
-    if (/[-\u2212]\s*v/i.test(s.replace(/\/\s*-/g, "/"))) {
-      // signe moins devant un vecteur : forme non retenue
-      return { ok: false };
-    }
-    var sides = s.split("=");
-    if (sides.length !== 2) return { ok: false, invalid: "La relation doit contenir un seul signe « = »." };
-    function parseSide(x) {
-      var terms = x.split("+"), res = [];
-      for (var i = 0; i < terms.length; i++) {
-        if (!terms[i].trim()) continue;
-        var sol = termSolids(terms[i], g.solids);
-        if (sol.length !== 2) return null;
-        res.push(sol);
-      }
-      return res;
-    }
-    var L = parseSide(sides[0]), R = parseSide(sides[1]);
-    if (!L || !R) return { ok: false };
-    if (L.length === 2 && R.length === 1) { var tmp = L; L = R; R = tmp; }
-    if (L.length !== 1 || R.length !== 2) return { ok: false };
-    var i1 = L[0][0], k1 = L[0][1];
-    if (i1 === k1) return { ok: false };
-    function same(p, a, b) { return p[0] === a && p[1] === b; }
-    var a = R[0], b = R[1];
-    var okForm =
-      (same(a, i1, a[1]) && a[1] !== i1 && a[1] !== k1 && same(b, a[1], k1)) ||
-      (same(b, i1, b[1]) && b[1] !== i1 && b[1] !== k1 && same(a, b[1], k1));
-    return { ok: !!okForm };
-  }
-
-  // ---------- Expressions littérales (formules) ----------
-  // La saisie (« Fx = −F × sin α », « F.cos(alpha−beta) », « q*a/b »…) est analysée puis évaluée en plusieurs
-  // jeux de valeurs (g.vars) ; elle est juste si elle vaut partout l'expression attendue (g.expected) :
-  // toute écriture équivalente est donc acceptée, une valeur numérique isolée ne l'est pas.
-  // Angles en degrés dans sin, cos, tan. g.names : alias de saisie -> nom de variable (« α » -> « alpha »).
-  var EXPR_FUN = { sin: 1, cos: 1, tan: 1, sqrt: 1, racine: 1 };
-  function exprTokens(src, names) {
-    var s = String(src).toLowerCase()
-      .replace(/[−‒–—]/g, "-").replace(/[×·⋅∙]/g, "*").replace(/÷/g, "/")
-      .replace(/²/g, "^2").replace(/³/g, "^3").replace(/√/g, "sqrt").replace(/π/g, "pi")
-      .replace(/°/g, "").replace(/\s+/g, " ");
-    var cut = s.lastIndexOf("=");
-    if (cut >= 0) s = s.slice(cut + 1);
-    var keys = Object.keys(names).concat(Object.keys(EXPR_FUN), ["pi"]);
-    keys.sort(function (a, b) { return b.length - a.length; });
-    var out = [], i = 0, m;
-    while (i < s.length) {
-      var c = s.charAt(i);
-      if (c === " ") { i++; continue; }
-      if ((m = /^\d+(?:[.,]\d+)?/.exec(s.slice(i)))) { out.push({ t: "n", v: parseFloat(m[0].replace(",", ".")) }); i += m[0].length; continue; }
-      if ("+-*/^()".indexOf(c) >= 0) { out.push({ t: c }); i++; continue; }
-      if (c === "." || c === ",") { out.push({ t: "*" }); i++; continue; }        // F.cos α : point de multiplication
-      if (/[a-zͰ-Ͽ]/.test(c)) {                                      // « fcosalpha » -> f, cos, alpha
-        var hit = null;
-        for (var k = 0; k < keys.length && !hit; k++) if (s.substr(i, keys[k].length) === keys[k]) hit = keys[k];
-        if (!hit) return { err: "« " + /^[a-zͰ-Ͽ_]+/.exec(s.slice(i))[0] + " » n'est pas une grandeur de l'énoncé." };
-        if (EXPR_FUN[hit]) out.push({ t: "f", v: hit === "racine" ? "sqrt" : hit });
-        else if (hit === "pi") out.push({ t: "n", v: Math.PI });
-        else out.push({ t: "v", v: names[hit] });
-        i += hit.length;
-        continue;
-      }
-      return { err: "Caractère non reconnu : « " + c + " »." };
-    }
-    return { toks: out };
-  }
-  function exprParse(toks) {
-    var p = 0;
-    function peek() { return toks[p]; }
-    function startsAtom(t) { return t && (t.t === "n" || t.t === "v" || t.t === "f" || t.t === "("); }
-    function expr() {
-      var node = term();
-      while (peek() && (peek().t === "+" || peek().t === "-")) { var op = toks[p++].t; node = { op: op, a: node, b: term() }; }
-      return node;
-    }
-    function term() {
-      var node = unary();
-      for (;;) {
-        var t = peek();
-        if (t && (t.t === "*" || t.t === "/")) { p++; node = { op: t.t, a: node, b: unary() }; }
-        else if (startsAtom(t)) node = { op: "*", a: node, b: unary() };      // multiplication implicite
-        else return node;
-      }
-    }
-    function unary() {
-      var t = peek();
-      if (t && (t.t === "-" || t.t === "+")) { p++; var u = unary(); return t.t === "-" ? { op: "neg", a: u } : u; }
-      return power();
-    }
-    function power() {
-      var b = atom();
-      if (peek() && peek().t === "^") { p++; return { op: "^", a: b, b: unary() }; }
-      return b;
-    }
-    function atom() {
-      var t = toks[p++];
-      if (!t) throw new Error("fin");
-      if (t.t === "n") return { op: "n", v: t.v };
-      if (t.t === "v") return { op: "v", v: t.v };
-      if (t.t === "(") { var e = expr(); if (!toks[p] || toks[p].t !== ")") throw new Error(")"); p++; return e; }
-      if (t.t === "f") return { op: "f", v: t.v, a: power() };                  // cos α ou cos(α)
-      throw new Error("jeton");
-    }
-    var tree = expr();
-    if (p !== toks.length) throw new Error("reste");
-    return tree;
-  }
-  function exprEval(n, env) {
-    switch (n.op) {
-      case "n": return n.v;
-      case "v": return env[n.v];
-      case "neg": return -exprEval(n.a, env);
-      case "+": return exprEval(n.a, env) + exprEval(n.b, env);
-      case "-": return exprEval(n.a, env) - exprEval(n.b, env);
-      case "*": return exprEval(n.a, env) * exprEval(n.b, env);
-      case "/": return exprEval(n.a, env) / exprEval(n.b, env);
-      case "^": return Math.pow(exprEval(n.a, env), exprEval(n.b, env));
-      case "f":
-        var x = exprEval(n.a, env), r = Math.PI / 180;
-        return n.v === "sin" ? Math.sin(x * r) : n.v === "cos" ? Math.cos(x * r) : n.v === "tan" ? Math.tan(x * r) : Math.sqrt(x);
-    }
-    return NaN;
-  }
-  function exprUses(n, acc) {
-    if (!n) return acc;
-    if (n.op === "v") acc[n.v] = 1;
-    exprUses(n.a, acc); exprUses(n.b, acc);
-    return acc;
-  }
-  function gradeExpr(ans, g) {
-    var names = g.names || {};
-    var tk = exprTokens(ans, names);
-    if (tk.err) return { ok: false, invalid: tk.err };
-    if (!tk.toks.length) return { ok: false, invalid: "Écris une expression, par exemple F × cos(α)." };
-    var tree, ref;
-    try { tree = exprParse(tk.toks); } catch (e) { return { ok: false, invalid: "Expression incomplète ou mal parenthésée." }; }
-    var ident = {};                                     // l'expression attendue s'écrit avec les noms de variables
-    Object.keys(g.vars).forEach(function (v) { ident[v] = v; });
-    ref = exprParse(exprTokens(g.expected, ident).toks);
-    var used = exprUses(tree, {}), need = g.require || [];
-    for (var q = 0; q < need.length; q++) if (!used[need[q]]) return { ok: false };
-    var vars = Object.keys(g.vars), n = g.vars[vars[0]].length;
-    for (var i = 0; i < n; i++) {
-      var env = {};
-      vars.forEach(function (v) { env[v] = g.vars[v][i]; });
-      var a = exprEval(tree, env), b = exprEval(ref, env);
-      if (!isFinite(a) || !isFinite(b) || Math.abs(a - b) > 1e-6 * Math.max(1, Math.abs(b))) return { ok: false };
-    }
-    return { ok: true };
-  }
-
-  function grade(ans, g) {
-    if (ans == null || !String(ans).trim()) return { ok: false, score: 0, invalid: "Saisis une réponse avant de valider." };
-    var r;
-    switch (g.type) {
-      case "num": return gradeNum(ans, g);
-      case "kw": r = gradeKw(ans, g); break;
-      case "code": r = gradeCode(ans, g); break;
-      case "intset": r = gradeIntSet(ans, g); break;
-      case "yesno": r = gradeYesNo(ans, g); break;
-      case "chasles": r = gradeChasles(ans, g); break;
-      case "expr": r = gradeExpr(ans, g); break;
-      default: return { ok: false, score: 0, invalid: "Type de question inconnu." };
-    }
-    r.score = r.ok ? 1 : 0;
-    return r;
-  }
-
-  function fmt(x, d) {
-    if (d == null) d = 2;
-    return x.toLocaleString("fr-FR", { minimumFractionDigits: d, maximumFractionDigits: d });
-  }
-
-  return { norm: norm, tokens: tokens, compact: compact, lev: lev, fuzzyEq: fuzzyEq,
-           parseNum: parseNum, splitNum: splitNum, normUnit: normUnit, unitCheck: unitCheck,
-           yesNo: yesNo, termSolids: termSolids, exprTokens: exprTokens, grade: grade, fmt: fmt };
-})();
-if (typeof module !== "undefined") module.exports = Grading;
-/*GRADING-END*/
-</script>
-<script>(function () {
-  "use strict";
-  var G = Grading;
-  var QCFG = window.__QCFG__;          // { id: {label, grader, part, pts} }
-  var SKCFG = window.__SKCFG__;        // { id: {bg, deps, label, part, pts, criteria} }
-  var PARTS = window.__PARTS__;        // [ {num, title, minutes, duration, points} ]
-  var state = {};                      // id -> {validated, ok, score, value}
-  var sketches = {};
-  var dirty = false;
-  var MODE = null;                     // "training" | "exam"
-  var graded = false;                  // copie corrigée (toujours vrai en entraînement)
-  var CONSEIL_MIN = PARTS.reduce(function (s, p) { return s + p.minutes; }, 0);
-
-  function $(s, r) { return (r || document).querySelector(s); }
-  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
-  function fr(x, d) { return G.fmt(x, d); }
-
-  // ====================== SCORE ======================
-  var gradedIds = Object.keys(QCFG);
-  var sketchIds = Object.keys(SKCFG);
-  var TOTAL_MIN = PARTS.reduce(function (s, p) { return s + p.minutes; }, 0);
-
-  function itemsOf(part) {
-    var out = [];
-    gradedIds.forEach(function (id) { if (QCFG[id].part === part) out.push({ id: id, pts: QCFG[id].pts }); });
-    sketchIds.forEach(function (id) { if (SKCFG[id].part === part) out.push({ id: id, pts: SKCFG[id].pts }); });
-    return out;
-  }
-  // Par partie : points possibles, points engagés (items validés) et points obtenus
-  function partStats() {
-    return PARTS.map(function (p) {
-      var possible = 0, answered = 0, earned = 0, done = 0, count = 0;
-      itemsOf(p.num).forEach(function (it) {
-        var s = state[it.id];
-        possible += it.pts; count++;
-        if (s && s.validated) { answered += it.pts; earned += (s.score || 0) * it.pts; done++; }
-      });
-      return { num: p.num, title: p.title, minutes: p.minutes, duration: p.duration,
-               weight: p.minutes / TOTAL_MIN, possible: possible, answered: answered,
-               earned: earned, done: done, count: count };
-    });
-  }
-  function note20(earned, base) { return base ? Math.round(earned / base * 200) / 10 : null; }
-  // Note provisoire : pondération renormalisée sur les seules parties déjà entamées
-  function weighted(stats, useAnswered) {
-    var num = 0, den = 0;
-    stats.forEach(function (s) {
-      var base = useAnswered ? s.answered : s.possible;
-      if (!base) return;
-      num += s.weight * (s.earned / base * 20);
-      den += s.weight;
-    });
-    return den ? Math.round(num / den * 10) / 10 : null;
-  }
-  function totals(stats) {
-    var t = { earned: 0, possible: 0, done: 0, count: 0, half: 0 };
-    stats.forEach(function (s) { t.earned += s.earned; t.possible += s.possible; t.done += s.done; t.count += s.count; });
-    gradedIds.forEach(function (id) { if (state[id] && state[id].validated && state[id].score === 0.5) t.half++; });
-    return t;
-  }
-
-  function renderRecap(stats, t) {
-    var body = $("#recap-body");
-    if (!body) return;
-    var rows = stats.map(function (s) {
-      var n = note20(s.earned, s.possible);
-      var contrib = s.possible ? Math.round(s.earned / s.possible * 20 * s.weight * 100) / 100 : 0;
-      return '<tr><th scope="row">Partie ' + s.num + " — " + s.title + "</th>" +
-        "<td>" + s.duration + "</td><td>" + fr(s.weight * 100, 1) + " %</td>" +
-        "<td>" + fr(s.earned, 1) + " / " + s.possible + " <span class=\"small\">(" + s.done + "/" + s.count + " validés)</span></td>" +
-        '<td class="rc-note">' + fr(n, 1) + "</td><td>" + fr(contrib, 2) + " pt</td></tr>";
-    });
-    body.innerHTML = rows.join("");
-  }
-
-  function updateScore() {
-    var stats = partStats(), t = totals(stats);
-    var prov = weighted(stats, true), fin = weighted(stats, false);
-    $("#score-val").innerHTML = (prov === null ? "–" : fr(prov, 1)) + "<small>/20</small>";
-    var parts = stats.filter(function (s) { return s.answered > 0; }).length;
-    if (MODE === "exam" && !graded) {
-      var filled = 0, tot = 0;
-      $$(".q[data-q] .q-input").forEach(function (i) { tot++; if (i.value.trim()) filled++; });
-      $$(".fast-q .sol input").forEach(function (i) { tot++; if (i.value.trim()) filled++; });
-      $("#score-count").textContent = filled + " réponse(s) renseignée(s) sur " + tot +
-        " · corrections et note dévoilées à la remise de la copie";
-      return;
-    }
-    $("#score-count").textContent = t.done + " item" + (t.done > 1 ? "s" : "") + " validé" + (t.done > 1 ? "s" : "") +
-      " sur " + t.count + " · " + fr(t.earned, 1) + " / " + fr(t.possible, 0) + " points · " +
-      (parts ? parts + " partie" + (parts > 1 ? "s" : "") + " entamée" + (parts > 1 ? "s" : "") : "aucune partie entamée") +
-      (t.half ? " · " + t.half + " demi-point(s) d'unité" : "");
-    $$(".final-note").forEach(function (el) { el.textContent = fin === null ? "0,0/20" : fr(fin, 1) + "/20"; });
-    renderRecap(stats, t);
-    $$(".final-detail").forEach(function (el) {
-      el.textContent = fr(t.earned, 1) + " point(s) sur " + t.possible + " au total, dont " + t.half +
-        " demi-point(s) perdu(s) sur les unités. " + (t.count - t.done) + " item(s) non validé(s), comptés à zéro. " +
-        "La note globale n'est pas la moyenne des points : chaque partie est ramenée sur 20 puis pondérée par sa durée conseillée.";
-    });
-  }
-
-  // ====================== QUESTIONS SIMPLES ======================
-  function setStatus(root, score) {
-    root.classList.remove("is-ok", "is-ko", "is-half");
-    root.classList.add(score === 1 ? "is-ok" : (score === 0.5 ? "is-half" : "is-ko"));
-  }
-  function statusText(r) {
-    if (r.empty) return "✗ Non répondue";
-    if (r.score === 1) return "✓ Juste";
-    if (r.score === 0.5) return r.unit === "wrong" ? "≈ Valeur juste, unité incorrecte — ½ point" : "≈ Valeur juste, unité manquante — ½ point";
-    return "✗ Faux";
-  }
-  function printStat(r) {
-    if (r.empty) return "Non répondue : comptée fausse";
-    if (r.score === 1) return "Juste";
-    if (r.score === 0.5) return r.unit === "wrong" ? "Valeur juste, unité incorrecte : ½ point" : "Valeur juste, unité manquante : ½ point";
-    return "Faux";
-  }
-  function applyResult(root, id, r) {
-    state[id] = { validated: true, ok: r.ok, score: r.score, unit: r.unit, value: $(".q-input", root).value };
-    var input = $(".q-input", root);
-    input.disabled = true;
-    input.setAttribute("aria-invalid", r.score === 1 ? "false" : "true");
-    $(".btn-validate", root).disabled = true;
-    setStatus(root, r.score);
-    $(".q-status", root).textContent = statusText(r);
-    var ps = $(".pstat", root); if (ps) ps.textContent = printStat(r);
-    var um = $(".q-unit-msg", root);
-    if (um) {
-      if (r.score === 0.5) {
-        um.textContent = (r.unit === "wrong" ? "Unité incorrecte" : "Unité manquante") +
-          " : la valeur est juste, mais l'unité attendue (" + r.unitLabel + ") vaut la moitié des points.";
-        um.hidden = false;
-      } else um.hidden = true;
-    }
-    var yours = $(".q-yours-val", root); if (yours) yours.textContent = input.value;
-    var ex = $(".q-expl", root); ex.hidden = false; ex.classList.add("reveal");
-  }
-  function validateSimple(id) {
-    var root = document.getElementById(id);
-    if (!root || MODE !== "training" || (state[id] && state[id].validated)) return;
-    var input = $(".q-input", root), msg = $(".q-msg", root);
-    var r = G.grade(input.value, QCFG[id].grader);
-    if (r.invalid) { msg.textContent = r.invalid; input.focus(); return; }
-    msg.textContent = "";
-    applyResult(root, id, r);
-    afterValidation();
-  }
-  function afterValidation() {
-    updateScore();
-    Object.keys(sketches).forEach(function (k) { sketches[k].checkReveal(); });
-  }
-
-  $$(".q[data-q]").forEach(function (root) {
-    var id = root.getAttribute("data-q");
-    state[id] = state[id] || { validated: false, ok: false, value: "" };
-    var input = $(".q-input", root);
-    $(".btn-validate", root).addEventListener("click", function () { validateSimple(id); });
-    input.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); validateSimple(id); } });
-    input.addEventListener("input", function () { dirty = true; $(".q-msg", root).textContent = ""; if (MODE === "exam") updateScore(); });
-  });
-
-  // ====================== FAST (groupe) ======================
-  $$(".fast-q").forEach(function (root) {
-    var btn = $(".btn-fast", root), msg = $(".q-msg", root);
-    var inputs = $$(".sol input", root);
-    inputs.forEach(function (inp) {
-      state[inp.getAttribute("data-q")] = { validated: false, ok: false, value: "" };
-      inp.addEventListener("input", function () { dirty = true; msg.textContent = ""; if (MODE === "exam") updateScore(); });
-      inp.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); btn.click(); } });
-    });
-    btn.addEventListener("click", function () {
-      if (MODE !== "training") return;
-      var empty = inputs.filter(function (i) { return !i.value.trim(); });
-      if (empty.length === inputs.length) { msg.textContent = "Complète au moins une case avant de valider."; inputs[0].focus(); return; }
-      if (empty.length && !btn.dataset.confirm) {
-        btn.dataset.confirm = "1";
-        btn.textContent = "Valider quand même (" + empty.length + " case" + (empty.length > 1 ? "s" : "") + " vide" + (empty.length > 1 ? "s" : "") + ")";
-        msg.textContent = "Des cases sont vides : elles seront comptées fausses et verrouillées.";
-        return;
-      }
-      msg.textContent = "";
-      gradeFast(root);
-    });
-    root.__gradeFast = function () { gradeFast(root); };
-    function gradeFast(root) {
-      var ok = 0;
-      inputs.forEach(function (inp) {
-        var id = inp.getAttribute("data-q");
-        var r = inp.value.trim() ? G.grade(inp.value, QCFG[id].grader) : { ok: false, score: 0 };
-        state[id] = { validated: true, ok: !!r.ok, score: r.ok ? 1 : 0, value: inp.value };
-        if (r.ok) ok++;
-        inp.disabled = true;
-        var cell = inp.closest(".sol");
-        setStatus(cell, r.ok ? 1 : 0);
-        $(".mark", cell).textContent = r.ok ? "✓ Juste" : "✗ Faux";
-      });
-      btn.disabled = true;
-      btn.textContent = btn.getAttribute("data-done") || "Diagramme validé";
-      $(".q-status", root).textContent = ok + " case" + (ok > 1 ? "s" : "") + " juste" + (ok > 1 ? "s" : "") + " sur " + inputs.length;
-      var ex = $(".q-expl", root); ex.hidden = false; ex.classList.add("reveal");
-      afterValidation();
-    }
-  });
-
-  // ====================== TRACÉS ======================
-  var COLORS = [["#1F5FA8", "Bleu"], ["#1B7A43", "Vert"], ["#1C2530", "Noir"]];
-  var CORR = "#C62828", TEAL = "#0E7C66", PURP = "#7B3FA0", ORNG = "#D35400";
-
-  function arrow(ctx, x1, y1, x2, y2, color, w, head) {
-    var dx = x2 - x1, dy = y2 - y1, L = Math.sqrt(dx * dx + dy * dy);
-    if (L < 0.5) return;
-    var h = Math.min(head || w * 4.5 + 4, L * 0.45), ux = dx / L, uy = dy / L;
-    ctx.save(); ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = w; ctx.lineCap = "round";
-    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * h * 0.6, y2 - uy * h * 0.6); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(x2, y2);
-    ctx.lineTo(x2 - ux * h - uy * h * 0.42, y2 - uy * h + ux * h * 0.42);
-    ctx.lineTo(x2 - ux * h + uy * h * 0.42, y2 - uy * h - ux * h * 0.42);
-    ctx.closePath(); ctx.fill(); ctx.restore();
-  }
-  function line(ctx, x1, y1, x2, y2, color, w, dash) {
-    ctx.save(); ctx.strokeStyle = color; ctx.lineWidth = w; ctx.lineCap = "round";
-    if (dash) ctx.setLineDash(dash);
-    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.restore();
-  }
-  function text(ctx, s, x, y, color, size, align, weight) {
-    ctx.save(); ctx.fillStyle = color; ctx.font = (weight || "600") + " " + size + "px system-ui, Segoe UI, Arial, sans-serif";
-    ctx.textAlign = align || "left"; ctx.textBaseline = "middle";
-    ctx.lineWidth = Math.max(2, size / 5); ctx.strokeStyle = "rgba(255,255,255,.9)"; ctx.strokeText(s, x, y);
-    ctx.fillText(s, x, y); ctx.restore();
-  }
-  // Libellé vectoriel : lettre surmontée d'une flèche + indice
-  function vlabel(ctx, x, y, letter, sub, color, size, align) {
-    ctx.save();
-    var f1 = "italic 700 " + size + "px system-ui, Segoe UI, Arial, sans-serif";
-    var f2 = "600 " + Math.round(size * 0.66) + "px system-ui, Segoe UI, Arial, sans-serif";
-    ctx.font = f1; var w1 = ctx.measureText(letter).width;
-    ctx.font = f2; var w2 = sub ? ctx.measureText(sub).width + 2 : 0;
-    var total = w1 + w2, x0 = align === "right" ? x - total : (align === "center" ? x - total / 2 : x);
-    ctx.textBaseline = "middle"; ctx.lineWidth = Math.max(3, size / 4); ctx.strokeStyle = "rgba(255,255,255,.92)";
-    ctx.fillStyle = color;
-    ctx.font = f1; ctx.strokeText(letter, x0, y); ctx.fillText(letter, x0, y);
-    if (sub) { ctx.font = f2; ctx.strokeText(sub, x0 + w1 + 2, y + size * 0.32); ctx.fillText(sub, x0 + w1 + 2, y + size * 0.32); }
-    ctx.restore();
-    arrow(ctx, x0, y - size * 0.62, x0 + w1 + 2, y - size * 0.62, color, Math.max(1, size / 14), size * 0.3);
-  }
-  function cross(ctx, x, y, r, color, w) {
-    line(ctx, x - r, y - r, x + r, y + r, color, w); line(ctx, x - r, y + r, x + r, y - r, color, w);
-  }
-  function dot(ctx, x, y, r, color) { ctx.save(); ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); ctx.restore(); }
-
-  /* =======================================================================
-     DECOR : une entrée par fond de tracé, la clé reprend le nom de l'image
-     de fond (SKCFG[...].bg). Coordonnées exprimées dans le repère du fond,
-     origine en haut à gauche de l'image, avant application des marges (pad).
-       pad  : marges ajoutées autour du fond (place pour les annotations)
-       rs   : facteur de résolution interne du canvas (2 à 3 : net au zoom 400 %)
-       pxPerCm : pixels du fond par centimètre du document d'origine
-                 (à renseigner UNIQUEMENT si une échelle doit être mesurable ;
-                  active alors l'affichage de la longueur tracée)
-       decorate(ctx)   : annotations présentes sur le DR vierge (repères, forces,
-                         échelle, axes) — visibles aussi sur les DR imprimés
-       correction(ctx) : tracé corrigé superposé, ou null s'il n'y en a pas
-     Primitives disponibles : arrow, line, text, vlabel (vecteur surmonté d'une
-     flèche), cross, dot.
-     ======================================================================= */
-  var DECOR = {
-    DEMO: {
-      pad: { t: 20, r: 180, b: 20, l: 20 }, rs: 2.4,
-      decorate: function (c) {
-        cross(c, 260, 190, 6, "#000", 2); text(c, "A", 278, 205, "#000", 20, "center", "700");
-        arrow(c, 260, 190, 260, 60, "#000", 3); vlabel(c, 272, 110, "F", "", "#000", 20);
-        text(c, "Repère", 640, 40, "#000", 18, "left", "700");
-        arrow(c, 640, 150, 720, 150, "#000", 2); arrow(c, 640, 150, 640, 70, "#000", 2);
-        vlabel(c, 728, 156, "x", "", "#000", 18); vlabel(c, 652, 74, "y", "", "#000", 18);
-      },
-      correction: function (c) {
-        arrow(c, 260, 190, 420, 190, CORR, 3.4);
-        vlabel(c, 350, 172, "F'", "", CORR, 20, "center");
-        text(c, "Correction", 640, 240, CORR, 18, "left", "800");
-      }
-    }
-  };
-
-  function distSeg(px, py, x1, y1, x2, y2) {
-    var dx = x2 - x1, dy = y2 - y1, L2 = dx * dx + dy * dy;
-    var t = L2 ? ((px - x1) * dx + (py - y1) * dy) / L2 : 0;
-    t = Math.max(0, Math.min(1, t));
-    var qx = x1 + t * dx, qy = y1 + t * dy;
-    return Math.hypot(px - qx, py - qy);
-  }
-  function strokeHit(ctx, s, x, y, r) {
-    var i;
-    if (s.t === "pen") {
-      for (i = 1; i < s.pts.length; i++)
-        if (distSeg(x, y, s.pts[i - 1][0], s.pts[i - 1][1], s.pts[i][0], s.pts[i][1]) <= r + s.w / 2) return true;
-      return s.pts.length === 1 && Math.hypot(x - s.pts[0][0], y - s.pts[0][1]) <= r + s.w / 2;
-    }
-    if (s.t === "line" || s.t === "arrow")
-      return distSeg(x, y, s.a[0], s.a[1], s.b[0], s.b[1]) <= r + s.w / 2;
-    if (s.t === "text") {
-      ctx.save(); ctx.font = "700 " + s.size + "px system-ui, Segoe UI, Arial, sans-serif";
-      var w = ctx.measureText(s.s).width; ctx.restore();
-      return x >= s.x - r && x <= s.x + w + r && y >= s.y - s.size / 2 - r && y <= s.y + s.size / 2 + r;
-    }
-    return false;
-  }
-
-  function Sketch(root) {
-    var self = this;
-    this.root = root; this.id = root.getAttribute("data-sketch");
-    this.cfg = SKCFG[this.id]; this.dec = DECOR[this.cfg.bg];
-    this.img = $(".sk-bg", root);
-    this.canvas = $("canvas", root); this.ctx = this.canvas.getContext("2d");
-    var p = this.dec.pad;
-    this.iw = +this.img.getAttribute("width"); this.ih = +this.img.getAttribute("height");
-    this.W = this.iw + p.l + p.r; this.H = this.ih + p.t + p.b; this.rs = this.dec.rs;
-    this.canvas.width = Math.round(this.W * this.rs); this.canvas.height = Math.round(this.H * this.rs);
-    this.strokes = []; this.cur = null; this.tool = "pen"; this.color = COLORS[0][0];
-    this.wFactor = 1; this.zoom = 1; this.erasing = false;
-    this.locked = false; this.revealed = false; this.showCorr = false;
-    state[this.id] = { validated: false, sketch: true, score: 0 };
-    this.selfDone = false;
-
-    $$("[data-tool]", root).forEach(function (b) {
-      b.addEventListener("click", function () { self.setTool(b.getAttribute("data-tool")); });
-    });
-    $$("[data-color]", root).forEach(function (b) {
-      b.addEventListener("click", function () {
-        self.color = b.getAttribute("data-color");
-        $$("[data-color]", root).forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
-      });
-    });
-    $$("[data-width]", root).forEach(function (b) {
-      b.addEventListener("click", function () {
-        self.wFactor = { fin: 0.5, moyen: 1, epais: 2.1 }[b.getAttribute("data-width")];
-        $$("[data-width]", root).forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
-      });
-    });
-    $$("[data-zoom]", root).forEach(function (b) {
-      b.addEventListener("click", function () { self.setZoom(b.getAttribute("data-zoom")); });
-    });
-    $("[data-act=drprint]", root).addEventListener("click", printDR);
-    $("[data-act=undo]", root).addEventListener("click", function () { if (!self.locked) { self.strokes.pop(); self.draw(); } });
-    var clr = $("[data-act=clear]", root), clrT;
-    clr.addEventListener("click", function () {
-      if (self.locked) return;
-      if (clr.dataset.armed) { self.strokes = []; self.draw(); delete clr.dataset.armed; clr.textContent = "Tout effacer"; clearTimeout(clrT); return; }
-      clr.dataset.armed = "1"; clr.textContent = "Confirmer l'effacement";
-      clrT = setTimeout(function () { delete clr.dataset.armed; clr.textContent = "Tout effacer"; }, 3000);
-    });
-    $("[data-act=full]", root).addEventListener("click", function () { self.toggleFull(); });
-    $(".btn-sketch", root).addEventListener("click", function () { if (MODE === "training") self.validate(); });
-    var tg = $(".sk-corr-toggle input", root);
-    tg.addEventListener("change", function () { self.showCorr = tg.checked; self.draw(); });
-    var sbtn = $(".btn-self", root);
-    if (sbtn) sbtn.addEventListener("click", function () { self.selfAssess(); });
-    $$(".selfeval input[data-crit]", root).forEach(function (cb) {
-      cb.addEventListener("change", function () { dirty = true; self.refreshSelf(); });
-    });
-
-    var cv = this.canvas;
-    cv.addEventListener("pointerdown", function (e) { self.down(e); });
-    cv.addEventListener("pointermove", function (e) { self.move(e); });
-    cv.addEventListener("pointerup", function (e) { self.up(e); });
-    cv.addEventListener("pointercancel", function () { self.cur = null; self.erasing = false; self.draw(); });
-
-    if (this.img.complete && this.img.naturalWidth) this.draw();
-    else this.img.addEventListener("load", function () { self.draw(); });
-    if (!this.dec.correction) $(".sk-corr-toggle", root).remove();
-  }
-  Sketch.prototype.setTool = function (t) {
-    this.tool = t;
-    this.root.classList.toggle("tool-erase", t === "erase");
-    $$("[data-tool]", this.root).forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-tool") === t ? "true" : "false"); });
-  };
-  var SK_ZOOMS = [1, 1.5, 2, 3, 4];
-  Sketch.prototype.setZoom = function (what) {
-    var i = SK_ZOOMS.indexOf(this.zoom); if (i < 0) i = 0;
-    if (what === "in") i = Math.min(SK_ZOOMS.length - 1, i + 1);
-    else if (what === "out") i = Math.max(0, i - 1);
-    else if (what !== "keep") i = 0;
-    this.zoom = SK_ZOOMS[i];
-    var stage = $(".sk-stage", this.root);
-    // conserve le centre de la vue d'un palier à l'autre
-    var cx = (stage.scrollLeft + stage.clientWidth / 2) / Math.max(1, stage.scrollWidth);
-    var cy = (stage.scrollTop + stage.clientHeight / 2) / Math.max(1, stage.scrollHeight);
-    stage.classList.toggle("zoomed", this.zoom > 1);
-    if (this.zoom > 1) { this.canvas.style.width = this.zoom * 100 + "%"; this.canvas.style.maxWidth = "none"; }
-    else { this.canvas.style.width = ""; this.canvas.style.maxWidth = ""; }
-    $(".zoom-val", this.root).textContent = Math.round(this.zoom * 100) + " %";
-    $("[data-zoom=out]", this.root).disabled = this.zoom === SK_ZOOMS[0];
-    $("[data-zoom=in]", this.root).disabled = this.zoom === SK_ZOOMS[SK_ZOOMS.length - 1];
-    requestAnimationFrame(function () {
-      stage.scrollLeft = cx * stage.scrollWidth - stage.clientWidth / 2;
-      stage.scrollTop = cy * stage.scrollHeight - stage.clientHeight / 2;
-    });
-  };
-  Sketch.prototype.pos = function (e) {
-    var r = this.canvas.getBoundingClientRect();
-    return { x: (e.clientX - r.left) * this.W / r.width, y: (e.clientY - r.top) * this.H / r.height, k: this.W / r.width };
-  };
-  Sketch.prototype.down = function (e) {
-    if (this.locked || e.button > 0) return;
-    var p = this.pos(e), w = Math.max(0.6, 2.6 * this.wFactor * p.k);
-    dirty = true;
-    if (this.tool === "text") { e.preventDefault(); this.textAt(e, p); return; }
-    if (this.tool === "erase") {
-      e.preventDefault(); this.canvas.setPointerCapture(e.pointerId);
-      this.erasing = true; this.eraseAt(p); return;
-    }
-    this.canvas.setPointerCapture(e.pointerId);
-    if (this.tool === "pen") this.cur = { t: "pen", pts: [[p.x, p.y]], c: this.color, w: w };
-    else this.cur = { t: this.tool, a: [p.x, p.y], b: [p.x, p.y], c: this.color, w: w };
+  q("#qd-check").addEventListener("click", verifier);
+  q("#qd-sol").addEventListener("click", function () { if (essai === 0) { essai = 1; compter(false); } corriger(); q("#qd-next").focus({ preventScroll: true }); });
+  q("#qd-next").addEventListener("click", suivante);
+  root.addEventListener("keydown", function (e) {
+    if (e.key !== "Enter" || !e.target.closest(".ta-f")) return;
     e.preventDefault();
-  };
-  Sketch.prototype.eraseAt = function (p) {
-    var r = Math.max(6, 11 * p.k), ctx = this.ctx, before = this.strokes.length;
-    this.strokes = this.strokes.filter(function (s) { return !strokeHit(ctx, s, p.x, p.y, r); });
-    if (this.strokes.length !== before) this.draw();
-  };
-  Sketch.prototype.move = function (e) {
-    if (this.erasing) { this.eraseAt(this.pos(e)); return; }
-    if (!this.cur) return;
-    var p = this.pos(e);
-    if (this.cur.t === "pen") this.cur.pts.push([p.x, p.y]);
-    else { this.cur.b = [p.x, p.y]; this.measure(); }
-    this.draw();
-  };
-  Sketch.prototype.up = function () {
-    if (this.erasing) { this.erasing = false; return; }
-    if (!this.cur) return;
-    var s = this.cur; this.cur = null;
-    var keep = s.t === "pen" ? s.pts.length > 1 : Math.hypot(s.b[0] - s.a[0], s.b[1] - s.a[1]) > 3;
-    if (keep) this.strokes.push(s);
-    this.draw();
-  };
-  Sketch.prototype.measure = function () {
-    var el = $(".sk-meas", this.root);
-    if (!this.dec.pxPerCm || !this.cur || !this.cur.b) return;
-    var L = Math.hypot(this.cur.b[0] - this.cur.a[0], this.cur.b[1] - this.cur.a[1]) / this.dec.pxPerCm;
-    el.textContent = "Longueur tracée : " + fr(L, 1) + " cm";
-  };
-  Sketch.prototype.textAt = function (e, p) {
-    var self = this, stage = $(".sk-stage", this.root), r = stage.getBoundingClientRect();
-    var inp = document.createElement("input");
-    inp.className = "sk-text"; inp.type = "text"; inp.setAttribute("aria-label", "Texte à placer sur le tracé");
-    inp.style.left = (e.clientX - r.left) + "px"; inp.style.top = (e.clientY - r.top - 12) + "px"; inp.style.color = this.color;
-    stage.appendChild(inp); setTimeout(function () { inp.focus(); }, 0);
-    var done = false;
-    function commit(save) {
-      if (done) return; done = true;
-      if (save && inp.value.trim()) self.strokes.push({ t: "text", x: p.x, y: p.y, s: inp.value.trim(), c: self.color, size: 17 * p.k * (0.8 + 0.3 * self.wFactor) });
-      inp.remove(); self.draw();
-    }
-    inp.addEventListener("keydown", function (ev) { if (ev.key === "Enter") commit(true); if (ev.key === "Escape") commit(false); });
-    inp.addEventListener("blur", function () { commit(true); });
-  };
-  Sketch.prototype.paint = function (ctx, opts) {
-    var p = this.dec.pad;
-    ctx.setTransform(this.rs, 0, 0, this.rs, 0, 0);
-    ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, this.W, this.H);
-    if (this.img.naturalWidth) ctx.drawImage(this.img, p.l, p.t, this.iw, this.ih);
-    ctx.save(); ctx.translate(p.l, p.t); this.dec.decorate(ctx); ctx.restore();
-    if (opts.student) {
-      var list = this.cur ? this.strokes.concat([this.cur]) : this.strokes;
-      list.forEach(function (s) {
-        if (s.t === "pen") {
-          ctx.save(); ctx.strokeStyle = s.c; ctx.lineWidth = s.w; ctx.lineCap = "round"; ctx.lineJoin = "round";
-          ctx.beginPath(); ctx.moveTo(s.pts[0][0], s.pts[0][1]);
-          for (var i = 1; i < s.pts.length; i++) ctx.lineTo(s.pts[i][0], s.pts[i][1]);
-          ctx.stroke(); ctx.restore();
-        } else if (s.t === "line") line(ctx, s.a[0], s.a[1], s.b[0], s.b[1], s.c, s.w);
-        else if (s.t === "arrow") arrow(ctx, s.a[0], s.a[1], s.b[0], s.b[1], s.c, s.w);
-        else if (s.t === "text") text(ctx, s.s, s.x, s.y, s.c, s.size, "left", "700");
-      });
-    }
-    if (opts.corr && this.dec.correction) { ctx.save(); ctx.translate(p.l, p.t); this.dec.correction(ctx); ctx.restore(); }
-  };
-  Sketch.prototype.draw = function () {
-    this.paint(this.ctx, { student: true, corr: this.showCorr && this.revealed });
-  };
-  Sketch.prototype.snapshot = function (opts, maxpx) {
-    var c = document.createElement("canvas");
-    var s = Math.min(Math.max(this.rs, (maxpx || 1600) / this.W), (maxpx || 1600) / this.W);
-    c.width = Math.round(this.W * s); c.height = Math.round(this.H * s);
-    var saved = this.rs; this.rs = s;
-    this.paint(c.getContext("2d"), opts); this.rs = saved;
-    try { return c.toDataURL("image/png"); } catch (e) { return ""; }
-  };
-  Sketch.prototype.validate = function () {
-    if (this.locked) return;
-    this.locked = true; state[this.id].validated = true;
-    this.root.classList.add("locked");
-    if (this.cur) this.cur = null;
-    $$(".sk-toolbar button", this.root).forEach(function (b) {
-      var keep = ["full", "drprint"].indexOf(b.getAttribute("data-act")) >= 0 || b.hasAttribute("data-zoom");
-      if (!keep) b.disabled = true;
-    });
-    this.setZoom("keep");
-    var btn = $(".btn-sketch", this.root); btn.disabled = true; btn.textContent = "Tracé validé";
-    $(".q-status", this.root).textContent = this.strokes.length ? "Tracé enregistré" : "Tracé validé vide";
-    this.checkReveal(); this.draw();
-  };
-  Sketch.prototype.checkReveal = function () {
-    if (!this.locked || this.revealed) return;
-    var missing = (this.cfg.deps || []).filter(function (d) { return !(state[d] && state[d].validated); });
-    var wait = $(".sk-wait", this.root);
-    if (missing.length) {
-      wait.textContent = "La correction et l'auto-évaluation s'afficheront après validation de : " +
-        missing.map(function (d) { return QCFG[d].label; }).join(", ") + ".";
-      return;
-    }
-    wait.textContent = "";
-    this.revealed = true; this.root.classList.add("revealed");
-    var tg = $(".sk-corr-toggle input", this.root);
-    if (tg) { tg.checked = true; this.showCorr = true; }
-    var ex = $(".q-expl", this.root); ex.hidden = false; ex.classList.add("reveal");
-    var se = $(".selfeval", this.root); if (se) { se.hidden = false; se.classList.add("reveal"); }
-    this.refreshSelf();
-    this.draw();
-  };
-  Sketch.prototype.critBoxes = function () { return $$(".selfeval input[data-crit]", this.root); };
-  Sketch.prototype.refreshSelf = function () {
-    if (this.selfDone) return;
-    var n = this.critBoxes().filter(function (c) { return c.checked; }).length;
-    $(".se-score", this.root).textContent = n + " / " + this.cfg.pts + " critère" + (this.cfg.pts > 1 ? "s" : "") + " coché" + (n > 1 ? "s" : "");
-  };
-  Sketch.prototype.selfAssess = function () {
-    if (this.selfDone) return;
-    var boxes = this.critBoxes(), n = boxes.filter(function (c) { return c.checked; }).length;
-    this.selfDone = true;
-    state[this.id] = { validated: true, sketch: true, score: this.cfg.pts ? n / this.cfg.pts : 0, self: n };
-    boxes.forEach(function (c) { c.disabled = true; });
-    var btn = $(".btn-self", this.root); btn.disabled = true; btn.textContent = "Auto-évaluation validée";
-    var txt = n + " point" + (n > 1 ? "s" : "") + " sur " + this.cfg.pts + " attribué" + (n > 1 ? "s" : "") + " à ce tracé";
-    $(".se-score", this.root).textContent = txt;
-    var pr = $(".se-print", this.root); if (pr) pr.textContent = "Auto-évaluation : " + txt + ".";
-    this.root.classList.add(n === this.cfg.pts ? "is-ok" : (n ? "is-half" : "is-ko"));
-    updateScore();
-  };
-
-  Sketch.prototype.toggleFull = function () {
-    var on = !this.root.classList.contains("is-full");
-    this.setZoom("reset");
-    this.root.classList.toggle("is-full", on);
-    document.body.classList.toggle("sk-full-open", on);
-    var b = $("[data-act=full]", this.root);
-    b.textContent = on ? "Quitter le plein écran" : "Plein écran";
-    b.setAttribute("aria-pressed", on ? "true" : "false");
-    if (on) this.root.scrollTop = 0; else this.root.scrollIntoView({ block: "start" });
-  };
-  Sketch.prototype.preparePrint = function () {
-    $(".sk-print-student", this.root).src = this.snapshot({ student: true, corr: false });
-    var pc = $(".sk-print-corr", this.root);
-    if (pc) pc.src = this.dec.correction ? this.snapshot({ student: false, corr: true }) : "";
-  };
-
-  $$(".sketch[data-sketch]").forEach(function (root) { var s = new Sketch(root); sketches[s.id] = s; });
-
-  // ====================== CORRECTION GLOBALE (MODE EXAMEN) ======================
-  function gradeAll() {
-    if (graded) return;
-    graded = true;
-    document.body.classList.add("graded", "corrections-open");
-    stopTimer();
-    $$(".q[data-q]").forEach(function (root) {
-      var id = root.getAttribute("data-q");
-      if (state[id] && state[id].validated) return;
-      var v = $(".q-input", root).value;
-      var r = v.trim() ? G.grade(v, QCFG[id].grader) : { ok: false, score: 0 };
-      if (r.invalid) r = { ok: false, score: 0, empty: !v.trim() };
-      if (!v.trim()) r.empty = true;
-      $(".q-msg", root).textContent = "";
-      applyResult(root, id, r);
-    });
-    $$(".fast-q").forEach(function (root) { if (root.__gradeFast) root.__gradeFast(); });
-    Object.keys(sketches).forEach(function (k) {
-      var s = sketches[k];
-      if (!s.locked) s.validate(); else s.checkReveal();
-    });
-    updateScore();
-    var r = $("#recap");
-    if (r) r.scrollIntoView({ block: "start" });
-  }
-
-  var submitBtn = $("#exam-submit");
-  if (submitBtn) {
-    submitBtn.addEventListener("click", function () {
-      var missing = 0;
-      $$(".q[data-q]").forEach(function (root) { if (!$(".q-input", root).value.trim()) missing++; });
-      $$(".fast-q .sol input").forEach(function (i) { if (!i.value.trim()) missing++; });
-      if (!submitBtn.dataset.armed) {
-        submitBtn.dataset.armed = "1";
-        submitBtn.textContent = "Confirmer : corriger définitivement ma copie";
-        $("#exam-warn").textContent = (missing ? missing + " réponse(s) encore vide(s), comptée(s) fausse(s). " : "") +
-          "Après correction, plus aucune réponse ne pourra être modifiée.";
-        return;
-      }
-      $("#exam-warn").textContent = "";
-      submitBtn.disabled = true;
-      gradeAll();
-    });
-  }
-
-  // ====================== CHRONOMÈTRE ======================
-  var tStart = 0, tAcc = 0, tPaused = false, tTick = null;
-  function elapsedMs() { return tAcc + (tPaused || !tStart ? 0 : Date.now() - tStart); }
-  function hms(ms) {
-    var s = Math.floor(ms / 1000), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60);
-    return h + ":" + String(m).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
-  }
-  function longTime(ms) {
-    var s = Math.floor(ms / 1000), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60);
-    return (h ? h + " h " + String(m).padStart(2, "0") + " min" : m + " min " + String(s % 60).padStart(2, "0") + " s");
-  }
-  function renderTimer() {
-    var el = $("#timer-val");
-    if (!el) return;
-    el.textContent = hms(elapsedMs());
-    el.classList.toggle("over", elapsedMs() > CONSEIL_MIN * 60000);
-  }
-  function startTimer() { tStart = Date.now(); tTick = setInterval(renderTimer, 1000); renderTimer(); }
-  function stopTimer() {
-    if (!tPaused && tStart) { tAcc += Date.now() - tStart; tPaused = true; }
-    if (tTick) { clearInterval(tTick); tTick = null; }
-    renderTimer();
-  }
-  // ====================== CHOIX DU MODE ======================
-  function startMode(mode) {
-    MODE = mode;
-    document.body.classList.remove("no-mode");
-    document.body.classList.add(mode === "exam" ? "mode-exam" : "mode-training");
-    if (mode === "training") { graded = true; document.body.classList.add("corrections-open"); }
-    startTimer();
-    updateScore();
-    window.scrollTo(0, 0);
-    var h1 = $(".cartouche h1"); if (h1) h1.setAttribute("tabindex", "-1"), h1.focus();
-  }
-  $$(".btn-mode").forEach(function (b) {
-    b.addEventListener("click", function () { startMode(b.getAttribute("data-mode")); });
+    if (reussi) suivante(); else verifier();
   });
-
-  // ====================== IMPRESSION DES DOCUMENTS RÉPONSES ======================
-  /* Intitulés des documents réponses dans la fenêtre « Imprimer les DR ».
-     Clé = nom du fond ; scale:true ajoute l'avertissement d'échelle. */
-  var DR_NAMES = {
-    DEMO: { doc: "DR1", q: "Q2.1", t: "Intitulé du document réponse", scale: false }
+  function choix() {
+    var refs = qa("[name=qd-ref]:checked").map(function (x) { return x.value; });
+    var quads = qa("[name=qd-q]:checked").map(function (x) { return +x.value; });
+    var N = +(q("[name=qd-n]:checked") || { value: 10 }).value;
+    q("#qd-cfg-msg").textContent = !refs.length ? "Coche au moins un axe de référence." : !quads.length ? "Coche au moins un quadrant." : "";
+    q("#qd-go").disabled = !refs.length || !quads.length;
+    return { refs: refs, quads: quads, N: N };
+  }
+  qa("[name=qd-ref], [name=qd-q], [name=qd-n]").forEach(function (x) { x.addEventListener("change", choix); });
+  q("#qd-go").addEventListener("click", function () { var c = choix(); if (q("#qd-go").disabled) return; q("#qd-cfg").open = false; lancer(c.refs, c.quads, c.N); });
+  root.addEventListener("pointerdown", function () { interagi = true; });
+  root.addEventListener("keydown", function () { interagi = true; }, true);
+  document.addEventListener("click", function (e) {      // fermer les menus en cliquant ailleurs
+    qa(".ta-pd").forEach(function (d) { if (d.open && !d.contains(e.target)) d.open = false; });
+  });
+  qa(".ta-pd").forEach(function (d) {                      // un seul menu ouvert à la fois
+    d.addEventListener("toggle", function () { if (d.open) qa(".ta-pd").forEach(function (x) { if (x !== d) x.open = false; }); });
+  });
+  window.__qd__ = {
+    courant: function () { return cur; }, serie: function () { return serie; }, graine: graine,
+    lancer: function (refs, quads, N) { lancer(refs, quads, N); },
+    reponses: function () { return { lx: (cur.sx < 0 ? "-" : "") + "F*" + cur.tx + "(α)", ly: (cur.sy < 0 ? "-" : "") + "F " + cur.ty + " a",
+      nx: String(cur.Fx).replace(".", ","), ny: String(cur.Fy) }; },
+    analyser: function (txt, F, a) { var f = analyser(txt); return f ? f({ F: F, a: a }) : null; }
   };
-
-  function printDR() {
-    var order = $$(".sketch[data-sketch]").map(function (el) { return el.getAttribute("data-sketch"); });
-    var w = window.open("", "_blank");
-    if (!w) { alert("La fenêtre d'impression a été bloquée par le navigateur. Autorise les fenêtres surgissantes pour ce fichier, puis réessaie."); return; }
-    var sheets = order.map(function (id) {
-      var s = sketches[id], n = DR_NAMES[s.cfg.bg] || { doc: "DR", q: s.cfg.label, t: "" };
-      var img = s.snapshot({ student: false, corr: false }, 2400);
-      return '<section class="sheet"><header><h2><span class="dr">' + n.doc + "</span> " + n.q + " — " + n.t + "</h2>" +
-        (n.scale ? '<p class="sc">Échelle : le segment repère de la figure vaut 1 m·s<sup>-1</sup>. Imprime à 100 % (sans « ajuster à la page ») pour conserver 1 m·s<sup>-1</sup> = 3 cm ; sinon, mesure ce segment et raisonne par proportion.</p>' : "") +
-        '<p class="nm">Nom : ______________________________</p></header>' +
-        '<div class="fig"><img src="' + img + '" alt="' + n.doc + " " + n.q + '"></div></section>';
-    }).join("");
-    var css = "@page{size:A4 landscape;margin:8mm}" +
-      "*{box-sizing:border-box}body{margin:0;font:14px/1.4 system-ui,Segoe UI,Arial,sans-serif;color:#1C2530;background:#E3E5E0}" +
-      ".bar{position:sticky;top:0;display:flex;gap:12px;align-items:center;background:#1C2530;color:#fff;padding:10px 16px;z-index:5}" +
-      ".bar b{font-size:15px}.bar p{margin:0;font-size:13px;color:#D7DDE2;flex:1}" +
-      ".bar button{border:0;background:#F2B705;color:#1C2530;font-weight:700;padding:9px 16px;border-radius:2px;cursor:pointer}" +
-      ".sheet{background:#fff;width:281mm;height:194mm;margin:14px auto;padding:4mm 2mm;display:flex;flex-direction:column;box-shadow:0 2px 10px rgba(0,0,0,.15)}" +
-      ".sheet header{flex:0 0 auto;border-bottom:1.5px solid #1C2530;padding-bottom:3mm;margin-bottom:3mm}" +
-      "h2{margin:0;font-size:13pt}.dr{background:#1C2530;color:#fff;padding:1px 7px;margin-right:4px}" +
-      ".sc{margin:2mm 0 0;font-size:9.5pt}.nm{margin:2mm 0 0;font-size:10pt}" +
-      ".fig{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}" +
-      ".fig img{max-width:100%;max-height:100%;width:auto;height:auto}" +
-      "@media print{body{background:#fff}.bar{display:none}.sheet{width:auto;height:190mm;margin:0;padding:0;box-shadow:none;break-after:page}" +
-      ".sheet:last-child{break-after:auto}}";
-    w.document.write('<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">' +
-      "<title>Documents réponses à imprimer</title><style>" + css + "</style></head><body>" +
-      '<div class="bar"><b>Documents réponses</b><p>Quatre pages, une par document, à imprimer en A4 paysage à 100 %.</p>' +
-      '<button type="button" onclick="window.print()">Imprimer</button></div>' + sheets +
-      "<script>window.addEventListener('load',function(){setTimeout(function(){window.print();},400);});<" + "/script></body></html>");
-    w.document.close();
-  }
-
-  // ====================== PANNEAU DOCUMENTS ======================
-  var panel = $("#docpanel"), body = $(".dp-body"), zoom = 1, currentDoc = null, lastOpener = null;
-  var ZOOMS = [0.5, 0.75, 1, 1.25, 1.5, 2, 2.5, 3];
-  function setZoom(z) {
-    zoom = Math.max(ZOOMS[0], Math.min(ZOOMS[ZOOMS.length - 1], z));
-    body.style.setProperty("--z", zoom);
-    $("#dp-zoom").textContent = Math.round(zoom * 100) + " %";
-  }
-  function openDoc(key, opener) {
-    var sec = document.getElementById("doc-" + key);
-    if (!sec) return;
-    if (MODE === "exam" && sec.classList.contains("training-only")) return;   // la méthode n'existe pas en mode examen
-    if (currentDoc === key && document.body.classList.contains("panel-open")) { closeDoc(); return; }
-    $$(".doc", panel).forEach(function (d) { d.classList.toggle("active", d === sec); });
-    $("#dp-title").innerHTML = sec.getAttribute("data-title") + "<small>" + sec.getAttribute("data-kind") + "</small>";
-    $$("[data-doc]").forEach(function (b) {
-      var on = b.getAttribute("data-doc") === key;
-      if (b.classList.contains("tab") || b.parentNode.classList.contains("dp-tabs")) b.setAttribute("aria-selected", on ? "true" : "false");
-      else b.setAttribute("aria-pressed", on ? "true" : "false");
-    });
-    if (currentDoc !== key) { body.scrollTop = 0; setZoom(1); }
-    currentDoc = key; lastOpener = opener || lastOpener;
-    document.body.classList.add("panel-open");
-    panel.setAttribute("aria-hidden", "false");
-  }
-  function closeDoc() {
-    document.body.classList.remove("panel-open");
-    panel.setAttribute("aria-hidden", "true");
-    $$("[data-doc]").forEach(function (b) { b.setAttribute(b.classList.contains("doc-chip") ? "aria-pressed" : "aria-selected", "false"); });
-    currentDoc = null;
-    if (lastOpener && document.contains(lastOpener)) lastOpener.focus();
-  }
-  $$("[data-doc]").forEach(function (b) {
-    b.addEventListener("click", function () { openDoc(b.getAttribute("data-doc"), b); });
-  });
-  $("#dp-close").addEventListener("click", closeDoc);
-  $("#dp-in").addEventListener("click", function () { var i = ZOOMS.indexOf(zoom); setZoom(ZOOMS[Math.min(ZOOMS.length - 1, i + 1)]); });
-  $("#dp-out").addEventListener("click", function () { var i = ZOOMS.indexOf(zoom); setZoom(ZOOMS[Math.max(0, i - 1)]); });
-  $("#dp-fit").addEventListener("click", function () { setZoom(1); });
-  $("#btn-docs").addEventListener("click", function () { openDoc(currentDoc || $(".dp-tabs [data-doc]").getAttribute("data-doc"), this); });
-  document.addEventListener("keydown", function (e) {
-    if (e.key !== "Escape") return;
-    var full = $(".sketch.is-full"); if (full) { sketches[full.getAttribute("data-sketch")].toggleFull(); return; }
-    if (document.body.classList.contains("panel-open")) closeDoc();
-  });
-
-  // ====================== IMPRESSION ======================
-  function preparePrint() {
-    updateScore();
-    Object.keys(sketches).forEach(function (k) { sketches[k].preparePrint(); });
-    var nom = $("#nom-eleve").value.trim();
-    $$(".print-nom").forEach(function (el) { el.textContent = nom || "________________"; });
-    var d = new Date();
-    $$(".print-date").forEach(function (el) { el.textContent = d.toLocaleDateString("fr-FR"); });
-    $$(".print-mode").forEach(function (el) {
-      el.textContent = MODE === "exam" ? (graded ? "examen (copie corrigée)" : "examen — copie non corrigée") : "entraînement";
-    });
-    $$(".print-time").forEach(function (el) { el.textContent = longTime(elapsedMs()); });
-  }
-  window.addEventListener("beforeprint", preparePrint);
-  $$(".btn-print").forEach(function (b) { b.addEventListener("click", function () { preparePrint(); window.print(); }); });
-
-  window.addEventListener("beforeunload", function (e) {
-    if (!dirty) return;
-    e.preventDefault(); e.returnValue = "";
-  });
-
-  renderTimer();
-  updateScore();
-  window.__app__ = { state: state, sketches: sketches, openDoc: openDoc, closeDoc: closeDoc,
-                     partStats: partStats, weighted: weighted, updateScore: updateScore,
-                     startMode: startMode, gradeAll: gradeAll, elapsedMs: elapsedMs,
-                     mode: function () { return MODE; }, isGraded: function () { return graded; } };
+  lancer(["h", "v"], [1, 2, 3, 4], 10);
 })();
 </script>
 </body>

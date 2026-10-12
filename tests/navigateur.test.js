@@ -8,8 +8,9 @@ const { chromium } = require("playwright");
 const { reponseJuste } = require("./reponses.js");
 
 const URL = (p) => "file://" + path.join(__dirname, "..", p);
-const EXERCICES = ["force-moment.html", "exercice-projections.html", "exercice-quadrants.html", "exercice-couples-moments.html",
-  "exercice-torseurs.html"];
+// pages construites sur le gabarit (modes entraînement et examen) ; l'exercice des quadrants est une page autonome
+const EXERCICES = ["exercice-projections.html", "force-moment.html", "exercice-couples-moments.html", "exercice-torseurs.html"];
+const AUTONOMES = ["exercice-quadrants.html"];
 const COURS = ["cours-modelisation.html", "cours-projection.html", "cours-couple-moment.html", "cours-torseur.html"];
 let navigateur;
 
@@ -42,7 +43,7 @@ async function toutRemplir(p, valider) {
 test("accueil : toutes les cartes mènent à une page existante", async () => {
   const { p, erreurs } = await ouvrir("index.html");
   const liens = await p.$$eval("a.btn", (a) => a.map((x) => x.getAttribute("href")));
-  assert.deepStrictEqual(liens.sort(), COURS.concat(EXERCICES).sort());
+  assert.deepStrictEqual(liens.sort(), COURS.concat(EXERCICES, AUTONOMES).sort());
   assert.deepStrictEqual(erreurs, []);
   await p.close();
 });
@@ -55,7 +56,7 @@ for (const page of EXERCICES) {
     await toutRemplir(p, true);
     assert.strictEqual((await p.$$(".q.is-ko, .q.is-half, .sol.is-ko")).length, 0);
     assert.match(await p.innerText("tfoot .final-note"), /^20,0\/20/);
-    assert.ok(await p.isDisabled(".q-input >> nth=0"), "réponse verrouillée après validation");
+    assert.ok(await p.isDisabled(".q-input, .fast-q .sol input >> nth=0"), "réponse verrouillée après validation");
     assert.deepStrictEqual(erreurs, []);
     await p.close();
   });
@@ -109,27 +110,53 @@ for (const page of COURS) {
   });
 }
 
-test("exercice-quadrants.html : tirages reproductibles, une force par quadrant et par axe de référence", async () => {
+test("exercice-quadrants.html : séries reproductibles, signes par quadrant, 20/20 si tout est juste", async () => {
   const { p, erreurs } = await ouvrir("exercice-quadrants.html", "?graine=12345");
-  const t = await p.evaluate(() => window.__tirage__);
-  assert.strictEqual(t.graine, 12345);
-  const signes = { 1: [1, 1], 2: [-1, 1], 3: [-1, -1], 4: [1, -1] };
-  t.forces.forEach((f, i) => {
-    assert.strictEqual(f.q, Math.floor(i / 2) + 1, "deux forces par quadrant, dans l'ordre");
-    assert.deepStrictEqual([Math.sign(Math.cos(f.th * Math.PI / 180)), Math.sign(Math.sin(f.th * Math.PI / 180))], signes[f.q]);
-    assert.ok(f.a >= 10 && f.a <= 80 && f.a !== 45 && f.F >= 100 && f.F <= 990);
-  });
-  [0, 1, 2, 3].forEach((q) => assert.notStrictEqual(t.forces[2 * q].h, t.forces[2 * q + 1].h, "un angle horizontal, un vertical"));
+  const serie = await p.evaluate(() => window.__qd__.serie());
+  assert.strictEqual(serie.liste.length, 10);
+  const combis = {};
+  serie.liste.forEach((c) => { combis[c.join()] = (combis[c.join()] || 0) + 1; });
+  assert.strictEqual(Object.keys(combis).length, 8, "les 8 situations (4 quadrants × 2 axes) sont présentes");
+  const premiere = await p.evaluate(() => window.__qd__.courant());
   await p.reload();
-  assert.deepStrictEqual(await p.evaluate(() => window.__tirage__), t, "même graine, même sujet");
-  await p.goto(URL("exercice-quadrants.html") + "?graine=777");
-  assert.notDeepStrictEqual((await p.evaluate(() => window.__tirage__)).forces, t.forces, "autre graine, autre sujet");
-  for (const g of [1, 2, 99999]) {
-    await p.goto(URL("exercice-quadrants.html") + "?graine=" + g);
-    await p.click("[data-mode=training]");
-    await toutRemplir(p, true);
-    assert.match(await p.innerText("tfoot .final-note"), /^20,0\/20/, "graine " + g);
+  assert.deepStrictEqual(await p.evaluate(() => window.__qd__.courant()), premiere, "même graine, même série");
+  const signes = { 1: [1, 1], 2: [-1, 1], 3: [-1, -1], 4: [1, -1] };
+  for (let i = 0; i < 10; i++) {
+    const c = await p.evaluate(() => window.__qd__.courant());
+    assert.deepStrictEqual([Math.sign(c.Fx), Math.sign(c.Fy)], signes[c.q], "signes du quadrant " + c.q);
+    assert.ok(c.a >= 10 && c.a <= 80 && c.a !== 45 && c.F >= 100 && c.F <= 990);
+    assert.ok(Math.abs(Math.hypot(c.Fx, c.Fy) - c.F) < 0.02, "F² = Fx² + Fy²");
+    const r = await p.evaluate(() => window.__qd__.reponses());
+    for (const k of ["lx", "ly", "nx", "ny"]) await p.fill(`[data-k="${k}"] input`, r[k]);
+    await p.press('[data-k="ny"] input', "Enter");
+    assert.match(await p.getAttribute("#qd-fb", "class"), /\bok\b/, "question " + (i + 1) + " juste");
+    assert.ok(await p.isVisible("#qd-corr"), "correction affichée");
+    await p.press('[data-k="ny"] input', "Enter");
   }
+  assert.match(await p.innerText("#qd-note"), /^20/);
+  // série réglée : quadrant 3, angle depuis l'axe vertical ; « Correction » compte la question comme manquée
+  await p.evaluate(() => window.__qd__.lancer(["v"], [3], 5));
+  for (let i = 0; i < 5; i++) {
+    const c = await p.evaluate(() => window.__qd__.courant());
+    assert.ok(c.q === 3 && c.ref === "v" && c.tx === "sin" && c.ty === "cos");
+    await p.fill('[data-k="lx"] input', "F cos α");
+    await p.click("#qd-check");
+    assert.ok(await p.$('[data-k="lx"].ko'), "cos au lieu de sin : refusé");
+    await p.click("#qd-sol");
+    assert.match(await p.innerText('[data-k="lx"] .ta-att'), /−F sin α/);
+    await p.click("#qd-next");
+  }
+  assert.match(await p.innerText("#qd-note"), /^0/);
+  // écritures équivalentes d'une expression littérale
+  const v = await p.evaluate(() => [["-F sin α", 100, 30], ["−F×sin(a)", 100, 30], ["-Fsinα", 100, 30], ["F cos(90-α)", 2, 30],
+    ["-F*sin(alpha)", 100, 30], ["F co", 1, 1]].map((x) => window.__qd__.analyser(x[0], x[1], x[2])));
+  [-50, -50, -50, 1, -50].forEach((w, i) => assert.ok(Math.abs(v[i] - w) < 1e-9, "écriture " + i));
+  assert.strictEqual(v[5], null, "écriture invalide");
   assert.deepStrictEqual(erreurs, []);
   await p.close();
+  const m = await navigateur.newPage({ viewport: { width: 390, height: 800 } });
+  await m.goto(URL("exercice-quadrants.html"));
+  assert.ok(!(await m.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1)),
+    "pas de défilement horizontal sur téléphone");
+  await m.close();
 });

@@ -17,7 +17,7 @@ import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from commun import (NO, Q, ROOT, UNITE, U_DAN, U_DANM, U_DANMM, U_DEG, U_KG, U_N, U_NM, U_NMM,  # noqa: E402,F401
-                    construire_exercice, expr, fig as _fig, num)
+                    CONSIGNE_COLONNE, H_VEC, VEC, VI, VQ, cn, construire_exercice, expr, fig as _fig, nb, num)
 
 IMG = "sequence/"
 SRC = ROOT / "src" / "exercices"
@@ -55,16 +55,17 @@ def vec(*c):
 # EXERCICE 1.2 — PROJECTIONS (niveau 1) : exercices 1 à 4
 # =====================================================================================================================
 def cas_support(lettre, titre, image, alt, expected_x, expected_y, angles, vx, vy, ex, ey, en, h_lit=H_LIT):
-    fx_txt, fy_txt = (f"{v:.2f}".replace(".", ",").replace("-", "−") for v in (vx, vy))
+    """Un cas : le vecteur F écrit en colonne, d'abord en fonction de F et des angles, puis pour F = 1 000 N."""
+    def membre(s):
+        return s.split(" = ", 1)[1]
     return Q(sub=f"Cas {lettre} — {titre}", fig=fig(image, alt, 300), questions=[
-        Q(s=f"Cas {lettre} : exprimer littéralement la coordonnée F<sub>x</sub>.", h=h_lit,
-          g=lit(expected_x, angles), att=ex[0], e=ex[1]),
-        Q(s=f"Cas {lettre} : exprimer littéralement la coordonnée F<sub>y</sub>.", h=h_lit,
-          g=lit(expected_y, angles), att=ey[0], e=ey[1]),
-        Q(s=f"Cas {lettre} : calculer F<sub>x</sub> pour F = 1 000 N.", h=H_C,
-          g=num(round(vx, 2), 0.01, U_N), att=f"F<sub>x</sub> ≈ {fx_txt} N", e=en[0]),
-        Q(s=f"Cas {lettre} : calculer F<sub>y</sub> pour F = 1 000 N.", h=H_C,
-          g=num(round(vy, 2), 0.01, U_N), att=f"F<sub>y</sub> ≈ {fy_txt} N", e=en[1]),
+        VQ(f"Cas {lettre} : écrire le vecteur F en colonne, d'abord en fonction de F et des angles, puis en newtons "
+           f"pour F = 1 000 N.",
+           f"{ex[1]} {ey[1]}<br>{en[0]} {en[1]}",
+           VI(VEC("F"), [("x", lit(expected_x, angles), membre(ex[0])), ("y", lit(expected_y, angles), membre(ey[0]))],
+              lit=True),
+           VI(VEC("F"), [cn("x", round(vx, 2)), cn("y", round(vy, 2))], "N"),
+           h=h_lit + " Puis les valeurs en newtons, arrondies au centième, signe compris."),
     ])
 
 
@@ -142,19 +143,16 @@ PROJECTIONS = [
       fig=fig("e03-support.jpg", "Support sur un plan incliné de 30° ; force F de 200 N à 40° de l'axe x ; repères "
                                  "R (x, y) horizontal et R' (x', y') lié au support", 440),
       questions=[
-          Q(s="Coordonnée F<sub>x</sub> de F dans le repère R.", h=H_C, g=num(153.21, 0.01, U_N), att="F<sub>x</sub> ≈ 153,21 N",
-            e="F fait 40° avec x : F<sub>x</sub> = F cos 40° = 200 × cos 40° ≈ <b>153,21 N</b>."),
-          Q(s="Coordonnée F<sub>y</sub> de F dans le repère R.", h=H_C, g=num(128.56, 0.01, U_N), att="F<sub>y</sub> ≈ 128,56 N",
-            e="F<sub>y</sub> = F sin 40° = 200 × sin 40° ≈ <b>128,56 N</b>."),
-          Q(s="Coordonnée F<sub>x'</sub> de F dans le repère R'.", h=H_C_SIGNE, g=num(-68.40, 0.01, U_N),
-            att="F<sub>x'</sub> ≈ −68,40 N",
-            e="Le repère R' est tourné de 30° : y' fait 90° − 30° = 60° avec x, donc F (à 40° de x) fait 20° avec y'. "
-              "L'axe x' fait 90° de plus que y', soit 110° avec F : F<sub>x'</sub> = F cos 110° = −F sin 20° ≈ "
-              "<b>−68,40 N</b>. Le signe est négatif : F pointe du côté opposé à x'."),
-          Q(s="Coordonnée F<sub>y'</sub> de F dans le repère R'.", h=H_C, g=num(187.94, 0.01, U_N),
-            att="F<sub>y'</sub> ≈ 187,94 N",
-            e="F fait 20° avec y' : F<sub>y'</sub> = F cos 20° ≈ <b>187,94 N</b>. Vérification : √(68,40² + 187,94²) ≈ "
-              "200 N : changer de repère change les coordonnées, pas l'intensité."),
+          VQ("Écrire le vecteur F dans le repère R (x, y), coordonnées arrondies au centième.",
+             "F fait 40° avec x : F<sub>x</sub> = F cos 40° = 200 × cos 40° ≈ <b>153,21 N</b> ; F<sub>y</sub> = F sin 40° = "
+             "200 × sin 40° ≈ <b>128,56 N</b>.",
+             VI(VEC("F"), [cn("x", 153.21), cn("y", 128.56)], "N")),
+          VQ("Écrire le vecteur F dans le repère R' (x', y'), coordonnées arrondies au centième.",
+             "Le repère R' est tourné de 30° : y' fait 90° − 30° = 60° avec x, donc F (à 40° de x) fait 20° avec y'. L'axe "
+             "x' fait 90° de plus que y', soit 110° avec F : F<sub>x'</sub> = F cos 110° = −F sin 20° ≈ <b>−68,40 N</b> "
+             "(F pointe du côté opposé à x') ; F<sub>y'</sub> = F cos 20° ≈ <b>187,94 N</b>. Vérification : √(68,40² + "
+             "187,94²) ≈ 200 N : changer de repère change les coordonnées, pas l'intensité.",
+             VI(VEC("F"), [cn("x'", -68.40), cn("y'", 187.94)], "N"), h=H_VEC + " Attention au signe."),
       ]),
     Q(titre="Gousset : trois barres soudées", minutes=12,
       intro="Trois barres soudées sur un gousset transmettent les tensions T<sub>1</sub> (200 daN, à 45° au-dessus de "
@@ -162,12 +160,10 @@ PROJECTIONS = [
       fig=fig("e04-gousset.jpg", "Gousset soudé sur un poteau ; barre 1 à 45° au-dessus de x tendue par T1 (200 daN), "
                                  "barre 2 horizontale avec T2, barre 3 à 30° sous x avec T3", 440),
       questions=[
-          Q(s="Déterminer la coordonnée T<sub>1x</sub> de la tension T<sub>1</sub>.", h=H_C,
-            g=num(141.42, 0.01, U_DAN, variants=[(1414.21, 0.1, U_N)]), att="T<sub>1x</sub> ≈ 141,42 daN",
-            e="T<sub>1</sub> fait 45° avec x : T<sub>1x</sub> = 200 × cos 45° ≈ <b>141,42 daN</b>."),
-          Q(s="Déterminer la coordonnée T<sub>1y</sub> de la tension T<sub>1</sub>.", h=H_C,
-            g=num(141.42, 0.01, U_DAN, variants=[(1414.21, 0.1, U_N)]), att="T<sub>1y</sub> ≈ 141,42 daN",
-            e="T<sub>1y</sub> = 200 × sin 45° ≈ <b>141,42 daN</b> : à 45°, les deux coordonnées sont égales."),
+          VQ("Écrire le vecteur T<sub>1</sub> dans le repère (x, y), coordonnées arrondies au centième.",
+             "T<sub>1</sub> fait 45° avec x : T<sub>1x</sub> = 200 × cos 45° ≈ <b>141,42 daN</b> et T<sub>1y</sub> = 200 × "
+             "sin 45° ≈ <b>141,42 daN</b> : à 45°, les deux coordonnées sont égales.",
+             VI(VEC("T") + "<sub>1</sub>", [cn("x", 141.42), cn("y", 141.42)], "daN")),
           Q(s="T<sub>3</sub> tire vers le bas, sa coordonnée verticale vaut T<sub>3y</sub> = −100 daN. Déterminer "
               "l'intensité T<sub>3</sub>.", h=H_C, g=num(200, 0.01, U_DAN, variants=[(2000, 0.1, U_N)]),
             att="T<sub>3</sub> = 200 daN",
@@ -233,18 +229,20 @@ COUPLES = [
             att="‖M<sub>A</sub>(T)‖ = 120 N·m (12 daN·m)",
             e="Le brin est tangent à la poulie : la distance de A à la droite d'action de T est le rayon R, quel que soit "
               "l'angle de 10°. ‖M<sub>A</sub>(T)‖ = T × R = 1 200 N × 0,1 m = <b>120 N·m</b> (12 daN·m)."),
-          Q(s="Coordonnée M<sub>z</sub> du moment au point A de la tension T (les deux autres sont nulles).", h=H_C_SIGNE,
-            g=num(-120, 0.01, U_NM, variants=[(-12, 0.001, U_DANM), (-120000, 1, U_NMM)]), att="M<sub>A</sub>(T) = (0 ; 0 ; −120) N·m",
-            e="T, en haut de la poulie, tire vers la droite : il fait tourner la poulie dans le sens horaire, négatif. "
-              "Le moment est porté par z, perpendiculaire au plan de la figure : <b>M<sub>A</sub>(T) = (0 ; 0 ; −120) N·m</b>."),
+          VQ("Écrire le vecteur moment au point A de la tension T.",
+             "T, en haut de la poulie, tire vers la droite : il fait tourner la poulie dans le sens horaire, négatif. Le "
+             "moment est porté par z, perpendiculaire au plan de la figure : <b>M<sub>A</sub>(T) = (0 ; 0 ; −120) N·m</b>.",
+             VI(VEC("M") + "<sub>A</sub>(" + VEC("T") + ")", [cn("x", 0, 0.001), cn("y", 0, 0.001), cn("z", -120)], "N·m"),
+             h=H_VEC + " Attention au signe."),
           Q(s="Calculer la norme du moment au point A de la tension t.", h=H_C,
             g=num(40, 0.01, U_NM, abs_=True, variants=[(4, 0.001, U_DANM), (40000, 1, U_NMM), (4000, 0.1, U_DANMM)]),
             att="‖M<sub>A</sub>(t)‖ = 40 N·m (4 daN·m)",
             e="Même raisonnement : ‖M<sub>A</sub>(t)‖ = t × R = 400 N × 0,1 m = <b>40 N·m</b>."),
-          Q(s="Coordonnée M<sub>z</sub> du moment au point A de la tension t.", h=H_C_SIGNE,
-            g=num(40, 0.01, U_NM, variants=[(4, 0.001, U_DANM), (40000, 1, U_NMM)]), att="M<sub>A</sub>(t) = (0 ; 0 ; +40) N·m",
-            e="t, en bas de la poulie, tire vers la droite : il fait tourner la poulie dans le sens trigonométrique, "
-              "positif. <b>M<sub>A</sub>(t) = (0 ; 0 ; 40) N·m</b>."),
+          VQ("Écrire le vecteur moment au point A de la tension t.",
+             "t, en bas de la poulie, tire vers la droite : il fait tourner la poulie dans le sens trigonométrique, "
+             "positif. <b>M<sub>A</sub>(t) = (0 ; 0 ; 40) N·m</b>.",
+             VI(VEC("M") + "<sub>A</sub>(" + VEC("t") + ")", [cn("x", 0, 0.001), cn("y", 0, 0.001), cn("z", 40)], "N·m"),
+             h=H_VEC + " Attention au signe."),
           Q(s="En déduire le couple disponible sur l'arbre de transmission (valeur absolue).", h=H_C,
             g=num(80, 0.01, U_NM, abs_=True, variants=[(8, 0.001, U_DANM), (80000, 1, U_NMM)]), att="C = 80 N·m (8 daN·m)",
             e="C = M<sub>A</sub>(T) + M<sub>A</sub>(t) = −120 + 40 = −80 N·m : <b>80 N·m</b> dans le sens horaire, celui "
@@ -309,30 +307,27 @@ COUPLES = [
                                "b ; en A, le poids P vers le bas et la force du vent F, horizontale, à α de l'axe du bras "
                                "et β de la direction y", 520),
       questions=[
-          Q(s="Coordonnée F<sub>x</sub> de la force F.", h=H_C_SIGNE, g=num(-500, 0.01, U_N), att="F<sub>x</sub> = −500 N",
-            e="F est horizontale et fait α = 60° avec l'axe du bras, dirigé de A vers le poteau, c'est-à-dire vers les x "
-              "négatifs ; elle fait β = 30° avec y. F<sub>x</sub> = −F cos α = −1 000 × cos 60° = <b>−500 N</b>."),
-          Q(s="Coordonnée F<sub>y</sub> de la force F.", h=H_C, g=num(866.03, 0.01, U_N), att="F<sub>y</sub> ≈ 866,03 N",
-            e="F<sub>y</sub> = F cos β = 1 000 × cos 30° ≈ <b>866,03 N</b> ; F<sub>z</sub> = 0, la force est horizontale. "
-              "F = (−500 ; 866,03 ; 0) N."),
-          Q(s="Coordonnée P<sub>z</sub> du poids P.", h=H_C_SIGNE, g=num(-500, 0.01, U_N), att="P = (0 ; 0 ; −500) N",
-            e="Le poids est vertical, vers le bas : <b>P = (0 ; 0 ; −500) N</b>."),
-          Q(s="Moment au point O de la force F : coordonnée sur x.", h=H_C_SIGNE, g=num(-6928.20, 0.05, U_NM),
-            att="M<sub>O</sub>(F)<sub>x</sub> ≈ −6 928,20 N·m",
-            e="OA = (6 ; 0 ; 8) m et M<sub>O</sub>(F) = OA ∧ F. Sur x : y<sub>A</sub>F<sub>z</sub> − z<sub>A</sub>F<sub>y</sub> "
-              "= 0 × 0 − 8 × 866,03 ≈ <b>−6 928,20 N·m</b>."),
-          Q(s="Moment au point O de la force F : coordonnée sur y.", h=H_C_SIGNE, g=num(-4000, 0.05, U_NM),
-            att="M<sub>O</sub>(F)<sub>y</sub> = −4 000 N·m",
-            e="Sur y : z<sub>A</sub>F<sub>x</sub> − x<sub>A</sub>F<sub>z</sub> = 8 × (−500) − 6 × 0 = <b>−4 000 N·m</b>."),
-          Q(s="Moment au point O de la force F : coordonnée sur z.", h=H_C_SIGNE, g=num(5196.15, 0.05, U_NM),
-            att="M<sub>O</sub>(F)<sub>z</sub> ≈ 5 196,15 N·m",
-            e="Sur z : x<sub>A</sub>F<sub>y</sub> − y<sub>A</sub>F<sub>x</sub> = 6 × 866,03 − 0 × (−500) ≈ "
-              "<b>5 196,15 N·m</b>. M<sub>O</sub>(F) = (−6 928,20 ; −4 000 ; 5 196,15) N·m : la composante sur z tord le "
-              "poteau, les deux autres le fléchissent."),
-          Q(s="Moment au point O du poids P : coordonnée sur y (les deux autres sont nulles).", h=H_C_SIGNE,
-            g=num(3000, 0.05, U_NM), att="M<sub>O</sub>(P) = (0 ; 3 000 ; 0) N·m",
-            e="M<sub>O</sub>(P) = OA ∧ P : sur x, 0 × (−500) − 8 × 0 = 0 ; sur y, 8 × 0 − 6 × (−500) = <b>3 000 N·m</b> ; "
-              "sur z, 6 × 0 − 0 × 0 = 0. Le poids, en porte-à-faux de 6 m, fléchit le poteau autour de y."),
+          VQ("Écrire le vecteur F dans le repère (O, x, y, z), coordonnées arrondies au centième.",
+             "F est horizontale (F<sub>z</sub> = 0) et fait α = 60° avec l'axe du bras, dirigé de A vers le poteau, "
+             "c'est-à-dire vers les x négatifs ; elle fait β = 30° avec y. F<sub>x</sub> = −F cos α = −1 000 × cos 60° = "
+             "<b>−500 N</b> ; F<sub>y</sub> = F cos β = 1 000 × cos 30° ≈ <b>866,03 N</b>.",
+             VI(VEC("F"), [cn("x", -500), cn("y", 866.03), cn("z", 0, 0.001)], "N"), h=H_VEC + " Attention au signe."),
+          VQ("Écrire le vecteur poids P dans le repère (O, x, y, z).",
+             "Le poids est vertical, vers le bas : <b>P = (0 ; 0 ; −500) N</b>.",
+             VI(VEC("P"), [cn("x", 0, 0.001), cn("y", 0, 0.001), cn("z", -500)], "N"), h=H_VEC + " Attention au signe."),
+          VQ("Écrire le vecteur moment au point O de la force F : M<sub>O</sub>(F) = OA ∧ F.",
+             "OA = (6 ; 0 ; 8) m. Sur x : y<sub>A</sub>F<sub>z</sub> − z<sub>A</sub>F<sub>y</sub> = 0 × 0 − 8 × 866,03 ≈ "
+             "<b>−6 928,20 N·m</b> ; sur y : z<sub>A</sub>F<sub>x</sub> − x<sub>A</sub>F<sub>z</sub> = 8 × (−500) − 6 × 0 = "
+             "<b>−4 000 N·m</b> ; sur z : x<sub>A</sub>F<sub>y</sub> − y<sub>A</sub>F<sub>x</sub> = 6 × 866,03 − 0 × (−500) ≈ "
+             "<b>5 196,15 N·m</b>. La composante sur z tord le poteau, les deux autres le fléchissent.",
+             VI(VEC("M") + "<sub>O</sub>(" + VEC("F") + ")", [cn("x", -6928.20, 0.05), cn("y", -4000, 0.05),
+                                                              cn("z", 5196.15, 0.05)], "N·m"),
+             h=H_VEC + " Arrondir au centième, attention aux signes."),
+          VQ("Écrire le vecteur moment au point O du poids P.",
+             "M<sub>O</sub>(P) = OA ∧ P : sur x, 0 × (−500) − 8 × 0 = 0 ; sur y, 8 × 0 − 6 × (−500) = <b>3 000 N·m</b> ; "
+             "sur z, 6 × 0 − 0 × 0 = 0. Le poids, en porte-à-faux de 6 m, fléchit le poteau autour de y.",
+             VI(VEC("M") + "<sub>O</sub>(" + VEC("P") + ")", [cn("x", 0, 0.001), cn("y", 3000, 0.05), cn("z", 0, 0.001)],
+                "N·m")),
       ]),
 ]
 
@@ -363,20 +358,21 @@ TORSEURS = [
       fig=fig("e10-agrafeuse.png", "Levier d'agrafeuse articulé en O ; A à 30 mm à droite de O ; B à 20 mm à droite et "
                                    "40 mm au-dessus de O ; F en A inclinée de 20° sur la verticale, G en B horizontale", 440),
       questions=[
-          Q(s="Coordonnée F<sub>x</sub> de la force F.", h=H_C_SIGNE, g=num(-7.76, 0.01, U_N), att="F<sub>x</sub> ≈ −7,76 N",
-            e="F est inclinée de 20° sur la verticale, vers la gauche : F<sub>x</sub> = −22,7 × sin 20° ≈ "
-              "<b>−7,76 N</b>. G = (16 ; 0 ; 0) N, horizontale vers la droite."),
-          Q(s="Coordonnée F<sub>y</sub> de la force F.", h=H_C, g=num(21.33, 0.01, U_N), att="F<sub>y</sub> ≈ 21,33 N",
-            e="F<sub>y</sub> = 22,7 × cos 20° ≈ <b>21,33 N</b>. F = (−7,76 ; 21,33 ; 0) N."),
-          Q(s="Moment par rapport au point O de la force F : coordonnée sur z, en N·mm.", h=H_C_SIGNE,
-            g=num(639.93, 0.05, U_NMM, variants=[(0.64, 0.005, U_NM)]), att="M<sub>O</sub>(F) = (0 ; 0 ; 639,93) N·mm",
-            e="OA = (30 ; 0 ; 0) mm. M<sub>O</sub>(F) = OA ∧ F : sur z, x<sub>A</sub>F<sub>y</sub> − y<sub>A</sub>F<sub>x</sub> "
-              "= 30 × 21,33 − 0 ≈ <b>639,93 N·mm</b> (0,64 N·m) ; les coordonnées sur x et y sont nulles, F et OA étant "
-              "dans le plan (x, y)."),
-          Q(s="Moment par rapport au point O de la force G : coordonnée sur z, en N·mm.", h=H_C_SIGNE,
-            g=num(-640, 0.05, U_NMM, variants=[(-0.64, 0.005, U_NM)]), att="M<sub>O</sub>(G) = (0 ; 0 ; −640) N·mm",
-            e="OB = (20 ; 40 ; 0) mm. Sur z : x<sub>B</sub>G<sub>y</sub> − y<sub>B</sub>G<sub>x</sub> = 20 × 0 − 40 × 16 = "
-              "<b>−640 N·mm</b>. Les deux moments s'équilibrent presque : le levier est en équilibre."),
+          VQ("Écrire le vecteur F dans le repère (O, x, y, z), coordonnées arrondies au centième.",
+             "F est inclinée de 20° sur la verticale, vers la gauche : F<sub>x</sub> = −22,7 × sin 20° ≈ <b>−7,76 N</b> ; "
+             "F<sub>y</sub> = 22,7 × cos 20° ≈ <b>21,33 N</b> ; F<sub>z</sub> = 0. G = (16 ; 0 ; 0) N, horizontale vers la droite.",
+             VI(VEC("F"), [cn("x", -7.76), cn("y", 21.33), cn("z", 0, 0.001)], "N"), h=H_VEC + " Attention au signe."),
+          VQ("Écrire le vecteur moment au point O de la force F, en N·mm.",
+             "OA = (30 ; 0 ; 0) mm. M<sub>O</sub>(F) = OA ∧ F : sur z, x<sub>A</sub>F<sub>y</sub> − y<sub>A</sub>F<sub>x</sub> = "
+             "30 × 21,33 − 0 ≈ <b>639,93 N·mm</b> (0,64 N·m) ; les coordonnées sur x et y sont nulles, F et OA étant dans "
+             "le plan (x, y).",
+             VI(VEC("M") + "<sub>O</sub>(" + VEC("F") + ")", [cn("x", 0, 0.001), cn("y", 0, 0.001), cn("z", 639.93, 0.05)],
+                "N·mm")),
+          VQ("Écrire le vecteur moment au point O de la force G, en N·mm.",
+             "OB = (20 ; 40 ; 0) mm. Sur z : x<sub>B</sub>G<sub>y</sub> − y<sub>B</sub>G<sub>x</sub> = 20 × 0 − 40 × 16 = "
+             "<b>−640 N·mm</b>. Les deux moments s'équilibrent presque : le levier est en équilibre.",
+             VI(VEC("M") + "<sub>O</sub>(" + VEC("G") + ")", [cn("x", 0, 0.001), cn("y", 0, 0.001), cn("z", -640, 0.05)],
+                "N·mm"), h=H_VEC + " Attention au signe."),
           Q(type="torseur", s="Modéliser la force F par son torseur au point A.", h=H_TORSEUR.format(r="N", m="N·mm"),
             nom=T("F"), point="A", vals=[-7.76, 0, 21.33, 0, 0, 0], tol=[0.01, 0.001, 0.01, 0.001, 0.001, 0.001],
             e="Au point d'application, le moment d'une force est nul : la résultante porte les coordonnées de F, les "
@@ -472,12 +468,12 @@ TORSEURS = [
       fig=fig("e14-cliquet.jpg", "Clé à cliquet : axe vertical en O, tête B à 70 mm au-dessus de O, manche BA de 200 mm "
                                  "selon u à 20° de y ; F en A perpendiculaire au manche", 560),
       questions=[
-          Q(s="Coordonnée F<sub>x</sub> de la force F.", h=H_C_SIGNE, g=num(-159.75, 0.01, U_N), att="F<sub>x</sub> ≈ −159,75 N",
-            e="u = (sin 20° ; cos 20° ; 0). F est horizontale, perpendiculaire à u, et tire le manche vers les x négatifs "
-              "et les y positifs : F = 170 × (−cos 20° ; sin 20° ; 0). F<sub>x</sub> = −170 × cos 20° ≈ <b>−159,75 N</b>."),
-          Q(s="Coordonnée F<sub>y</sub> de la force F.", h=H_C, g=num(58.14, 0.01, U_N), att="F<sub>y</sub> ≈ 58,14 N",
-            e="F<sub>y</sub> = 170 × sin 20° ≈ <b>58,14 N</b> ; F<sub>z</sub> = 0. Vérification : F · u = −159,75 × 0,342 "
-              "+ 58,14 × 0,940 ≈ 0, F est bien perpendiculaire au manche."),
+          VQ("Écrire le vecteur F dans le repère (O, x, y, z), coordonnées arrondies au centième.",
+             "u = (sin 20° ; cos 20° ; 0). F est horizontale, perpendiculaire à u, et tire le manche vers les x négatifs "
+             "et les y positifs : F = 170 × (−cos 20° ; sin 20° ; 0). F<sub>x</sub> = −170 × cos 20° ≈ <b>−159,75 N</b> ; "
+             "F<sub>y</sub> = 170 × sin 20° ≈ <b>58,14 N</b> ; F<sub>z</sub> = 0. Vérification : F · u = −159,75 × 0,342 + "
+             "58,14 × 0,940 ≈ 0, F est bien perpendiculaire au manche.",
+             VI(VEC("F"), [cn("x", -159.75), cn("y", 58.14), cn("z", 0, 0.001)], "N"), h=H_VEC + " Attention au signe."),
           Q(type="torseur", s="Écrire le torseur de F au point A.", h=H_TORSEUR.format(r="N", m="N·m"), nom=T("F"),
             point="A", vals=[-159.75, 0, 58.14, 0, 0, 0], tol=[0.01, 0.001, 0.01, 0.001, 0.001, 0.001],
             e="Résultante F = (−159,75 ; 58,14 ; 0) N, moment nul en A."),
@@ -501,8 +497,8 @@ METHODE_TORSEURS = """<h3>Écrire et transporter un torseur</h3>
 <li><b>Unités</b> : résultante en N (ou daN), moment en N·m (ou N·mm, daN·m) ; garde les longueurs en m pour obtenir des N·m.</li>
 </ol>"""
 
-TORSEUR_CONSIGNE = ("<p><strong>Les torseurs se saisissent dans six cases</strong> (X, Y, Z pour la résultante ; L, M, N pour le "
-                    "moment) et se valident d'un bloc. Chaque case juste rapporte un demi-point ; les unités sont "
+TORSEUR_CONSIGNE = ("<p><strong>Les torseurs s'écrivent en deux colonnes, dans six cases</strong> (X, Y, Z pour la "
+                    "résultante ; L, M, N pour le moment), et se valident d'un bloc. Chaque case juste rapporte un demi-point ; les unités sont "
                     "données dans la consigne, inutile de les saisir.</p>")
 CONSIGNE_UNITES = ("<p><strong>Les unités sont notées.</strong> Pour toute question numérique portant une unité, la valeur "
                    "vaut la moitié des points et l'unité l'autre moitié : une valeur juste écrite sans unité, ou avec une "
@@ -514,42 +510,42 @@ CONSIGNE_LIT = ("<p><strong>Les expressions littérales</strong> s'écrivent ave
 def construire():
     construire_exercice(
         titre="Projections d'une force", script="construire_exercices_sequence.py",
-        sortie=SRC / "projections-source.html", parties=PROJECTIONS, nq_attendu=27,
+        sortie=SRC / "projections-source.html", parties=PROJECTIONS, nq_attendu=12,
         description="Coordonnées d'une force dans un repère : composantes, supports inclinés, changement de repère et "
                     "équilibre d'un gousset. Quatre parties à faire en mode entraînement ou en mode examen.",
         sous_titre="Quatre situations pour projeter une force sur les axes d'un repère : une dent d'engrenage, quatre "
                    "supports inclinés, un changement de repère et un gousset de barres soudées.",
-        methode_titre="projeter une force", methode=METHODE_PROJECTIONS, consignes=(CONSIGNE_UNITES, CONSIGNE_LIT),
+        methode_titre="projeter une force", methode=METHODE_PROJECTIONS, consignes=(CONSIGNE_UNITES, CONSIGNE_COLONNE, CONSIGNE_LIT),
         hero=Q(f=IMG + "e03-support.jpg", alt="Support fixé sur un plan incliné ; force F de 200 N à 40° de l'axe x, "
                                               "repères R et R'",
                cap="La même force n'a pas les mêmes coordonnées dans R et dans R' : c'est l'objet de la partie 3."),
-        facts=[("4 parties", "27 questions"), ("52 min", "durée conseillée, qui fixe la pondération"),
+        facts=[("4 parties", "12 questions, dont 7 vecteurs en colonne"), ("52 min", "durée conseillée, qui fixe la pondération"),
                ("1 document", "méthode, en mode entraînement"), ("0 tracé", "toutes les réponses se saisissent au clavier")])
     construire_exercice(
         titre="Couples et moments", script="construire_exercices_sequence.py",
-        sortie=SRC / "couples-moments-source.html", parties=COUPLES, nq_attendu=20,
+        sortie=SRC / "couples-moments-source.html", parties=COUPLES, nq_attendu=17,
         description="Couples et moments sur cinq systèmes réels : engrenage, poulie et courroie, balance romaine, chargeur "
                     "sur pneus et écran d'affichage (produit vectoriel).",
         sous_titre="Cinq systèmes réels pour calculer des couples et des moments : engrenage, poulie et courroie, balance "
                    "romaine, chargeur sur pneus et écran d'affichage, jusqu'au produit vectoriel.",
-        methode_titre="moment et couple", methode=METHODE_COUPLES, consignes=(CONSIGNE_UNITES, CONSIGNE_LIT),
+        methode_titre="moment et couple", methode=METHODE_COUPLES, consignes=(CONSIGNE_UNITES, CONSIGNE_COLONNE, CONSIGNE_LIT),
         hero=Q(f=IMG + "e08-chargeur.jpg", alt="Chargeur sur pneus avec les poids du châssis, de la flèche et du godet",
                cap="Le chargeur sur pneus : bascule-t-il vers l'avant ? (partie 4)"),
-        facts=[("5 parties", "20 questions"), ("58 min", "durée conseillée, qui fixe la pondération"),
+        facts=[("5 parties", "17 questions, dont 6 vecteurs en colonne"), ("58 min", "durée conseillée, qui fixe la pondération"),
                ("1 document", "méthode, en mode entraînement"), ("0 tracé", "toutes les réponses se saisissent au clavier")])
     construire_exercice(
         titre="Torseurs : les bases", script="construire_exercices_sequence.py",
-        sortie=SRC / "torseurs-source.html", parties=TORSEURS, nq_attendu=22,
+        sortie=SRC / "torseurs-source.html", parties=TORSEURS, nq_attendu=20,
         description="Écrire le torseur d'une action mécanique en un point et le transporter : agrafeuse, roue hélicoïdale, "
                     "transmission par courroies, barre coudée et clé à cliquet.",
         sous_titre="Cinq systèmes pour écrire le torseur d'une action mécanique en un point, puis le transporter en un "
                    "autre point : agrafeuse, roue hélicoïdale, courroies, barre coudée et clé à cliquet.",
-        methode_titre="torseur d'une action", methode=METHODE_TORSEURS, consignes=(CONSIGNE_UNITES, TORSEUR_CONSIGNE),
-        cartouche="22 questions notées, dont 16 torseurs saisis case par case, réparties en 5 parties pondérées par leur "
+        methode_titre="torseur d'une action", methode=METHODE_TORSEURS, consignes=(CONSIGNE_UNITES, CONSIGNE_COLONNE, TORSEUR_CONSIGNE),
+        cartouche="20 questions notées, dont 16 torseurs et 4 vecteurs saisis case par case, réparties en 5 parties pondérées par leur "
                   "durée conseillée.",
         hero=Q(f=IMG + "e14-cliquet.jpg", alt="Clé à cliquet : manche BA de 200 mm, force F perpendiculaire au manche",
                cap="La clé à cliquet : quel couple de desserrage, et quels efforts parasites ? (partie 5)"),
-        facts=[("5 parties", "22 questions, dont 16 torseurs"), ("1 h 04", "durée conseillée, qui fixe la pondération"),
+        facts=[("5 parties", "20 questions, dont 16 torseurs"), ("1 h 04", "durée conseillée, qui fixe la pondération"),
                ("1 document", "méthode, en mode entraînement"), ("0 tracé", "toutes les réponses se saisissent au clavier")])
 
 
