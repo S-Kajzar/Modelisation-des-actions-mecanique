@@ -428,20 +428,33 @@ body:not(.mode-training) .only-training,body:not(.mode-exam) .only-exam{display:
 .tm-g{display:grid; grid-template-columns:auto auto; gap:4px 18px; align-items:center}
 .tm-c{min-width:3.6em; text-align:right; font-weight:600; font-variant-numeric:tabular-nums}
 .tm-p{font-weight:700; align-self:flex-end; margin-bottom:8px}
-.tq-wrap{overflow-x:auto; padding:2px 0}
-.torseur-q{margin:14px 0 6px; padding:10px 0 12px 14px; border-left:3px solid var(--trait-fin)}
-.torseur-q .tm-c{min-width:0}
-.torseur-q .sol{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
-.torseur-q .tq-lab{font:700 .85rem var(--f-titre); color:var(--encre-2); width:1.1em}
-.torseur-q .sol input{width:8.5em; max-width:34vw; border:1.5px solid var(--encre-2); padding:6px 8px; background:#fff; border-radius:2px; font:inherit; text-align:right}
-.torseur-q .sol input:disabled{background:#F2F3F1; -webkit-text-fill-color:var(--encre)}
-.torseur-q .sol.is-ok input{border:2px solid var(--vert); background:var(--vert-pale)}
-.torseur-q .sol.is-ko input{border:2px solid var(--rouge); background:var(--rouge-pale)}
-.torseur-q .sol{flex-wrap:nowrap}
-.torseur-q .sol .mark{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0)}
-.torseur-q .sol::after{content:""; display:inline-block; width:1em; font-weight:700}
-.torseur-q .sol.is-ok::after{content:"✓"; color:var(--vert)} .torseur-q .sol.is-ko::after{content:"✗"; color:var(--rouge)}
-@media print{ .torseur-q .sol input{width:6em} }
+/* vecteurs en colonne et torseurs case par case (notation de l'exercice « Déplacer un torseur ») :
+   parenthèses arrondies, sans nom de ligne (vecteur) ou nom de la case au-dessus (torseur), cases en pointillés,
+   valeur attendue sous chaque case fausse une fois la question validée ou la copie remise */
+.cq{margin:14px 0 6px; padding:10px 0 12px 14px; border-left:3px solid var(--trait-fin)}
+.cq-items{display:flex; flex-wrap:wrap; gap:10px 34px; align-items:center; margin:8px 0; overflow-x:auto; padding:2px 0}
+.vcol{display:inline-flex; align-items:center; gap:.35em; vertical-align:middle; font-variant-numeric:tabular-nums}
+.vcol-n{font-weight:700; white-space:nowrap}
+.vcol-b{display:inline-block; border-left:2px solid currentColor; border-right:2px solid currentColor; border-radius:1.1em / 50%; padding:.2em .6em}
+.vcol-b table{border-collapse:collapse; margin:0} .vcol-b td{padding:.12em .3em; text-align:center; vertical-align:middle; border:0}
+.vcol-b td.vl{font:600 .8rem var(--f-texte); color:var(--encre-2); padding-right:.45em; text-align:right}
+.vcol-u,.tzv-r{color:var(--encre-2); font-size:.9rem; white-space:nowrap}
+.tzv{display:inline-flex; align-items:center; gap:.4em; vertical-align:middle; font-variant-numeric:tabular-nums}
+.tzv-n{font-weight:700; white-space:nowrap}
+.tzv .vcol-b td{padding:.12em .6em}
+.cq .sol{position:relative; display:inline-flex; flex-direction:column; align-items:center; gap:1px; padding-bottom:1.25em; line-height:1.2}
+.cq .cq-lab{font:600 .78rem var(--f-texte); color:var(--encre-2)}
+.cq .sol input{width:7.6em; max-width:34vw; border:1.5px dashed var(--encre-2); padding:5px 6px; background:#fff; border-radius:0; font:600 1rem var(--f-texte); text-align:center}
+.cq .sol.lit input{width:10.5em}
+.cq .sol input:focus{outline:2px solid var(--jaune); outline-offset:1px; border-style:solid}
+.cq .sol input:disabled{background:#F2F3F1; -webkit-text-fill-color:var(--encre)}
+.cq .sol.is-ok input{border:2px solid var(--vert); background:var(--vert-pale)}
+.cq .sol.is-ko input{border:2px solid var(--rouge); background:var(--rouge-pale)}
+.cq .sol .mark{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0)}
+.cq .sol .att{display:none; position:absolute; bottom:0; left:-2em; right:-2em; text-align:center; font:700 .82rem var(--f-texte); color:var(--vert); white-space:nowrap}
+.cq .sol.is-ko .att{display:block}
+.cq .q-expl .cq-items{margin:6px 0 2px}
+@media print{ .cq .sol input{width:6em} .cq .sol.lit input{width:8em} }
 </style>
 <style>
 /* ---------- plein écran : barre d'en-tête, puis données | réponse | correction ; la taille du texte suit l'écran ---------- */
@@ -746,8 +759,8 @@ réussie que si les quatre cases sont justes à la première vérification ; la 
     q("#qd-txt").innerHTML = "La force <span class=\"vec\">F</span>, d'intensité <b>F = " + fr(cur.F) + " N</b>, pointe dans le <b>quadrant " +
       cur.q + "</b>. Elle fait l'angle <b>α = " + cur.a + "°</b> avec l'axe <b>" + cur.axe + "</b> (" + REF[cur.ref] +
       "). Écris le vecteur <span class=\"vec\">F</span> dans le repère (O, x, y) : d'abord en fonction de F et de α, puis en newtons.";
-    q("#qd-lit").innerHTML = '<span class="vec">F</span> = ' + col([champ("lx", "F, composante x, expression", true), champ("ly", "F, composante y, expression", true)], ["x", "y"]);
-    q("#qd-num").innerHTML = '<span class="vec">F</span> = ' + col([champ("nx", "F, composante x, en newtons"), champ("ny", "F, composante y, en newtons")], ["x", "y"]) + " N";
+    q("#qd-lit").innerHTML = '<span class="vec">F</span> = ' + col([champ("lx", "F, composante x, expression", true), champ("ly", "F, composante y, expression", true)]);
+    q("#qd-num").innerHTML = '<span class="vec">F</span> = ' + col([champ("nx", "F, composante x, en newtons"), champ("ny", "F, composante y, en newtons")]) + " N";
     q("#qd-corr").hidden = true; q("#qd-vide").hidden = false; q("#qd-fb").textContent = ""; q("#qd-fb").className = "ta-fb";
     figure(false);
     q("#qd-k").textContent = serie.k + 1;
@@ -867,10 +880,10 @@ réussie que si les quatre cases sont justes à la première vérification ; la 
     h += "<p><b>2. Les fonctions</b> : α = " + c.a + "° est mesuré depuis l'axe " + c.axe + " (" + REF[c.ref] + "). Sur cet axe, la projection " +
       "est le côté adjacent (cos α) ; sur l'autre axe, le côté opposé (sin α) : F<sub>x</sub> s'écrit avec <b>" + c.tx + "</b>, F<sub>y</sub> avec <b>" +
       c.ty + "</b>.</p>";
-    h += '<p><b>3. En fonction de F et de α</b> :</p><div class="eq"><span class="vec">F</span> = <b>' + col([litTxt(c.sx, c.tx), litTxt(c.sy, c.ty)], ["x", "y"]) + "</b></div>";
+    h += '<p><b>3. En fonction de F et de α</b> :</p><div class="eq"><span class="vec">F</span> = <b>' + col([litTxt(c.sx, c.tx), litTxt(c.sy, c.ty)]) + "</b></div>";
     h += '<p><b>4. En newtons</b> :</p><div class="eq"><span class="vec">F</span> = ' +
       col([(c.sx < 0 ? "−" : "") + fr(c.F) + " × " + c.tx + " " + c.a + "°", (c.sy < 0 ? "−" : "") + fr(c.F) + " × " + c.ty + " " + c.a + "°"]) +
-      " = <b>" + col([fr(c.Fx, 2), fr(c.Fy, 2)], ["x", "y"]) + "</b> N</div>";
+      " = <b>" + col([fr(c.Fx, 2), fr(c.Fy, 2)]) + "</b> N</div>";
     h += "<p><b>5. Vérification</b> : √(" + par(c.Fx, 2) + "² + " + par(c.Fy, 2) + "²) ≈ " + fr(Math.hypot(c.Fx, c.Fy), 1) + " N = F. ✔</p>";
     if (!hz) h += '<p class="small">Angle mesuré depuis un axe vertical : sinus et cosinus s\'échangent par rapport au cas habituel.</p>';
     q("#qd-corr").innerHTML = h; q("#qd-corr").hidden = false; q("#qd-vide").hidden = true;

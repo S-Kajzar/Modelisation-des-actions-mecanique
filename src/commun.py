@@ -10,8 +10,8 @@ Types de questions :
     chaque case notée juste ou fausse ;
   - vecteur (type="vecteur") : un ou plusieurs vecteurs écrits en colonne, une case par composante (nombre ou
     expression littérale), validés d'un bloc comme un torseur.
-Vecteurs et torseurs reprennent la notation de l'exercice « Déplacer un torseur » : colonnes entre parenthèses,
-nom de la case à gauche (vecteur) ou au-dessus (torseur), valeur attendue affichée sous chaque case fausse.
+Vecteurs et torseurs reprennent la notation de l'exercice « Déplacer un torseur » : colonnes entre parenthèses
+(sans nom de ligne pour un vecteur, nom de la case au-dessus pour un torseur), valeur attendue sous chaque case fausse.
 """
 import base64
 import html
@@ -223,9 +223,10 @@ def colonne(cellules, etiquettes=None):
     return f'<span class="vcol-b"><table>{lignes}</table></span>'
 
 
-def vecteur_col(nom, cellules, etiquettes, unite=""):
+def vecteur_col(nom, cellules, unite=""):
+    """Vecteur écrit en colonne, sans nom de ligne dans les parenthèses (l'ordre x, y, z suffit)."""
     u = f'<span class="vcol-u">{unite}</span>' if unite else ""
-    return f'<span class="vcol"><span class="vcol-n">{nom} =</span>{colonne(cellules, etiquettes)}{u}</span>'
+    return f'<span class="vcol"><span class="vcol-n">{nom} =</span>{colonne(cellules)}{u}</span>'
 
 
 def torseur_col(cells, point, nom=""):
@@ -292,9 +293,8 @@ def question_vecteur(pid, n, q, cfg):
             nom_txt = it["nom"].replace("<sub>", "").replace("</sub>", "")
             cases.append(case(cid, f"{label}, {nom_txt}, composante {lab}", att, lit=it.get("lit", False)))
             textes.append(att)
-        etiq = [c[0] for c in it["comps"]]
-        saisie.append(vecteur_col(it["nom"], cases, etiq, it.get("unite", "")))
-        attendu.append(vecteur_col(it["nom"], textes, etiq, it.get("unite", "")))
+        saisie.append(vecteur_col(it["nom"], cases, it.get("unite", "")))
+        attendu.append(vecteur_col(it["nom"], textes, it.get("unite", "")))
     return bloc_groupe(qid, label, q, "".join(saisie), "".join(attendu), k,
                        "Valider le vecteur" if len(q["items"]) == 1 else "Valider les vecteurs", "Vecteur validé")
 

@@ -346,8 +346,8 @@ JS = r"""<script>
     q("#qd-txt").innerHTML = "La force <span class=\"vec\">F</span>, d'intensité <b>F = " + fr(cur.F) + " N</b>, pointe dans le <b>quadrant " +
       cur.q + "</b>. Elle fait l'angle <b>α = " + cur.a + "°</b> avec l'axe <b>" + cur.axe + "</b> (" + REF[cur.ref] +
       "). Écris le vecteur <span class=\"vec\">F</span> dans le repère (O, x, y) : d'abord en fonction de F et de α, puis en newtons.";
-    q("#qd-lit").innerHTML = '<span class="vec">F</span> = ' + col([champ("lx", "F, composante x, expression", true), champ("ly", "F, composante y, expression", true)], ["x", "y"]);
-    q("#qd-num").innerHTML = '<span class="vec">F</span> = ' + col([champ("nx", "F, composante x, en newtons"), champ("ny", "F, composante y, en newtons")], ["x", "y"]) + " N";
+    q("#qd-lit").innerHTML = '<span class="vec">F</span> = ' + col([champ("lx", "F, composante x, expression", true), champ("ly", "F, composante y, expression", true)]);
+    q("#qd-num").innerHTML = '<span class="vec">F</span> = ' + col([champ("nx", "F, composante x, en newtons"), champ("ny", "F, composante y, en newtons")]) + " N";
     q("#qd-corr").hidden = true; q("#qd-vide").hidden = false; q("#qd-fb").textContent = ""; q("#qd-fb").className = "ta-fb";
     figure(false);
     q("#qd-k").textContent = serie.k + 1;
@@ -467,10 +467,10 @@ JS = r"""<script>
     h += "<p><b>2. Les fonctions</b> : α = " + c.a + "° est mesuré depuis l'axe " + c.axe + " (" + REF[c.ref] + "). Sur cet axe, la projection " +
       "est le côté adjacent (cos α) ; sur l'autre axe, le côté opposé (sin α) : F<sub>x</sub> s'écrit avec <b>" + c.tx + "</b>, F<sub>y</sub> avec <b>" +
       c.ty + "</b>.</p>";
-    h += '<p><b>3. En fonction de F et de α</b> :</p><div class="eq"><span class="vec">F</span> = <b>' + col([litTxt(c.sx, c.tx), litTxt(c.sy, c.ty)], ["x", "y"]) + "</b></div>";
+    h += '<p><b>3. En fonction de F et de α</b> :</p><div class="eq"><span class="vec">F</span> = <b>' + col([litTxt(c.sx, c.tx), litTxt(c.sy, c.ty)]) + "</b></div>";
     h += '<p><b>4. En newtons</b> :</p><div class="eq"><span class="vec">F</span> = ' +
       col([(c.sx < 0 ? "−" : "") + fr(c.F) + " × " + c.tx + " " + c.a + "°", (c.sy < 0 ? "−" : "") + fr(c.F) + " × " + c.ty + " " + c.a + "°"]) +
-      " = <b>" + col([fr(c.Fx, 2), fr(c.Fy, 2)], ["x", "y"]) + "</b> N</div>";
+      " = <b>" + col([fr(c.Fx, 2), fr(c.Fy, 2)]) + "</b> N</div>";
     h += "<p><b>5. Vérification</b> : √(" + par(c.Fx, 2) + "² + " + par(c.Fy, 2) + "²) ≈ " + fr(Math.hypot(c.Fx, c.Fy), 1) + " N = F. ✔</p>";
     if (!hz) h += '<p class="small">Angle mesuré depuis un axe vertical : sinus et cosinus s\'échangent par rapport au cas habituel.</p>';
     q("#qd-corr").innerHTML = h; q("#qd-corr").hidden = false; q("#qd-vide").hidden = true;
